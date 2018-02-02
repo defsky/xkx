@@ -1,0 +1,102 @@
+#class $mod_name open;
+
+#alias {${mod_name}_load} {
+    #showme Module $mod_name loaded;
+    #unalias ${mod_name}_load;
+};
+
+#alias {${mod_name}_unload}{
+    #showme Module $mod_name unloaded;
+    #class $mod_name kill;
+};
+
+#alias {${mod_name}_help}{
+    #showme <139>模块帮助文档 : ${mod_name}<079>;
+    
+    /* TODO: place your HELP doc here */
+    
+    #showme  ;
+    #showme <139> -> 按任意键继续...<079>;
+    #buffer lock;
+};
+
+#var xf[status_id] {};
+#var xf[status_id][none]     空闲状态;
+#var xf[status_id][askjob]   申请任务;
+#var xf[status_id][mode1]    {模式  一};
+#var xf[status_id][mode2]    {模式  二};
+#var xf[status_id][mode3]    {模式  三};
+#var xf[status_id][working]  执行任务;
+#var xf[status_id][complete] 任务完成;
+#var xf[status_id][xunbao]   寻找宝藏;
+
+#var xf[status] none;
+#var xf[auto] 0;
+
+#alias {xf.start} {
+    #show <139>xf: 开始胡一刀任务<079>;
+    
+    log xf 开始任务;
+    
+    #map get roomvnum xf[status][vnum];
+    #if {$xf[status][vnum] == 2024} {
+        xf_status_set askjob;
+    } {
+        on_there {
+            xf_status_set askjob;
+        };
+        goto 2024;
+    };
+};
+#alias {xf.stop} {
+    #show <139>xf: 停止胡一刀任务<079>;
+    xf_status_set none;
+    on_there;
+};
+#alias {xf.auto} {
+    #if {$xf[auto] == 1} {
+        #show <139>xf: 关闭自动模式<079>;
+        #var xf[auto] 0;
+    } {
+        #show <139>xf: 打开自动模式<079>;
+        #var xf[auto] 1;
+    };
+};
+
+#alias {xf_status_set} {
+
+    #if {"%1" == "" || "%1" == "$xf[status]"} {
+        #nop;
+    } {
+        #if {&xf[status_id][%1] == 0} {
+            log xf 无效状态 %1;
+        } {
+            #if {"$xf[status]" != "none"} {
+                #class xf_status_$xf[status]_inner kill;
+                xf_status_exit_$xf[status];
+            };
+            
+            #var xf[status] {%1};
+            
+            log xf $xf[status_id][$xf[status]];
+            
+            #if {"$xf[status]" != "none"} {
+                xf_status_enter_$xf[status];
+            };
+        };
+    };
+    #nop;
+};
+
+#alias {xf_status_exit_askjob} {
+
+};
+#alias {xf_status_enter_askjob} {
+    #class xf_status_askjob_inner open;
+    
+    #class xf_status_askjob_inner close;
+};
+    
+#class $mod_name close;
+
+${mod_name}_load;

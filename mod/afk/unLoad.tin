@@ -1,0 +1,2 @@
+#class afk kill;
+#unvar afk_%*;

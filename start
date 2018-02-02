@@ -1,0 +1,53 @@
+#!/bin/sh
+
+if [ ! -n "$1" ]
+then
+    echo "用法: ./start <账号ID>"
+    exit
+fi
+userid=$1
+
+# 检查账号配置目录
+if [ ! -d "etc/$userid/" ]
+then
+    echo "初始化配置目录..."
+    cp -r docs/account_profiles etc/$userid
+    cp docs/account_profiles/.env.example etc/$userid/.env
+    echo "请设置账号密码 etc/$userid/.env"
+    exit
+fi
+# 检查账号日志目录
+if [ ! -d "log/$userid/" ]
+then
+    echo "初始化日志目录..."
+    mkdir -p log/$userid
+fi
+
+# 检查账号配置文件
+if [ ! -f "etc/$userid/.env" ]
+then
+    echo "初始化账号配置文件..."
+    cp docs/account_profiles/.env.example etc/$userid/.env
+    echo "请设置账号密码 etc/$userid/.env"
+    exit
+fi
+
+TMUX="tmux -L MUD"
+SESSION=$userid
+
+# 优先连接到已有的会话，继续之前的状态
+$TMUX attach-session -t $SESSION && exit
+
+# 如果尚未创建会话，则创建一个标准会话, 会话名为账号ID
+$TMUX new-session    -s $SESSION -n 主界面 -d
+$TMUX split-window   -t $SESSION -vbl 5 "touch log/$userid/quest.log && tail -f log/$userid/quest.log"
+$TMUX split-window   -t $SESSION -h "touch log/$userid/chat.log && tail -f log/$userid/chat.log"
+
+$TMUX new-window     -t $SESSION -n 调试日志 "touch log/$userid/debug.log && tail -f log/$userid/debug.log"
+$TMUX new-window     -t $SESSION -n Shell
+
+$TMUX select-window  -t $SESSION:主界面
+$TMUX select-pane    -t 2
+$TMUX send-keys      -t $SESSION "tt++ -t 'Tintin for pkuxkx' pku.tin" C-m
+$TMUX send-keys      -t $SESSION "login $userid" C-m
+$TMUX attach-session -t $SESSION

@@ -1,0 +1,50 @@
+#nop test.tin
+#nop 测试功能用的模块
+
+/* status_me
+
+指令格式 : hpbrief
+这个指令以最精简的格式反应玩家状态。做机器人时推荐使用这个指令。更加可靠。
+数据排列如下：
+#经验，潜能，最大内力，当前内力，最大精力，当前精力
+#最大气血，有效气血，当前气血，最大精神，有效精神，当前精神
+set hpbrief long情况下可另显示一行真气，真元，食物，饮水.战斗中,忙碌中
+set hpbrief report可在战斗中受到气血精血损失时自动调用hpbrief
+注：两个变量可组合使用，如：set hpbrief long,report
+
+hpbrief
+#657.0K,23450,2460,2460,2460,2460
+#1180,1180,1180,780,780,780
+#0,101,0,0,0,0
+
+
+【江湖】天神随从(Tianshen suicong): 伊凡狐因为『补双』，开启了全长3小时的临时狂欢，截止开启时间2021年8月19日 9时55分8秒。<ask suicong about 狂欢>
+
+west;south;south;south;south;southdown;southdown;westdown;westdown;southdown;southdown;east;southdown;southdown;southdown;eastdown
+*/
+#var test {};
+
+event.define {OnQuestStart}{test}{任务开始触发的事件, %1 区域 %2 地点 %3 人名};
+#nop 鲁有脚说道：「我帮素来以侠义著称，你去少林寺的罗汉堂五部找到一个叫韩坤雪的人，和他接头(jietou)。」;
+#act {^鲁有脚说道：「我帮素来以侠义著称，你去%*的%*找到一个叫%*的人，和他接头(jietou)。」}{
+    event.emit {OnQuestStart}{test}{{%1}{%2}{%3}};
+};
+#event {RECEIVED LINE}{
+    #regexp {%1}{^【{闲聊|北侠QQ群}】%*}{
+        #local ts {};#format ts {%t}{%H:%M};
+        #line log log/@lower{$env[id]}/chat.log {[$ts]%0};
+    };
+};
+#event {CATCH RECEIVED INPUT}{
+    #local cmd {};
+    #cursor {get} {cmd};
+    #local docmd {#history {insert} {$cmd}};
+    $docmd;
+
+    #switch {"${prompt-prompt}"}{
+        #case {"DSL"}{
+            #local cmd {script.Play {$cmd}};
+        };
+    };
+    $cmd;
+};

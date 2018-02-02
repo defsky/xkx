@@ -1,0 +1,30 @@
+#config {mccp} {on}
+#config {color patch} {on}
+#config {packet patch} {0.8}
+
+#PATHDIR          {n}  {s}  {1}
+#PATHDIR          {s}  {n}  {2}
+#PATHDIR          {e}  {w}  {4}
+#PATHDIR          {w}  {e}  {8}
+#PATHDIR          {u}  {d}  {16}
+#PATHDIR          {d}  {u}  {32}
+#PATHDIR          {ne}  {sw}  {5}
+#PATHDIR          {se}  {nw}  {6}
+#PATHDIR          {nw}  {se}  {9}
+#PATHDIR          {sw}  {ne}  {10}
+#PATHDIR          {nu}  {sd}  {17}
+#PATHDIR          {nd}  {su}  {33}
+#PATHDIR          {su}  {nd}  {18}
+#PATHDIR          {sd}  {nu}  {34}
+#PATHDIR          {wu}  {ed}  {24}
+#PATHDIR          {wd}  {eu}  {40}
+#PATHDIR          {eu}  {wd}  {20}
+#PATHDIR          {ed}  {wu}  {36}
+#PATHDIR          {out}  {enter}  {62}
+#PATHDIR          {enter}  {out}  {63}
+
+#read framework/module.tin;
+
+mod login load;
+
+#split;

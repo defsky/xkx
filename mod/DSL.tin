@@ -1,0 +1,70 @@
+#nop Domain Specific Language
+
+/*
+ * 用法示例：script.Play {w;s;s;w;enter xiezitai;Do sleep Until 你往床上一躺;WaitLine ^{(你一觉醒来|我吃饱了)};out;e;n;n;e}
+ */
+#alias {script.Play}{
+    #local cmds %0;
+    #list cmds create {$cmds};
+
+    #local cmdCount {};
+    #list cmds size cmdCount;
+    #if {$cmdCount == 0}{
+        #return;
+    };
+
+    #local cmd {$cmds[1]};
+    #list cmds {delete}{1};
+    #list cmds {simplify};
+
+    #switch {"$cmd"}{
+        #case {"WaitSeconds %d"}{
+            #local secs {$cmd};
+            #replace secs {WaitSeconds }{};
+            #local cmd {#delay {$secs}{script.Play {$cmds}}};
+            $cmd;
+            #echo {<129>等待 $secs 秒<099>};
+        };
+        #case {"WaitLine %*"}{
+            #local waitLine {$cmd};
+            #replace {waitLine}{WaitLine }{};
+            #local cmd {
+                #line oneshot {
+                    #act {$waitLine}{
+                        script.Play {$cmds};
+                    };
+                };
+            };
+            $cmd;
+            #echo {<129>等待消息 $waitLine<099>};
+        };
+        #case {"Do %* Until %* Interval %d"}{
+            #local docmd {$cmd};
+            #local untiline {$cmd};
+            #local interval {5};
+            #regexp {$cmd}{Do %* Until %* Interval %d}{
+                #var docmd {&1};
+                #var untiline {&2};
+                #var interval {&3};
+            };
+            #if {$interval < 1}{#var interval {1}};
+            #local cmd {
+                #class _script_play_do_until_ open;
+                #act {$untiline}{
+                    #class _script_play_do_until_ kill;
+                    #unticker {_script_play_do_until_};
+                    script.Play {$cmds};
+                };
+                #ticker {_script_play_do_until_}{$docmd}{$interval};
+                #class _script_play_do_until_ close;
+                $docmd;
+            };
+            $cmd;
+        };
+        #default {
+            #nop #echo {<129>Play $cmd<099>};
+            $cmd;
+            script.Play {$cmds};
+        };
+    };
+};

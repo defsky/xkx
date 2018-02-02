@@ -1,0 +1,325 @@
+#class $mod_name open;
+
+#alias {${mod_name}_load} {
+    #showme module $mod_name loaded.;
+    #unalias ${mod_name}_load;
+};
+
+#alias {${mod_name}_unload} {
+    #showme module $mod_name unloaded.;
+    #class $mod_name kill;
+};
+
+#function {rnd}         {#math {result} {1 d (%2 - %1 + 1) + %1 - 1}};
+#function {eval}		{#math result {%1}};
+#function {trim}		{#format result {%p}{%1}};
+#function {lower} 	    {#format result {%l} {%1}};
+#function {upper} 	    {#format result {%u} {%1}};
+#function {cap}         {#format result {%n} {%1}};
+#function {len} 		{#format result {%L} {%1}};
+#function {screenw} 	{#format result {%C}};
+#function {screenh} 	{#format result {%R}};
+#function {replace} 	{#var result %1;#replace result {%2} {%3}};
+#function {ctd} 		{#math result {@replace{@replace{{0+@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{%1;{零};{*0+}};{十};{*10+}};{百};{*100+}};{千};{*1000+}};{万};{*10000+}};{甲子};{*60+}};{六};{6}};{一};{1}};{二};{2}};{三};{3}};{四};{4}};{五};{5}};{七};{7}};{八};{8}};{九};{9}}+0};{++};{+}};{+*};{+}}}};
+
+#alias {INVOKE} {
+    #script {file_name} {python3 -m bin.%0 ${status[id]}};
+    #var file_name ${file_name}[1];
+    #if {"${file_name}" != ""} {
+        #read ${file_name};
+        #system {rm ${file_name}};
+    };
+};
+
+#function {py} {
+    INVOKE pinyin %0;
+};
+
+#function {split_string_zh} {
+    #var split_string_zh[myidx] 0;
+    #var split_string_zh[myresult] {};
+    
+    #parse {%1}{split_string_zh[v]}{
+        #math split_string_zh[myidx] {$split_string_zh[myidx] + 1};
+        #math split_string_zh[mymod] {$split_string_zh[myidx] % 2};
+        #if {$split_string_zh[mymod] == 1} {
+            #var split_string_zh[newch] {$split_string_zh[v]};
+        }{
+            #var split_string_zh[newch] {$split_string_zh[newch]$split_string_zh[v]};
+            #list split_string_zh[myresult] add {$split_string_zh[newch]};
+        };
+    };
+    
+    #var result $split_string_zh[myresult];
+    #unvar split_string_zh;
+};
+
+#function {reverse} {
+    #switch {"%1"} {
+        #case {"e"} { #var result w };
+        #case {"s"} { #var result n };
+        #case {"w"} { #var result e };
+        #case {"n"} { #var result s };
+        #case {"ne"} { #var result sw };
+        #case {"nw"} { #var result se };
+        #case {"se"} { #var result nw };
+        #case {"sw"} { #var result ne };
+        #case {"nu"} { #var result sd };
+        #case {"nd"} { #var result su };
+        #case {"su"} { #var result nd };
+        #case {"sd"} { #var result nu };
+        #case {"eu"} { #var result wd };
+        #case {"ed"} { #var result wu };
+        #case {"wu"} { #var result ed };
+        #case {"wd"} { #var result eu };
+        #case {"up"} { #var result down };
+        #case {"down"} { #var result up };
+        #case {"enter"} { #var result out };
+        #case {"out"} { #var result enter };
+        #default { 
+            #var result {};
+        };
+    };
+};
+
+#var direction[brief] {};
+#var direction[full] {};
+#var direction[cn] {{东}{e}{南}{s}{西}{w}{北}{n}{东南}{se}{东北}{ne}{西南}{sw}{西北}{nw}{东上}{eu}{东下}{ed}{西上}{wu}{西下}{wd}{南上}{su}{南下}{sd}{北上}{nu}{北下}{nd}{里}{enter}{外}{out}{下}{down}{上}{up}};
+
+#nop ========================= List Utility ===================================;
+#function {isListMember} {
+    #var result 0;
+    
+    #foreach {${%1}[%*]} {m} {
+        #if {"$m" == "%2"} {
+            #var result 1;
+        };
+    };
+    #unvar m;
+};
+#alias {dbg} {
+    #showme <139>->%0<079>;
+    #showme <139>-><079>;
+};
+
+#function {listGetLength} {
+    #list %1 size result;
+};
+#function {listGetHead} {
+    #var result ${%1}[1];
+};
+#function {listEnQueue} {
+    #list %1 add {{%2}};
+};
+#function {listDeQueue} {
+    #var result ${%1}[1];
+    #list %1 delete 1;
+};
+#function {test} {
+    #show %1 %2;
+};
+
+#nop ======================== Misc Utility ====================================;
+
+#alias {colorpad}
+{
+    #var count 0;
+	#var color_str {};
+	#parse {ABCDEF}{c1}
+	{
+		#parse {ABCDEF}{c2}
+		{
+			#parse {ABCDEF}{c3}
+			{
+				#var color_str {$color_str<$c1$c2$c3>$c1$c2$c3};
+				#var count @eval{$count + 1};
+				#if {$count % 36 == 0}
+				{
+				    #var color_str {$color_str<088>\n};
+				}
+			}
+		}
+	};
+	#showme {$color_str};
+	#unvar color_str;
+	#unvar c1;
+	#unvar c2;
+	#unvar c3;
+	#unvar count;
+}
+
+#alias {log} {
+    #format nowtime {%t}{%H:%M:%S};
+    #format logstr {%-9s%-13s%s}{$nowtime}{$status[id]}{%0};
+    #system {echo -e "$logstr" >> data/all.log};
+    #unvar logstr;#unvar nowtime;
+};
+
+#alias {on_unbusy} {
+    #alias cb_on_unbusy #cr;
+    #alias cb_on_unbusy %0;
+    
+    #class on_unbusy_inner open;
+    #gag {^你正忙};
+    
+    #act {^你不忙} {
+        #class on_unbusy_inner kill;
+        cb_on_unbusy;
+    };
+    #tic {check_busy} {checkbusy}{1};
+    
+    #class on_unbusy_inner close;
+};
+
+#alias {*} {
+    chat* %0;
+};
+
+#alias {bjd} {
+    give 1 gold to bai;
+    #delay {1} {give %1 to bai};
+};
+#alias {atld} {
+    autoload %1;yes;
+};
+#alias {dsld} {
+    disload %1;yes;
+};
+#alias {s2g} {
+    convert %1 silver to gold;
+};
+#alias {jq} {
+    #act {^jobquery 支持参数} {
+        #unact {^jobquery 支持参数};
+        #buffer lock;
+    };
+    jobquery;
+};
+
+#alias {fmm} {
+    #if {"%1" == ""} {
+        #act {http://pkuxkx.{net|com}/antirobot/robot.php?filename=%*} {
+            #unact {http://pkuxkx.{net|com}/antirobot/robot.php?filename=%*};
+
+            #var status[fm][captcha_id] %%2;
+            
+            fetch_captcha2 %%2;
+        };
+        fullme;
+    }{
+        fullme %1;
+    };
+    
+};
+
+#alias {fm2} {
+    fetch_captcha2;
+};
+#alias {fm3} {
+    #system {display -geometry +600+200 $status[fm][last_pic] &};
+};
+
+#alias {fm} {
+    #if {"%1" == ""} {
+        #act {http://pkuxkx.{net|com}/antirobot/robot.php?filename=%*} {
+            #unact {http://pkuxkx.{net|com}/antirobot/robot.php?filename=%*};
+            #nop #system {firefox http://pkuxkx.net/antirobot/robot.php?filename=%%2};
+            
+            #var status[fm][captcha_id] %%2;
+            
+            fetch_captcha %%2;
+        };
+        fullme;
+    } {
+        fullme %1;
+    };
+};
+
+#var captcha[try_count] 0;
+#var captcha[failed] 0;
+#var captcha[id] {};
+#var captcha[output] {};
+
+#alias {fetch_captcha} {
+    #if {"%1" == "" } {
+        #if {"$captcha[id]" == ""} {
+            #show <139>请提供验证ID<079>;
+            #return;
+        };
+    } {
+        #var captcha[id] %1;
+    };
+    
+    #if {$captcha[try_count] > 10} {
+        #show <139>获取验证码失败。<079>;
+        log 验证码获取失败...;
+        
+        #var captcha[try_count] 1;
+        #var captcha[failed] 0;
+        #var captcha[output] {};
+    } {
+        #show <139>尝试获取验证码...<079>;
+        
+        #math captcha[try_count] {$captcha[try_count] + 1};
+    
+        #script captcha[output] {bash script/getpic.sh $status[id] $captcha[id] &};
+        
+        #if {"$captcha[output]" == "" || "$captcha[output][1]" != "$captcha[output][-1]"} {
+            #show <139>获取验证码失败，5秒后再试...<079>;
+            #delay {5} {fetch_captcha};
+        } {
+            #system {display -geometry +600+200 tmp/$captcha[output][1] &};
+            
+            #var captcha[last_pic] $captcha[output][1];
+            #var captcha[last_id] $captcha[id];
+            #var captcha[id] {};
+            #var captcha[try_count] 0;
+        };
+    };
+};
+
+#function {get_fullme_image} {
+    INVOKE fullme %0;
+};
+
+#alias {fetch_captcha2} {
+    #if {"%1" == "" } {
+        #if {"$status[fm][captcha_id]" == ""} {
+            #show <139>请提供验证ID<079>;
+            #return;
+        };
+    } {
+        #var status[fm][captcha_id] %1;
+    };
+    
+    #if {$status[fm][try_count] > 10} {
+        #show <119>获取验证码失败。<079>;
+        log 验证码获取失败...;
+        
+        #var status[fm][try_count] 1;
+        #var status[fm][failed] 0;
+        #var status[fm][output] {};
+    } {
+        #show <139>尝试获取验证码...<079>;
+        
+        #math status[fm][try_count] {$status[fm][try_count] + 1};
+    
+        #var status[fm][output] {@get_fullme_image{$status[fm][captcha_id]}};
+        
+        #if {"$status[fm][output]" == "0"} {
+            #show <139>获取验证码失败，5秒后再试...<079>;
+            #delay {5} {fetch_captcha2};
+        } {
+            #system {display -geometry +600+200 $status[fm][output] &};
+            
+            #var status[fm][last_pic] $status[fm][output];
+            #var status[fm][last_id] $status[fm][captcha_id];
+            #var status[fm][try_count] 0;
+        };
+    };
+};
+
+#class $mod_name close;
+
+${mod_name}_load;
+

@@ -1,0 +1,17 @@
+#class test open;
+
+#var prompt-fields {
+    {Top}{
+        {1}{
+            {1}{{name}{id}{label}{ID}}
+            {2}{{name}{name}{label}{姓名}}
+        }
+        {2}{}
+        {3}{}
+    }
+    {TopSepBar}{
+        {1}{{name}{URL}{label}{福米}{cooldown}{180}}
+    }
+};
+
+#class test close;

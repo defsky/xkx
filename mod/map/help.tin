@@ -1,0 +1,13 @@
+#nop help.tin
+
+#echo {<129>-----------------------------------------<099>};
+#echo {map.dblist};
+#echo {map.load <name>};
+#echo {map.save <name>};
+#echo {map.setarea <area name>};
+#echo {map.explore <{border name list} | stop>};
+#echo {map.scanRoom [on | off | debug | <direction>]};
+#echo {map.list <room name>};
+#echo {map.check};
+#echo {gt <here | dest name>};
+#echo {<129>-----------------------------------------<099>};

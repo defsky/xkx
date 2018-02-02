@@ -1,0 +1,9 @@
+*~
+*.pyc
+__pycache__
+pwd_*
+tmp/*
+*.swp
+.env
+etc/*
+log/*

@@ -1,0 +1,153 @@
+#function {__event_init__} {
+    #var gEventHandlers {};
+    #var gValidEvent    {};
+};
+
+#function {__xtt_event_name_is_valid__} {
+    #local name {%1};
+    #if { "$name" == "{[_a-zA-Z]([_a-zA-Z0-9-.]*[_a-zA-Z0-9])?}" } {
+        #return {true};
+    };
+    
+    #return {false};
+};
+
+#alias {event.define} {
+    #local name     {%1};
+    #local module   {%2};
+    #local desc     {%3};
+
+    #if { "@__xtt_event_name_is_valid__{{$name}}" != "true" } {
+        errLog 事件名称不是合法的标识符名称。;
+        #return;
+    };
+
+    #var {gValidEvent[${module}.$name]} {
+        {name}{$name}
+        {module}{$module}
+        {desc}{$desc}
+    };
+};
+
+#alias {event.list} {
+    #local event {};
+
+    #if { &gValidEvent[] <= 0 } {
+        infoLog 尚未定义任何事件。;
+        #return;
+    };
+
+    #echo {%h} { 已经定义的事件列表 };
+
+    #echo {%-20s %-20s %s} {事件/已注册的钩子} {模块} {说明/代码};
+    #echo {%-20s %-20s %s} {--------------------} {----------} {------------};
+
+    #foreach {*gValidEvent[]} {event} {
+        #echo {%-20s %-20s %s} {$gValidEvent[$event][name]} {$gValidEvent[$event][module]} {$gValidEvent[$event][desc]};
+        #local hook {};
+        #foreach {*gEventHandlers[$event][]} {hook} {
+            #local len {1};
+            #format len {%L} {$gEventHandlers[$event][$hook][name]};
+            #math len {16 - $len};
+            #echo { └@repeat{$len;─} %s  %-20s %s} {$gEventHandlers[$event][$hook][name]} {$gEventHandlers[$event][$hook][module]} {$gEventHandlers[$event][$hook][code]};
+        };
+    };
+
+    #echo {%h};
+};
+
+#alias {event.emit} {
+    #local name     {%1};
+    #local module   {%2};
+    #local args     {%3};
+
+    #if { "@__xtt_event_name_is_valid__{{$name}}" != "true" } {
+        errLog 事件名称不是合法的标识符名称。;
+        #return;
+    };
+
+    #local eventKey {${module}.$name};
+    #if { "$gValidEvent[$eventKey]" == "" } {
+        errLog 未定义的事件名称: $name;
+        #return;
+    };
+
+    #if { &gEventHandlers[$eventKey][] <= 0 } {
+        #return;
+    };
+
+    #local hook {};
+    #foreach {*gEventHandlers[$eventKey][]} {hook} {
+        #local options  {$gEventHandlers[$eventKey][$hook][options]};
+        #local code     {$gEventHandlers[$eventKey][$hook][code]};
+        #if { "$options[justOnce]" == "true" } {
+            #unvar {gEventHandlers[$name][$hook]};
+        };
+        $code %3;
+    };
+};
+
+#alias {event.handle} {
+    #local name     {%1};
+    #local hook     {%2};
+    #local module   {%3};
+    #local code     {%4};
+
+    #if { "$name" == "" || "$hook" == "" || "$module" == "" || "$code" == "" } {
+        #return;
+    };
+
+    #if { "@__xtt_event_name_is_valid__{{$name}}" != "true" } {
+        errLog 事件名称不是合法的标识符名称。;
+        #return;
+    };
+
+    #local hookKey {${module}.$hook};
+    #var {gEventHandlers[$name][$hookKey]} {
+        {name}{$hook}
+        {module}{$module}
+        {code}{$code}
+    };
+};
+
+#alias {event.unhandle} {
+    #local name     {%1};
+    #local hook     {%2};
+    #local module   {%3};
+
+    #if { "$name" == "" || "$hook" == "" || "$module" == "" } {
+        #return;
+    };
+
+    #if { "@__xtt_event_name_is_valid__{{$name}}" != "true" } {
+        errLog 事件名称不是合法的标识符名称。;
+        #return;
+    };
+
+    #local hookKey {${module}.$hook};
+    #unvar {gEventHandlers[$name][$hookKey]};
+};
+
+#alias {event.handleOnce} {
+    #local name     {%1};
+    #local hook     {%2};
+    #local module   {%3};
+    #local code     {%4};
+
+    #if { "$name" == "" || "$hook" == "" || "$module" == "" || "$code" == "" } {
+        #return;
+    };
+
+    #if { "@__xtt_event_name_is_valid__{{$name}}" != "true" } {
+        errLog 事件名称不是合法的标识符名称。;
+        #return;
+        
+    };
+
+    #var {gEventHandlers[$name][${module}.$hook]} {
+        {options}{{justOnce}{true}}
+        {name}{$hook}
+        {module}{$module}
+        {code}{$code}
+    };
+};

@@ -1,0 +1,102 @@
+#class $mod_name open;
+
+#alias {${mod_name}_load} {
+    #showme Module $mod_name loaded;
+    #unalias ${mod_name}_load;
+};
+
+#alias {${mod_name}_unload}{
+    #showme Module $mod_name unloaded;
+    #class $mod_name kill;
+};
+
+#alias {${mod_name}_help}{
+    #showme <139>模块帮助文档 : ${mod_name}<079>;
+    
+    #showme <139>  kanx <start | stop><079>;
+    
+    #showme  ;
+    #showme <139> -> 按任意键继续...<079>;
+    #buffer lock;
+};
+
+
+#alias {on_walk_snow_ok} {
+
+    #class on_walk_snow_ok_inner open;
+    
+    #alias cb_on_walk_snow_ok #cr;
+    #alias cb_on_walk_snow_ok %0;
+    
+    #act {^你一路走下来，看着脚印回想方才的步法，轻功水平提高了} {
+        cb_on_walk_snow_ok;
+        #class on_walk_snow_ok_inner kill;
+    };
+    #act {^你提一口气，在积雪上小心的走了起来} {
+        log 看雪 : 开始练轻功;
+    };
+    
+    #class on_walk_snow_ok_inner close;
+};
+
+#alias {on_snow_walkable} {
+    #class look_snow_inner open;
+    
+    #alias cb_on_snow_walkable #cr;
+    #alias cb_on_snow_walkable %0;
+    
+    #list on_find_nothing_trigger_list create {
+        ^洁白的雪地上零星的散落着几朵脚印;
+        ^雪，雪，还是雪;
+        ^环顾四周，到处都是白皑皑的积雪;
+    };
+    
+    #foreach {$on_find_nothing_trigger_list[%*]} {regstring} {
+        #act {$regstring} {
+            #delay {1} {look snow};
+        };
+    };
+    
+    #act {^你突然发现在路旁的一片积雪上行走(walk)似乎可以用来练习轻功} {
+        cb_on_snow_walkable;
+        #class look_snow_inner kill;
+    };
+    #act {^突然间，你被积雪闪耀着的刺眼的光芒灼伤，只觉头痛欲裂，眼前什么也看不到了} {
+        log 看雪 : 眼睛闪瞎了;
+    };
+    #act {^慢慢的，你发现自己可以睁开眼了，只是眼睛似有砂子，疼痛流泪} {
+        log 看雪 : 眼睛恢复了;
+        #delay {1} {look snow};
+    };
+    
+    #class look_snow_inner close;
+    
+    look snow;
+};
+
+#alias {kanx} {
+    #if {"%1" == "start"} {
+        log 看雪 : 开始;
+        on_snow_walkable {
+            log 看雪 : 有发现;
+            on_walk_snow_ok {
+                log 看雪 : 练功完毕;
+                eat liang; he jiudai;
+                kanx start;
+            };
+            walk snow;
+        };
+    };
+    #elseif {"%1" == "stop"} {
+        #class look_snow_inner kill;
+        #class on_walk_snow_ok_inner kill;
+    };
+    #else {
+        mod kanxue help;
+    };
+};
+
+
+#class $mod_name close;
+
+${mod_name}_load;

@@ -1,0 +1,139 @@
+#class utils open;
+
+#function {rnd}         {#local r {};#math {r} {1 d (%2 - %1 + 1) + %1 - 1};#return $r};
+#function {eval}		{#local r {};#math {r} {%1};#return $r};
+#function {trim}		{#local r {};#format {r} {%p}{%1};#return $r};
+#function {lower} 	    {#local r {};#format {r} {%l} {%1};#return $r};
+#function {upper} 	    {#local r {};#format {r} {%u} {%1};#return $r};
+#function {cap}         {#local r {};#format {r} {%n} {%1};#return $r};
+#function {len} 		{#local r {};#format {r} {%L} {%1};#return $r};
+#function {screenw} 	{#local r {};#format {r} {%C};#return $r};
+#function {screenh} 	{#local r {};#format {r} {%R};#return $r};
+#function {replace} 	{#local r {%1};#replace {r} {%2} {%3};#return $r};
+#function {ctd} 		{#local r {};#math {r} {@replace{@replace{{0+@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{%1;{零};{*0+}};{十};{*10+}};{百};{*100+}};{千};{*1000+}};{万};{*10000+}};{甲子};{*60+}};{六};{6}};{一};{1}};{二};{2}};{三};{3}};{四};{4}};{五};{5}};{七};{7}};{八};{8}};{九};{9}}+0};{++};{+}};{+*};{+}}};#return $r};
+#function {repeat}      {#local idx {0};#local ret {};#loop 1 %1 idx {#var ret {$ret%2};};#return $ret;};
+
+#function {max}             {#var result {-999999999}; #foreach {%0} {i} {#if { $i > $result} { #var result {$i}}}};
+#function {min}             {#var result  {999999999}; #foreach {%0} {i} {#if { $i < $result} { #var result {$i}}}};
+#function {strWidth} {
+    #local str {%1};
+    #replace {str} {<[gG0-9A-Fa-f>} {};
+    #replace {str} {{\e\[[0-9;]+m}} {};
+    #return @len{$str};
+};
+
+#var directions {
+    {east}      {west}
+    {south}     {north}
+    {west}      {east}
+    {north}     {south}
+    {southeast} {northwest}
+    {northeast} {southwest}
+    {southwest} {northeast}
+    {northwest} {southeast}
+    {northup}   {southdown}
+    {northdown} {southup}
+    {southup}   {northdown}
+    {southdown} {northup}
+    {eastup}    {westdown}
+    {eastdown}  {westup}
+    {westup}    {eastdown}
+    {westdown}  {eastup}
+    {up}        {down}
+    {down}      {up}
+    {out}       {enter}
+    {enter}     {out}
+};
+#function {reverse}  {
+    #if {"%1" == ""}{#return};
+    #return $directions[%1];
+};
+
+#alias {errLog}{#showme <119>%0<099>\n};
+#alias {infoLog}{#showme <129>%0<099>\n};
+
+#alias {colorpad}
+{
+    #local count 0;
+	#local color_str {};
+	#local c1 {};
+	#local c2 {};
+	#local c3 {};
+	
+	#parse {ABCDEF}{c1}{
+		#parse {ABCDEF}{c2}{
+			#parse {ABCDEF}{c3}{
+				#local color_str {$color_str<$c1$c2$c3>$c1$c2$c3};
+				#local count @eval{$count + 1};
+				#if {$count % 36 == 0}{
+				    #local color_str {$color_str<088>\n};
+				}
+			}
+		}
+	};
+	#echo {$color_str};
+};
+
+#alias {colorpad2}
+{
+    #local count 0;
+	#local color_str {};
+	#local c1 {};
+	#local c2 {};
+	#local c3 {};
+	
+	#parse {ABCDEF}{c1}{
+		#parse {ABCDEF}{c2}{
+			#parse {ABCDEF}{c3}{
+				#local color_str {$color_str<$c1$c3$c2>$c1$c3$c2};
+				#local count @eval{$count + 1};
+				#if {$count % 18 == 0}{
+				    #local color_str {$color_str<088>\n};
+				}
+			}
+		}
+	};
+	#echo {$color_str};
+};
+
+#nop INVOKE pinyin %0;
+#alias {INVOKE} {
+    #local file_name {};
+    #script {file_name} {python3 -m bin.%0 ${status[id]}};
+    #local file_name $file_name[1];
+    #if {"$file_name" != ""} {
+        #read $file_name;
+        #system {rm $file_name};
+    };
+};
+#function {python}{
+    #local ret {};
+    
+    #script {ret} {python3 -m bin.%0};
+    
+    #if {"$ret" != ""} {
+        #var ret $ret[1];
+    };
+    
+    #return $ret;
+};
+#function {py} {
+    #return @python{pinyin %0};
+};
+
+#alias {test}{
+    #class testdata open;
+    
+    #list {testdata} {create} {a;b;c;d;e;f;g};
+    
+    #class testdata close;
+    
+    #list {testdata} {inert}{11}{k};
+    
+    #class testdata write testdata.tin;
+    #class testdata kill;
+};
+
+#read mod/DSL.tin;
+
+#class utils close;

@@ -1,0 +1,130 @@
+#class status open;
+
+#function {__status_init__}{
+    #var status_config {{status}{off}};
+
+    _status_me_;
+    _hpbrief ticker;_hpbrief_;
+    #return true;
+};
+#function {__status_reload__}{
+    _hpbrief ticker;_hpbrief_;
+    #return true;
+};
+#function {__status_unload__}{
+    #return true;
+};
+
+#var status_data {{hpbrief}{{mode}{common}{ticker}{{name}{hpbrief-ticker}{delay}{30}}}};
+
+event.define {OnStatusUpdated}{status}{人物状态更新时触发的事件，%1 ID %2 姓名 %3 等级 %4 战斗力};
+event.define {OnHpbriefUpdated}{status}{hpbrief 信息更新事件, %1 食物 %2 饮水};
+
+#nop event.emit {OnStatusUpdated}{status}{{xiezitai}{谢子台}};
+#alias {_status_me_}{
+    #class _status_inner_ open;
+    #act {^│姓名%s│%S%s│ＩＤ%s│%w%s│级别%s│%d%s│战斗力%s│%d%s│}{
+        event.emit {OnStatusUpdated}{status}{{%%5}{%%2}{%%8}{%%11}};
+        #class _status_inner_ kill;
+    };
+
+    #class _status_inner_ close;
+    status_me;
+};
+
+#alias {_hpbrief_}{
+    #class _listen_hpbrief_inner_ open;
+
+    #act {^#{[0-9]+(?:\.[0-9]+)?[KM]?},%d,%d,%d,%d,%d$}{
+        #nop #show --> %0 || %1 | %2 | %3 | %4 | %5 | %6 | %7 <--;
+        #if {"ticker" == "$status_data[hpbrief][mode]"}{
+            #line gag;
+        };
+
+        #var status_data[hpbrief] {${status_data[hpbrief]}{经验}{%%1}{潜能}{%%2}};
+        #var status_data[hpbrief][内力] {{最大}{%%3}{当前}{%%4}};
+        #var status_data[hpbrief][精力] {{最大}{%%5}{当前}{%%6}};
+        #var status_data[hpbriefleftline] {2};
+
+        #class _listen_hpbrief_inner_ kill;
+        _catch_hpbrief_left_line_;
+    };
+
+    #class _listen_hpbrief_inner_ close;
+    #send hpbrief;
+};
+
+#alias {_listen_hpbrief_}{
+
+    #class _listen_hpbrief_inner_ open;
+
+    #act {^#{[0-9]+\.[0-9]+[KM]?},%d,%d,%d,%d,%d$}{
+        #nop #show --> %0 || %1 | %2 | %3 | %4 | %5 | %6 | %7 <--;
+        #var status_data[hpbrief] {${status_data[hpbrief]}{经验}{%%1}{潜能}{%%2}};
+        #var status_data[hpbrief][内力] {{最大}{%%3}{当前}{%%4}};
+        #var status_data[hpbrief][精力] {{最大}{%%5}{当前}{%%6}};
+        #var status_data[hpbriefleftline] {2};
+
+        _catch_hpbrief_left_line_;
+    };
+
+    #class _listen_hpbrief_inner_ close;
+};
+
+#alias {_catch_hpbrief_left_line_}{
+    #class _catch_hpbrief_left_line_inner_ open;
+    #act {^#%d,%d,%d,%d,%d,%d$}{
+        #if {"ticker" == "$status_data[hpbrief][mode]"}{
+            #line gag;
+        };
+        #math {status_data[hpbriefleftline]}{$status_data[hpbriefleftline]-1};
+        #if {$status_data[hpbriefleftline] == 1}{
+            #var status_data[hpbrief][气血] {{最大}{%%1}{有效}{%%2}{当前}{%%3}};
+            #var status_data[hpbrief][精神] {{最大}{%%4}{有效}{%%5}{当前}{%%6}};
+        }{
+            #var status_data[hpbrief] {${status_data[hpbrief]}{真气}{%%1}{真元}{%%2}{食物}{%%3}{饮水}{%%4}{战斗中}{}{忙碌中}{}};
+            #if {%%5 == 1}{
+                #var status_data[hpbrief][战斗中] {战斗中};
+            };
+            #if {%%6 == 1}{
+                #var status_data[hpbrief][战斗中] {忙碌中};
+            };
+            event.emit {OnHpbriefUpdated}{status}{};
+            #class _catch_hpbrief_left_line_inner_ kill;
+        };
+    };
+    #class _catch_hpbrief_left_line_inner_ close;
+};
+
+#alias {_hpbrief}{
+    #local current_mode {$status_data[hpbrief][mode]};
+    #local tickername {$status_data[hpbrief][ticker][name]};
+    #local tickerdelay {status_data[hpbrief][ticker][delay]};
+
+    #if {"%1" == "ticker"}{
+        #if {"%2" != "" && "%2" == "%d"}{
+            #var $tickerdelay {%2}
+        };
+        #if {"listen" == "$current_mode"}{
+            #class _listen_hpbrief_inner_ kill;
+        };
+        
+        #ticker {$tickername}{_hpbrief_}{${$tickerdelay}};    
+        #var status_data[hpbrief][mode] {ticker};
+    };
+    #elseif {"%1" == "listen"}{
+        #if {"ticker" == "$current_mode"}{
+            #unticker {$tickername};
+        };
+        #elseif {"listen" == "$current_mode"}{
+            #return;
+        };
+        _listen_hpbrief_;
+        #var status_data[hpbrief][mode] {listen};
+    };
+    #else {
+        #echo {<129>用法: _hpbrief <listen | ticker [10]><099>};
+    };
+};
+
+#class status close;

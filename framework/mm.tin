@@ -1,0 +1,214 @@
+#var ModulePath {mod};
+
+#function {mm_has_help} {
+    #local modName {%1};
+    #local fileExists {};
+    
+    #if {!mm_check{$modName}} {
+        #return 0;
+    };
+    #script {fileExists}{if [ -e "${ModulePath}/${modName}/help.tin" ];then echo "1";else echo "0";fi};
+    #if {!$fileExists[1]}{
+        #echo {%c模块 ${modName} 没有帮助信息}{light red};
+        #return 0;
+    };
+    
+    #return 1;
+};
+#function {mm_check} {
+    #local modName {%1};
+    
+    #local modExists {};
+    #local entryExists {};
+    #local exitExists {};
+    
+    #script {modExists}{if [ -d "${ModulePath}/${modName}" ];then echo "1";else echo "0";fi};
+    #if {!$modExists[1]}{
+        #echo {%c模块未定义: ${modName}}{light red};
+        #return 0;
+    };
+    
+    #script {entryExists}{if [ -e "${ModulePath}/${modName}/${modName}.tin" ];then echo "1";else echo "0";fi};
+    #if {!$entryExists[1]}{
+        #echo {%c模块入口文件未定义: ${modName}.tin}{light red};
+    };
+    
+    #script {exitExists}{if [ -e "${ModulePath}/${modName}/unLoad.tin" ];then echo "1";else echo "0";fi};
+    #if {!$exitExists[1]}{
+        #echo {%c模块出口文件未定义: ${modName}/unLoad.tin}{light red};
+    };
+    
+    #if {$entryExists[1] && $exitExists[1]} {
+        #return 1;
+    };
+    
+    #return 0;
+};
+
+#alias {mm.help} {
+    #local modName {%1};
+    
+    #if {"$modName" == ""} {
+        #echo {%c%h}{light yellow}{ 模块管理帮助 };
+        #echo {%cmm.help   [mod name] : 查看帮助}{light yellow};
+        #echo {%cmm.load   <mod name> : 加载模块}{light yellow};
+        #echo {%cmm.unload <mod name> : 卸载模块}{light yellow};
+        #echo {%cmm.reload <mod name> : 重载模块}{light yellow};
+    };
+    #else {
+        #if {@mm_has_help{$modName}} {
+            #read ${ModulePath}/${modName}/help.tin;        
+        };
+    };
+};
+#alias {mm.load} {
+    #local modName {%1};
+    #if {"$modName" == ""} {
+        #echo {%c命令格式: mm.load <模块名字>}{light red};
+        #return;
+    };
+    
+    #if {!@mm_check{$modName}} {
+        #return;
+    };
+
+    #echo {%c加载模块 $modName} {light green};
+    #read ${ModulePath}/${modName}/${modName}.tin;
+    
+    #local initFunc {@__${modName}_init__};
+    #local ok {$initFunc{}};
+    #if {"$ok" == "false"}{
+        #echo {<139>加载模块失败, $modName<099>};
+        mm.unload $modName;
+    };
+};
+#alias {mm.unload} {
+    #local modName {%1};
+    #if {"$modName" == ""} {
+        #echo {%c命令格式: mm.unload <模块名字>}{light red};
+        #return;
+    };
+    
+    #if {!@mm_check{$modName}} {
+        #return;
+    };
+
+    #echo {%c卸载模块 $modName} {light green};
+    #local unloadFunc {@__${modName}_unload__};
+    #local ok {$unloadFunc{}};
+    #if {"$ok" == "false"}{
+        #echo {<139>卸载模块失败, $modName<099>};
+    };
+    #read ${ModulePath}/${modName}/unLoad.tin;
+};
+#alias {mm.reload} {
+    #local modName {%1};
+    #if {"$modName" == "1"} {
+        #echo {%c命令格式: mm.reload <模块名字>}{light red};
+        #return;
+    };
+    
+    #if {!@mm_check{$modName}} {
+        #return;
+    };
+
+    #echo {%c重载模块 $modName} {light green};
+    #nop #read ${ModulePath}/${modName}/unLoad.tin;
+    
+    #class $modName kill;
+    #read ${ModulePath}/${modName}/${modName}.tin;
+    
+    #local reloadFunc {@__${modName}_reload__};
+    #local ok {$reloadFunc{}};
+    #if {"$ok" == "false"}{
+        #echo {<139>重载模块失败, $modName<099>};
+        mm.unload $modName;
+    };
+};
+
+#var loginServerInfo {
+    {host}{mud.pkuxkx.net}
+    {port}{8080}
+};
+
+#alias {login}{
+    #local id {%1};
+    
+    #if {"$id" == ""} {
+        #echo {%c命令格式：login <your id>}{light red};
+        #return
+    };
+    
+    #echo {%c登录帐号 $id}{light green};
+    
+    #event {SESSION CREATED}{
+        #local sid {%%0};
+        #{$sid} {
+            mm.load utils;
+            load-module event;@__event_init__{};
+            load-module prompt2;
+            
+            #read etc/$sid/.env;
+            #read etc/$sid/onConnect.tin;
+
+            #class login open;
+
+            #act {Input 1 for GBK, 2 for UTF8, 3 for BIG5} {#send 2};
+            #act {您的英文名字} {#send $sid};
+            #act {此ID档案已存在，请输入密码：} {#send $env[password]};
+            #act {对不起，你的英文名字只能用英文字母} {#class login kill};
+
+            #nop #act {^目前权限：(%w)}{};
+            #nop #act {^您上次是在%*从%d.%d.%d.%d连线进入，请及时核对。}{};
+            #nop #act {^重新连线完毕。}{};
+            #act {^{(目前权限|重新连线完毕)}%*}{
+                #class login kill;
+                #unvar env[password];
+		#var env[id] {$sid};
+                #cr;
+ 
+                prompt.Init;prompt.Enable;
+            
+                #read etc/$sid/onLogin.tin;
+            };
+            
+            #class login close;
+        
+        };
+    };
+    
+    #nop #local cmd {#act {您的英文名字} {#send $id}};
+    #nop $cmd;
+    
+    #session $id $loginServerInfo[host] $loginServerInfo[port];
+};
+
+#alias {load-module}{
+    #local modname {%1};
+    #local modExists {};
+    #local modfullname {${ModulePath}/${modname}.tin};
+
+    #script {modExists}{if [ -e "$modfullname" ];then echo "1";else echo "0";fi};
+    #if {!$modExists[1]}{
+        #echo {%c模块未定义 ${modname}}{light red};
+        #return;
+    };
+    
+    #class $modname kill;
+    
+    #class $modname open;
+    #read $modfullname;
+    #class $modname close;
+
+    #echo {<129>加载模块 $modname<099>};
+};
+
+#echo {%c启动模块管理...} {light yellow};
+#echo {%c模块搜索路径 : ./$ModulePath/} {light yellow};
+#echo {%cmm.help: 查看帮助}{light yellow};
+
+#echo {%a%a}{10}{13};
+
+#echo {%c登录游戏：login <your id>}{light green};
+
+#buffer up;#buffer down;

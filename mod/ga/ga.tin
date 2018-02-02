@@ -1,0 +1,74 @@
+#class ga open;
+
+#config {IAC GA} {ON};
+
+#list gXttPipeLine create {};
+#var ga {};
+
+#format CR  {%a} {13};
+#format LF  {%a} {10};
+#event {SEND OUTPUT} {
+    #local cmd {%0};
+    #replace cmd {{$CR|}$LF} {};
+    #if {"$cmd" != ""} {
+        #var ga[output] {};
+        #var ga[cmd]    {$cmd};
+        #list gXttPipeLine add {$cmd};
+    };
+};
+
+#format GA  {%a} {249};
+#format EOR {%a} {239};
+#action {^%*{$GA|$EOR}$} {
+    #local line {%0};
+    #replace line {{$GA|$EOR}$} {};
+
+    #if { "$line" == "== 未完继续 %d% == (q 离开，b 前一页，其他继续下一页)" } {
+        #cr;
+        #return;
+    };
+
+    #if { &gXttPipeLine[] > 0 } {
+        #local cmd {$gXttPipeLine[1]};
+        #list gXttPipeLine delete {1};
+
+        #showme {<160>以上内容是命令「<130>@trim{$cmd}<160>」的输出。<070>};
+    };
+    #showme {$line};
+    #line gag;
+
+} {1.000};
+
+#action {~^%*$} {
+    #local line {%0};
+    #local linetext {%1};
+    #local cmd {};
+
+    #if { &gXttPipeLine[] == 0 } {
+        #return;
+    };
+
+    #if { "$line" != "> " } {
+        #local cmd {$gXttPipeLine[1]};
+        #echo {<160>%-10p<070>%s} {$cmd} {@Beautify{$line}};
+        #line gag;
+        
+        #if {"$ga[output]" != ""}{
+            #var ga[output] {$ga[output]\n};
+        };
+        #var ga[output] {$ga[output]$linetext};
+    };
+} {9.999};
+
+#alias {ttc.cm} {
+    #local option {%1};
+
+    #if { "$option" == "on" } {
+        #config {convert meta} on;
+    };
+    #else {
+        #config {convert meta} off;
+    };
+};
+
+#class ga close;

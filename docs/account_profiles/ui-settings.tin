@@ -1,0 +1,60 @@
+#var prompt-theme {${prompt-theme}
+    {Disable}{<bbc>}
+    {TopSepBar}{<020>}
+    {MidSepBar}{<020>}
+    {BotSepBar}{<020>}
+    {HotLabel}{<afc>}
+    {CoolLabel}{<bbc>}
+    {Value}{<fea>}
+};
+
+#list prompt-fields create {
+    {{place}{MidSepBar}             {label}{福米}       {name}{URL}     {cooldown}{30}}
+    {{place}{MidSepBar}             {label}{}           {name}{URLcd}   {countdown}{Seconds}}
+    
+    {{place}{Bot}       {line}{1}   {label}{气血}       {name}{qixue}   {width}{20}}
+    {{place}{Bot}       {line}{1}   {label}{内力}       {name}{neili}   {width}{15}}
+    {{place}{Bot}       {line}{1}   {label}{真气}       {name}{zhenqi}  {width}{10}}
+    {{place}{Bot}       {line}{1}   {label}{等级}       {name}{lvl}     {width}{7}}
+    {{place}{Bot}       {line}{1}   {label}{经验}       {name}{exp}     {width}{8}}
+    {{place}{Bot}       {line}{1}   {label}{状态}       {name}{status}}
+    {{place}{Bot}       {line}{1}   {label}{}           {name}{zhandou}}
+
+    {{place}{Bot}       {line}{2}   {label}{精神}       {name}{jingshen}{width}{20}}
+    {{place}{Bot}       {line}{2}   {label}{精力}       {name}{jingli}  {width}{15}}
+    {{place}{Bot}       {line}{2}   {label}{饮食}       {name}{yinshi}  {width}{10}}
+    {{place}{Bot}       {line}{2}   {label}{战力}       {name}{ap}      {width}{7}}
+    {{place}{Bot}       {line}{2}   {label}{潜能}       {name}{pot}     {width}{8}}
+    {{place}{Bot}       {line}{2}   {label}{姓名}       {name}{name}}
+    {{place}{Bot}       {line}{2}   {label}{}           {name}{manglu}}
+
+    {{place}{BotSepBar}             {label}{}          {name}{clock}}
+    
+};
+
+#alias {_updateUI_} {
+    #var env {$env{id}{%1}{name}{%2}};
+    prompt.Set {{name}{%2(%1)}{lvl}{%3}{ap}{%4}};
+};
+
+#alias {_update_hpbrief_}{
+    prompt.Set {
+        {qixue}{$status_data[hpbrief][气血][最大]/$status_data[hpbrief][气血][有效]/$status_data[hpbrief][气血][当前]}
+        {neili}{$status_data[hpbrief][内力][最大]/$status_data[hpbrief][内力][当前]}
+        {zhenqi}{$status_data[hpbrief][真气]/$status_data[hpbrief][真元]}
+        {zhandou}{$status_data[hpbrief][战斗中]}
+        {jingshen}{$status_data[hpbrief][精神][最大]/$status_data[hpbrief][精神][有效]/$status_data[hpbrief][精神][当前]}
+        {jingli}{$status_data[hpbrief][精力][最大]/$status_data[hpbrief][精力][当前]}
+        {manglu}{$status_data[hpbrief][忙碌中]}
+        {yinshi}{$status_data[hpbrief][饮水]/$status_data[hpbrief][食物]}
+        {exp}{$status_data[hpbrief][经验]}
+        {pot}{$status_data[hpbrief][潜能]}
+    };    
+};
+#alias {_updateStatus_}{
+    prompt.Set {{status}{%1 %2 %3}};
+};
+
+event.handle {status.OnStatusUpdated}{updateUI}{UI}{_updateUI_};
+event.handle {status.OnHpbriefUpdated}{updateHpbrief}{UI}{_update_hpbrief_};
+event.handle {test.OnQuestStart}{updateStatus}{UI}{_updateStatus_};

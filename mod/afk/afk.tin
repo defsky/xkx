@@ -1,0 +1,67 @@
+#class afk open;
+
+#function {__afk_init__}{
+    #var afk_config {{status}{off}};
+};
+#function {__afk_reload__}{
+    #class afk_inner kill;
+    #if {"$afk_config[status]" == "on"}{
+        _afk_enter_;
+    };
+};
+
+event.define {OnHelpmeEmote}{afk}{求助频道出现表情时触发的事件,%1 表情， %2 发起人 id， %3接受人 id};
+
+#alias {_afk_enter_}{
+    #class afk open;
+    #tic {afk_antiAFK}{_afk_do_timer_}{141}; 
+    #class afk close;
+    
+    event.handle {OnHelpmeEmote}{doEmote}{afk}{_afk_do_emote_};
+    
+    #class afk_inner open;
+    #act {【求助】%*(%w || {[a-z0-9?!]+}{?:(?:\s([a-zA-Z]+))?})}{
+        event.emit {OnHelpmeEmote}{{%%3}{%%2}{%%4}};
+    };
+    #class afk_inner close;
+};
+#alias {_afk_exit_}{
+    #untic {afk_antiAFK};
+    #class afk_inner kill;
+    event.unhandle {OnHelpmeEmote}{doEmote};
+};
+#alias {_afk_do_timer_}{
+    #send look;
+};
+#alias {_afk_do_emote_}{
+    #local em {%1};
+    #local s  {%2};
+    #local r  {%3};
+    #local msg {};
+    
+    #if {"$r" != ""}{
+        #var msg {$s 对 $r 做了 $em 表情};
+    }{
+        #var msg {$s 做了 $em 表情};
+    };
+    #showme <139>==> $msg<099>;
+    $em;
+};
+
+#alias {afk}{
+    #if {"$afk_config[status]" == "off"} {
+        #var afk_config[status] {on};
+        
+        _afk_enter_;
+        
+        #echo {<129>进入暂离状态<099>};
+    }{
+        #var afk_config[status] {off};
+        
+        _afk_exit_;
+        
+        #echo {<129>退出暂离状态<099>};
+    };
+};
+
+#class afk close;

@@ -1,0 +1,1399 @@
+#class $mod_name open;
+
+#alias {${mod_name}_load} {
+    #showme Module $mod_name loaded;
+    #unalias ${mod_name}_load;
+};
+
+#alias {${mod_name}_unload}{
+    #showme Module $mod_name unloaded;
+    #class $mod_name kill;
+};
+
+#alias {${mod_name}_help}{
+    #showme <139>模块帮助文档 : ${mod_name}<079>;
+    
+    
+    
+    #showme  ;
+    #showme <139> -> 按任意键继续...<079>;
+    #buffer lock;
+};
+
+#alias {_miscmsg} {
+    #show <139>misc : %0<079>;
+};
+
+#alias {xue.start} {
+    #var xue[freq] %3;
+    #var xue[master] %1;
+    #var xue[skill] %2;
+    
+    status.set_action 学习;
+    
+    #class xue.start.inner open;
+    
+    #tic {tk_chihe} {eat liang;he jiudai}{60};
+    #nop #tic {tk_yunjing} {yun jing}{66};
+    
+    #alias {xuexi} {
+        #tic {tk_xue} {xue $xue[master] for $xue[skill] $xue[freq]} {1};
+    };
+    
+    #act {^你和师父切磋%*，消耗了大量潜能} {
+        xue.stop;
+    };
+    #act {^也许是缺乏实战经验，你%*总是无法领会} {
+        xue.stop;
+    };
+    #act {^你的潜能已经发挥到极限了，没有办法再成长了} {
+        xue.stop;
+    };
+    #act {^你今天太累了，结果什么也没有学到} {
+        #untic {tk_xue};
+        #delay {1}{yun regenerate};
+    };
+    #act {^你略一凝神} {
+        xuexi;
+    };
+    #act {^你的内力不够} {
+        goto 休息室;
+        on_there {
+            #class xue.start.sleep open;
+            
+            #act {你刚在三分钟内睡过一觉} {
+                _miscmsg 睡觉cd中,5秒后再尝试睡觉;
+                #delay {dl_sleep} {
+                    sleep;
+                } {5};
+            };
+            #act {你一觉醒来，精神抖擞地活动了几下手脚} {
+                #cr;
+                #nop goto 朱熹;
+                goto 武馆大厅;
+                on_there {
+                    xuexi;
+                };
+                #class xue.start.sleep kill;
+            };
+            #class xue.start.sleep close;
+            sleep;
+        };
+    
+    };
+    #nop 书生说道：您太客气了，这怎么敢当;
+    #act {{看上去书生并不想教你|书生像是受宠若惊一样|书生说道：您太客气了}} {
+        #untic {tk_xue};
+        #show <139>test : 该给钱了<079>;
+        give 1 cash to shu sheng;
+        #delay {dl_restart_xue} {xuexi}{2};
+    };
+    
+    #class xue.start.inner close;
+    #nop yun jing;
+    xuexi;
+};
+#alias {xue.stop} {
+    #class xue.start.inner kill;
+    #undelay {dl_restart_xue};
+    #untic {tk_xue};
+    #unvar xue;
+    status.set_action 空闲;
+};
+
+#alias {zhuxi} {
+    
+    #if {"%1" == "stop"} {
+        #class zhuxi.inner kill;
+    } {
+        #var zhuxi[count] %1;
+        #class zhuxi.inner open;
+        
+        #act {^你共请教了%*次} {
+            #if {@ctd{%%1} != $zhuxi[count]} {
+                
+                yun regenerate;
+            } {
+                #delay {1} {xue zhu for literate $zhuxi[count]};
+            };
+        };
+        #act {^你略一凝神} {
+            xue zhu for literate $zhuxi[count];
+        };
+        #act {^你的潜能已经发挥到极限了} {
+            zhuxi stop;
+        };
+        #act {^你的内力不够} {
+            log 需要休息;
+            zhuxi stop;
+            
+            goto 休息室;
+            on_there {
+                #act {^你一觉醒来} {
+                    #unact {^你一觉醒来};
+                    #unact {^你刚在三分钟内睡过一觉};
+                    
+                    log 睡觉醒来 去吃喝;
+                    
+                    goto 食堂;
+                    on_there {
+                        #act {^{你拿起冷馒头|你已经吃饱了}} {
+                            #unact {^{你拿起冷馒头|你已经吃饱了}};
+                            goto 古井;
+                            on_there {
+                                #act {^{你拿起水瓢舀出井水来喝|你已经喝饱了}} {
+                                    #unact {^{你拿起水瓢舀出井水来喝|你已经喝饱了}};
+                                    goto 朱熹;
+                                    on_there {
+                                        log 开始请教朱熹;
+                                        zhuxi $zhuxi[count];
+                                    };
+                                };
+                                drink;
+                            };
+                        };
+                        eat;
+                    };
+                };
+                #act {^你刚在三分钟内睡过一觉} {
+                    #unact {^你一觉醒来};
+                    #unact {^你刚在三分钟内睡过一觉};
+                    
+                    log 睡觉CD中 30s后继续学习;
+                    w;
+                    #delay {30} {zhuxi $zhuxi[count]};
+                };
+                sleep;
+            };
+        };
+        #class zhuxi.inner close;
+        
+        xue zhu for literate $zhuxi[count];
+    };
+};
+
+#alias {zq.start} {
+    status.set_action 练醉拳;
+    
+    #class zq.start.inner open;
+    
+    #var murenid 1;
+    
+    #tic {tk_lwzq} {
+        #if {$status[energy] < @eval{$status[energy_max] * 0.5}} {
+            halt;
+            zq.stop;
+            #delay {2} {
+                #act {你吐纳完毕，睁开双眼，站了起来} {
+                    #unact {你吐纳完毕，睁开双眼，站了起来};
+                    zq.start;
+                };
+                tuna 6000;
+            };
+        };
+        #elseif {$status[hp_valid] < @eval{$status[hp_max] * 0.98}} {
+            halt;
+            zq.stop;
+            #delay {2} {
+                yun heal;
+                zq.start;
+            };
+        };
+        #else {
+            #if {$status[hp] < @eval{$status[hp_valid] * 0.5}} {
+                yun recover;
+            };
+            perform zui-quan.lingwu;
+        };
+    } {10};
+    #tic {tk_chihe} {he jiudai;eat liang}{60};
+    #act {^未有对手或者你和对方未处于战斗中，不能%*领悟醉拳} {
+        fight mu ren;
+    };
+    #act {^你刚跟这个木人练过功} {
+        
+        #if {$murenid == 1} {
+            #var murenid 2;
+            fight mu ren 2;
+        } {
+            #var murenid 1;
+            fight mu ren;
+        };
+    };
+    #class zq.start.inner close;
+    bei none;
+    fight mu ren;
+    perform zui-quan.lingwu;
+};
+#alias {zq.stop} {
+    status.set_action 空闲;
+    #class zq.start.inner kill;
+};
+
+
+#alias {chaojing} {
+    #act {^http://pkuxkx.net/antirobot/robot.php?filename=%*} {
+        #unact {^http://pkuxkx.net/antirobot/robot.php?filename=%*};
+        #show %%0;
+    } {4};
+    #act {^云游僧人说道：记住你的工号：} {
+        #unact {^云游僧人说道：记住你的工号：};
+        goto 石经峪;
+        on_there {
+            #act {^你默写良久，终于抄完了，看样子可以回去领工钱了} {
+                #unact {^你默写良久，终于抄完了，看样子可以回去领工钱了};
+                goto 石门寺;
+                on_there {
+                    #act {^云游僧人说道：「报上你的口令！report 口令！」} {
+                        #unact {^云游僧人说道：「报上你的口令！report 口令！」};
+                        #showme <139>输入工号领工资(report 工号):<079>;
+                        #buffer lock;
+                        status.set_action 空闲;
+                    };
+                    ask sengren about done;
+                };
+            };
+            write jing;
+            status.set_action 抄经;
+        };
+    };
+    ask sengren about job;
+};
+#alias {gozqt} {
+    status.set_action 上紫气台;
+    #class gozqt_inner open;
+    
+    #act {^%S%s-%s$} {
+        #if {"%%1" == "紫气台"} {
+            #class gozqt_inner kill;
+            status.set_action 空闲;
+        } {
+            #show %%1;
+        };
+    };
+    #tic {tk_gozqt} {ed;wu;westup} {2};
+    
+    #class gozqt_inner open;
+}
+
+#alias {showtime} {
+    
+    #class showtime_inner open;
+    
+    #act {^管事对你说道：你去%*表演一下吧} {
+        #var showtime[pos] %%1;
+    };
+    #act {^管事吩咐手下给了你一套表演道具} {
+        _miscmsg 领到道具，出发表演;
+        goto $showtime[pos];
+        on_there {
+            biaoyan suizhuan;
+        };
+    };
+    #act {^你只见好大的块砖头应声而碎，旁人看得张大口说不出话来} {
+        _miscmsg 表演完毕;
+        biaoyan suizhuan;
+    };
+    #act {^你已唱完戏了，回去报告吧} {
+        goto 戏园子;
+        on_there {
+            ask guan about 完成;
+        };
+    };
+    #act {^管事把唱戏道具收了回去} {
+        _miscmsg 唱戏完成;
+        #class showtime_inner kill;
+    };
+    
+    #class showtime_inner close;
+    
+    ask guan about job;
+};
+
+#alias {climbtree} {
+    #if {"%1" == "stop"} {
+        status.set_action 空闲;
+        #class climb_tree_inner kill;
+    } {
+        status.set_action 爬树;
+        #class climb_tree_inner open;
+        
+        #act {^你领悟出一些基本轻功方面的窍门} {
+            #delay {1.5} {climb tree};
+        };
+        #act {^你减缓真气运行，让气血运行恢复正常} {
+            yun qi;
+        };
+        #act {^你现在正忙着呢} {
+            #delay {1} {he jiudai;eat liang;climb tree};
+        };
+        #act {^你身子发虚，一头栽了下来，哎呀} {
+            status.set_action 爬树休息;
+            #delay {20} {
+                climb tree;
+                status.set_action 爬树;
+            };
+        };
+        #act {^你像只小猴子一样在树上窜上窜下} {
+            #show 可以换地方了;
+            climbtree stop;
+        };
+        #act {^( 你上一个动作还没有完成，不能施用内功。)} {
+            #delay {1} {yun qi};
+        };
+        #class climb_tree_inner close;
+        yun qi;
+        climb tree;
+    };
+};
+
+#alias {baij} {
+    #If {"%1" == "stop"} {
+        status.set_action 空闲;
+        #class baij_inner kill;
+    } {
+        status.set_action 拜祭;
+        #class baij_inner open;
+        
+        #var baiji_count 10;
+        
+        #act {^你减缓真气运行，让自身恢复正常} {
+            yun jing;
+        };
+        #act {^你的精不够，无法继续拜祭} {
+            baij stop;
+            
+            goto 春来;
+            on_there {
+                do 5 get jiudai from bao 2;
+                drink;
+                #act {酒袋装填完毕} {
+                    #unact {酒袋装填完毕};
+                    on_there {
+                        baij;
+                    };
+                    #delay {20} {goto 大成殿};
+                };
+                #delay {1} { filljd 5; };
+            };
+        };
+        #tic {tk_bj} {
+            #if {$status[sp] < @eval{$status[sp_max] * 0.5}} {
+                #if {$baiji_count != 3} {
+                    log 精力不多慢慢拜祭;
+                    hpbrief1;
+                    #var baiji_count 3;
+                };
+            };
+            #elseif {$status[sp] > @eval{$status[sp_max] - 200}} {
+                #if {$baiji_count != 10} {
+                    log 精力充足全速拜祭;
+                    #var baiji_count 10;
+                    hpbrief1;
+                };
+            };
+            do $baiji_count baiji xiang;
+        } {1};
+        #tic {tk_chihe} {chi liang ;he jiudai} {120};
+        #tic {tk_yunjing} {yun jing} {62};
+        
+        #class baij_inner close;
+        yun jing;
+    };
+};
+
+#alias {timer.set} {
+    #var timer[setValue] %1;
+};
+#alias {timer.hnd} {
+    #var timer[handler] %1;
+};
+#alias {timer.reset} {
+    #untic {tk_timer_processer};
+    #var timer[value] $timer[setValue];
+    #tic {tk_timer_processer} {
+        #math {timer[value]}{$timer[value] - 1};
+        status.set_action $timer[value];
+        #if {$timer[value] <= 0} {
+            timer.stop;
+        } {
+            #if {&timer[handler] != 0} {
+                $timer.handler;
+            };
+        };
+    }{1};
+};
+#alias {timer.stop} {
+    #show <139>Timer Stopped<079>;
+    #untic {tk_timer_processer};
+    status.set_action 空闲;
+};
+
+#alias {timer_handler} {
+    status.set_action $timer.value;
+};
+#alias {fish} {
+    #if {"%1" == "on"} {
+        
+        #class fish_on_inner open;
+        
+        
+        #act {^【任务】襄阳保卫战开启，请大家踊跃从军，到襄阳的郭靖处报名（ask guojing about 襄阳保卫）} {
+            ask guo about 襄阳保卫;
+            #act {    郭夫人「桃花仙子」黄蓉(Huang rong)} {
+                #unact {    郭夫人「桃花仙子」黄蓉(Huang rong)};
+                #show 发现黄蓉;
+                #cr;
+                ask huang about 工事;
+                #delay {2} {#2 n;#7 w};
+            };
+            #delay {1} {join 3};
+            timer.set 150;
+            timer.hnd timer_handler;
+            timer.reset;
+        };
+        #act {^%s%S(%w %w) <昏迷不醒>} {
+            #show <139>有人昏了 : %%3 %%4<079>;
+            #var fish_target {%%3 %%4};
+            #if {"$fish_target" == "Menggu bing" ||
+                "$fish_target" == "Qianhu zhang" ||
+                "$fish_target" == "Qianfu zhang" ||
+                "$fish_target" == "Menggu jianxi" } {
+                
+                kill @lower{$fish_target};
+            };
+        };
+        #act {襄阳保卫战正在进行中，现在是蒙古兵第%*轮发兵} {
+            timer.reset;
+            halt;
+            #tic {fish_look} {kill bing}{1};
+            #delay {60}{#untic fish_look};
+            #delay {1} {yun qi};
+            #delay {2} {jiali max};
+            #delay {3} {pu};
+            #delay {4} {jg};
+        };
+        #act {^【本地】襄阳保卫战（副本难度%*）守卫成功，各位可以到郭靖处领奖} { 
+            #7 e;#2 s;
+            
+            #delay {5} {
+                ask guo about 奖励;
+                #delay {5} {
+                    goto 禅院;
+                    on_there {
+                        cc start;
+                    };
+                };
+            };
+        };
+        #act {你双手合十，散去了凝聚于全身上下的「金刚不坏体神功」} {
+            jg;
+        };
+        #act {你的易筋经神功运行完毕，将内力收回丹田} {
+            pu;
+        };
+        #act {^你减缓真气运行} {
+            dazuo max;
+        };
+        #class fish_on_inner close;
+    };
+    #elseif {"%1" == "off"} {
+        #class fish_on_inner kill;
+    };
+};
+
+#nop >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> baowei start >>>>>>>>>>>>>>>>>>>>>>>>>>>>;
+
+#alias {bw.start} {
+    tune fb;
+    
+    #list bw[dig][queue] create n s e w;
+    #var bw[dig][depth] 5;
+    #var bw[dig][req_cnt] 0;
+    #var bw[status][guard][steps] {{w}{9}{e}{6}{s}{9}{n}{8}};
+    #var bw[status][guard][room] {{w}{雪峰脚下}{e}{菜园}{s}{荆门}{n}{荒原}};
+    #var bw[status][gate][threshold] 100;
+    #var bw[status][report] 0;
+    #var bw[status][get_qiao] 0;
+    #list bw[status][attack] create {};
+
+    #class bw.start.inner open;
+    
+    #alias {on_walked} {
+        #alias cb_on_walked #cr;
+        #alias cb_on_walked %%0;
+        
+        #act {^%S%s-%s$} {
+            #unact {^%S%s-%s$};
+            cb_on_walked;
+        }{6};
+    };
+    
+    #act {^【副本】【三号副本】郭靖夫妇被蒙古奸细杀死，帅府被占，襄阳沦陷！} {
+        log 保卫失败...;
+        bw.stop;
+    };
+    
+    #act {^【任务】襄阳保卫战开启，请大家踊跃从军，到襄阳的郭靖处报名（ask guojing about 襄阳保卫）} {
+        log 保卫开始;
+        timer.set 150;
+        timer.hnd timer_handler;
+        timer.reset;
+        
+        ask guo about 襄阳保卫;
+        #var bw[status][get_qiao] 0;
+        #delay {0.5} {join 3};
+        
+        #delay {dl_askhuang} {
+            ask huang about 工事;
+        }{5};
+    };
+    
+    #act {    郭夫人「桃花仙子」黄蓉(Huang rong)} {
+        #nop #unact {    郭夫人「桃花仙子」黄蓉(Huang rong)};
+        
+        #cr;
+        
+        #if {$bw[status][get_qiao] == 0} {
+            #var bw[status][get_qiao] 1;
+            ask huang about 工事;
+        };
+        
+        #nop #class bw.start.inner kill;
+    };
+    #act {^郭靖令手下军士给你一把铁锹} {
+        #nop #unact {^郭靖令手下军士给你一把铁锹};
+        #undelay {dl_askhuang};
+        
+        #delay {0.5} {
+            on_center {
+                bw.check;
+            };
+            #2 n;#2 e;
+        };
+    };
+    #act {郭靖吩咐下面兵士将你带到襄阳保卫战的前线} {
+        
+    };
+    #act {襄阳保卫战正在进行中，现在是蒙古兵第%*轮发兵} {
+        timer.set 150;
+        timer.hnd timer_handler;
+        timer.reset;
+        #var bw[status][round] %%1;
+        
+        log 第$bw[status][round]轮发兵;
+        
+        #unact {这里没有这个人};
+        
+        bw.guard.first;
+        on_guard_complete {
+            bw.guard.last;
+            on_guard_complete {
+                
+                #if {$bw[status][report] == 1} {
+                    bw.lookgate w;
+                    on_lookgate_ok {
+                        bw.lookgate e;
+                        on_lookgate_ok {
+                            bw.lookgate s;
+                            on_lookgate_ok {
+                                bw.lookgate n;
+                                on_lookgate_ok {
+                                    show_gate_state bd;
+                                    bw.check;
+                                };
+                            };
+                        };
+                    };
+                } {
+                    bw.check;
+                };
+            };
+        };
+    };
+    #act {蒙古发兵攻打襄阳%*门} {
+        #list bw[status][attack] add $direction[cn][%%1];
+    };
+    #act {各位可以到郭靖处领奖} {
+        #undelay {dl_back_wd};
+        log 可以领奖了;
+        
+        #act {^帅府大厅 - } {
+            #unact {^帅府大厅 - };
+            #cr;
+            ask guo about 奖励;
+        };
+        #act {^你向郭靖打听有关『奖励』的消息} {
+            #unact {^你向郭靖打听有关『奖励』的消息};
+            
+            bw.stop;
+        };
+        
+        #2 w;#2 s;
+    };
+    #act {^郭靖双手抱拳，讨好地对你说道：} {
+        #nop #class bw.start.inner kill;
+        
+        #unact {这里没有这个人};
+        
+    };
+    
+    
+    #class bw.start.inner close;
+};
+#alias {bw.stop} {
+    tune fb;
+    
+    #class bw.guard.start.inner kill;
+    #class bw.start.inner kill;
+    #class bw.guard.inner kill;
+    #class bw.dig.inner kill;
+    
+    #unalias cb_on_dig_ok;
+    #unalias cb_on_dig_complete;
+    #unalias cb_on_dazuo_complete;
+    #unalias cb_on_lookgate_ok;
+    #unalias cb_on_guard_complete;
+    #unalias cb_on_center;
+    
+    #untic {tk_bw_dazuo};
+    #untic {tk_bw_fish};
+    
+    #undelay {dl_back_wd};
+    
+    #UNACTION {这里没有这个人};
+    #unvar bw;
+};
+
+#alias {bw.report} {
+    #if {$bw[status][report] == 1} {
+        #var bw[status][report] 0;
+        #show <139>防御播报关闭<079>;
+    } {
+        #var bw[status][report] 1;
+        #show <129>防御播报打开<139>;
+    };
+};
+#alias {show_gate_state} {
+    #if {$bw[status][report] == 1} {
+        %1 防御简报 第$bw[status][round]轮：;
+
+        %1 东门 $bw[status][gate][e][shield]/$bw[status][gate][e][shield_max];
+        %1 南门 $bw[status][gate][s][shield]/$bw[status][gate][s][shield_max];
+        %1 西门 $bw[status][gate][w][shield]/$bw[status][gate][w][shield_max];
+        %1 北门 $bw[status][gate][n][shield]/$bw[status][gate][n][shield_max];
+    };
+};
+#alias {check_door} {
+    bw.lookgate w;
+    on_lookgate_ok {
+        bw.lookgate e;
+        on_lookgate_ok {
+            bw.lookgate s;
+            on_lookgate_ok {
+                bw.lookgate n;
+                on_lookgate_ok {
+                    show_gate_state bd;
+                };
+            };
+        };
+    };
+};
+#alias {bw.prepare} {
+    log 准备开战;
+    
+    #var bw[status][attack] {};
+    
+    #undelay {dl_bw_check};
+    halt;
+    #delay {1} {pu};
+    #delay {2} {yun qi};
+    #delay {3} {jg}; 
+    #nop #delay {4} {jiali 400};
+    #delay {5} {yun shield};
+};
+#alias {bw.check} {
+    log 检查状态;
+    #if {$status[force] > @eval{$status[force_max] * 1.2}} {
+        #var bw[dig][need_count] 0;
+        #if {$timer[value] <= 20} {
+            bw.prepare;
+        };
+        #elseif {$timer[value] >= 54 && $timer[value] < 73} {
+            #var bw[dig][need_count] 1;
+        };
+        #elseif {$timer[value] >= 74 && $timer[value] < 90} {
+            #var bw[dig][need_count] 2;
+        };
+        #elseif {$timer[value] >= 105} {
+            #var bw[dig][need_count] 3;
+        };
+        #else {
+            #delay {dl_bw_check} {
+                bw.check;
+            }{2};
+        };
+        
+        #if {$bw[dig][need_count] > 0} {
+            bw.dig $bw[dig][need_count];
+            on_dig_complete {
+                bw.check;
+            };
+        };
+    } {
+        log 开始打坐;
+        dazuo max;
+        #tic {tk_bw_dazuo} {
+            #if {$timer[value] < 18} {
+                #alias cb_on_dazuo_complete #cr;
+                #untic {tk_bw_dazuo};
+                bw.prepare;
+            };
+        }{2};
+        on_dazuo_complete {
+            #untic {tk_bw_dazuo};
+            bw.check;
+        };
+    };
+};
+
+#alias {on_dazuo_complete} {
+    #alias cb_on_dazuo_complete #cr;
+    #alias cb_on_dazuo_complete %0;
+    
+    #act {^{你减缓真气运行|你运功完毕}} {
+        #unact {^{你减缓真气运行|你运功完毕}};
+        cb_on_dazuo_complete;
+        
+    };
+};
+#alias {bw.checkgate} {
+    #act {位置：%S  性质：%S  防御值：%d/%d} {
+        #unact {位置：%S  性质：%S  防御值：%d/%d};
+        #var bw[status][gate][%1][shield] %%3;
+        #var bw[status][gate][%1][shield_max] %%4;
+        #4 @reverse{%1};
+        on_center {
+            #show gate check complete;
+        };
+    };
+    look;
+};
+#alias {bw.lookgate} {
+    #if {"%1" == "w"} {
+        #act {^襄阳西门 - } {
+            #unact {^襄阳西门 - };
+            bw.checkgate w;
+        };
+    };
+    #if {"%1" == "e"} {
+        #act {^襄阳东门 - } {
+            #unact {^襄阳东门 - };
+            bw.checkgate e;
+        };
+    };
+    #if {"%1" == "s"} {
+        #act {^襄阳南门 - } {
+            #unact {^襄阳南门 - };
+            bw.checkgate s;
+        };
+    };
+    #if {"%1" == "n"} {
+        #act {^襄阳北门 - } {
+            #unact {^襄阳北门 - };
+            bw.checkgate n;
+        };
+    };
+    
+    #4 %1;
+};
+#alias {on_lookgate_ok} {
+    #alias cb_on_lookgate_ok #cr;
+    #alias cb_on_lookgate_ok %0;
+    
+    #act {^gate check complete} {
+        cb_on_lookgate_ok;
+    };
+};
+
+#alias {on_guard_complete} {
+    #alias cb_on_guard_complete #cr;
+    #alias cb_on_guard_complete %0;
+    
+    #act {^guard complete} {
+        #unact {^guard complete};
+        cb_on_guard_complete
+    };
+};
+#alias {bw.guard} {
+    log 保卫%1;
+    
+    #var bw[status][guard][walk] %1;
+    #var bw[status][guard][walk_back] @reverse{%1};
+    
+    #class bw.guard.inner open;
+    
+    #act {^${bw[status][guard][room][$bw[status][guard][walk]]} - } {
+        #class bw.guard.inner kill;
+        bw.guard.start;
+    };
+    
+    #class bw.guard.inner close;
+    
+    #${bw[status][guard][steps][$bw[status][guard][walk]]} ${bw[status][guard][walk]};
+};
+#alias {bw.guard.first} {
+    bw.guard $bw[status][attack][1];
+};
+#alias {bw.guard.last} {
+    bw.guard $bw[status][attack][-1];
+};
+#alias {bw.guard.start} {
+    
+    #class bw.guard.start.inner open;
+    
+    #tic {tk_bw_fish} {
+        kill menggu bing;
+    }{1};
+    
+    #act {^%s%S(%w %w) <昏迷不醒>} {
+        #show <139>有人昏了 : %%3 %%4<079>;
+        #var fish_target {%%3 %%4};
+        #if {"$fish_target" == "Menggu bing" ||
+            "$fish_target" == "Qianhu zhang" ||
+            "$fish_target" == "Qianfu zhang" ||
+            "$fish_target" == "Menggu jianxi" } {
+            
+            kill @lower{$fish_target};
+        };
+    };
+    #act {一个蒙古奸细走了过来} {
+        kill menggu jianxi;
+    };
+    #act {^看起来%*想杀死你} {
+        #unact {^看起来%*想杀死你};
+        
+        on_no_bing {
+            #nop #delay {dl_back_wd}{bw.guard.back} {3};
+            bw.guard.back;
+        };
+    };
+    
+    #class bw.guard.start.inner close;
+    
+    on_center {
+        #undelay {dl_back_wd};
+        #unact {这里没有这个人};
+        #class bw.guard.start.inner kill;
+        
+        #show guard complete;
+    };
+};
+#alias {bw.guard.back} {
+    on_walked {
+        #undelay {dl_back_wd};
+        on_no_bing {
+            bw.guard.back;
+        };
+    };
+    $bw[status][guard][walk_back];
+    #delay {dl_back_wd}{bw.guard.back} {5};
+};
+#alias {on_no_bing} {
+    #alias cb_on_no_bing #cr;
+    #alias cb_on_no_bing %0;
+    
+    #act {这里没有这个人} {
+        #unact {这里没有这个人};
+        cb_on_no_bing;
+    };
+};
+#alias {bw.guard.stop} {
+
+};
+
+#alias {bw.dig} {
+    log 开始dig %1 次;
+    
+    #var bw[dig][walk] $bw[dig][queue][1];
+    #list bw[dig][queue] delete 1;
+    #list bw[dig][queue] add $bw[dig][walk];
+    
+    #var bw[dig][req_cnt] %1;
+    #var bw[dig][count] 0;
+    #var bw[dig][level] 0;
+    #var bw[dig][shield] 0;
+    #var bw[dig][shield_max] 0;
+    
+    #class bw.dig.inner open;
+    
+    #act {位置：%S  性质：%S  防御值：%d/%d} {
+        #var bw[dig][shield] %%3;
+        #var bw[dig][shield_max] %%4;
+        
+        #if {$bw[dig][count] < $bw[dig][req_cnt] && 
+            $bw[dig][shield] < @eval{$bw[dig][shield_max] - 1}} {
+            dig;
+            on_dig_ok {
+                look;
+            };
+        } {
+            bw.dig.next;
+        };
+    };
+    
+    #class bw.dig.inner close;
+    
+    bw.dig.next;
+};
+#alias {bw.dig.next} {
+    log dig 下个地方;
+    
+    #if {$bw[dig][count] >= $bw[dig][req_cnt] || $bw[dig][level] >= $bw[dig][depth]} {
+        #class bw.dig.inner kill;
+        
+        on_center {
+            #show dig complete;
+        };
+        #${bw[dig][level]} @reverse{$bw[dig][walk]};
+    } {
+        $bw[dig][walk];
+        #math {bw[dig][level]} {$bw[dig][level] + 1};
+    };
+};
+#alias {on_dig_ok} {
+    #alias cb_on_dig_ok #cr;
+    #alias cb_on_dig_ok %0;
+    
+    #act {^你直起身来，看看已具规模的工事，擦了擦汗，停下来歇一歇} {
+        #unact {^你直起身来，看看已具规模的工事，擦了擦汗，停下来歇一歇};
+        #math {bw[dig][count]} {$bw[dig][count] + 1};
+        cb_on_dig_ok;
+        
+    };
+};
+#alias {on_dig_complete} {
+    #alias cb_on_dig_complete #cr;
+    #alias cb_on_dig_complete %0;
+    
+    #act {dig complete} {
+        #unact {dig complete};
+        cb_on_dig_complete;
+        
+    };
+};
+#alias {on_center} {
+    
+    #alias cb_on_center #cr;
+    #alias cb_on_center %0;
+    
+    #act {^城中心 - } {
+        #unact {^城中心 - };
+        log 到达城中心;
+        
+        cb_on_center;
+        
+    };
+};
+
+#nop <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< baowei   end <<<<<<<<<<<<<<<<<<<<<<<<<<<<;
+
+#alias {dztn} {
+    mod dazuo reload;
+    
+    #act {^ dazuo : 打坐结束} {
+        #unact {^ dazuo : 打坐结束};
+        mod dazuo unload;
+        mod tuna reload;
+        
+        #act {^ tuna : 吐纳结束} {
+            #unact {^ tuna : 吐纳结束};
+            mod tuna unload;
+        };
+        tn start;
+    };
+    
+    daz start;
+};
+
+#alias {canju.start} {
+    status.set_action 残局;
+    
+    #class watch_canju.inner open;
+    
+    #act {^你精力不够，无法领悟残局} {
+        status.set_action 休息;
+        #untic {tk_canju};
+        #delay {20} {
+            status.set_action 残局;
+            #tic {tk_canju} {watch canju} {1};
+        };
+        he jiudai;eat liang;
+    };
+    
+    #tic {tk_canju} {watch canju} {1};
+    #tic {tk_yunjing} {yun jing} {61};
+    
+    #class watch_canju.inner close;
+    
+    yun jing;
+};
+#alias {canju.stop} {
+    #class watch_canju.inner kill;
+};
+
+#alias {pd.start} {
+    status.set_action 凭吊;
+    
+    #class pd.start.inner open;
+    
+    #act {^你凭吊完毕,站起身来} {
+        log 岳王墓凭吊中...;
+        eat liang;he jiudai;
+        #delay {1} {pingdiao};
+    };
+    #tic {tk_pd} {
+        pingdiao;
+    }{300};
+    
+    #class pd.start.inner close;
+    
+    pingdiao;
+};
+#alias {pd.stop} {
+    #class pd.start.inner kill;
+    status.set_action 空闲;
+};
+
+#nop 八卦阵 -;
+#nop 你根本就没有受伤，疗什么伤啊;
+#nop 洪荒古阵 -;
+
+#list zbg[path] create {坎;离;震;艮;艮;兑;巽;震;乾;震;兑;巽;离;坎;兑;艮;兑;坎};
+
+#alias {zbg.recover.do} {
+    #alias cb_zbg #cr;
+    #alias cb_zbg %0;
+    
+    #if {$status[hp_max] > $status[hp_valid} {
+        yun heal
+        #delay {1} {zbg.recover.do};
+    };
+    #elseif {$status[hp_valid] > $status[hp]} {
+        yun recover
+        #delay {1} {zbg.recover.do};
+    };
+    #elseif {$status[sp_max] > $status[sp_valid} {
+        yun inspire;
+        #delay {1} {zbg.recover.do};
+    };
+    #elseif {$status[sp_valid] > $status[sp]} {
+        yun regenerate;
+        #delay {1} {zbg.recover.do};
+    };
+    #else {
+        cb_zbg;
+    };
+};
+#alias {zbg.reset} {
+    #var zbg[idx] 1;
+    #show <139>test : 路径恢复初始状态<079>;
+};
+#alias {zbg} {
+    
+    #act {^你的眼前一黑，接著什么也不知道了} {
+        #unact {^你的眼前一黑，接著什么也不知道了};
+        #act {^慢慢地你终于又有了知觉} {
+            #unact {^慢慢地你终于又有了知觉};
+            hpbrief1;
+
+        };
+    
+    };
+    
+    #show <139>test : $zbg[path][$zbg[idx]]<079>;
+    #send $zbg[path][$zbg[idx]];
+    #math zbg[idx] {$zbg[idx] + 1};
+};
+
+#alias {zuandong.start} {
+    
+    #class zuandong_inner open;
+    
+    #act {^你感觉到你的真气开始四处乱闯，渐渐体力不支，不得不回来歇一歇} {
+        log 第$enterhole_count次尝失败了。。。;
+        on_unbusy {
+            eat liang;he jiudai;
+            enter hole;
+        };
+        status.set_action 休息;
+    };
+    #act {^突然，一股暗流把你推到一个洞口，你终于可以走到洞里，感觉轻松多了...} {
+        log 第$enterhole_count次尝失成功了！;
+        zuandong.stop;
+    };
+    #act {^你取出火折，轻轻一纵，跃入古洞之中} {
+        status.set_action 钻洞;
+        #math enterhole_count {$enterhole_count + 1};
+        
+        log 第$enterhole_count次尝试进入洪荒古洞;
+    };
+    
+    #class zuandong_inner close;
+    
+    enter hole;
+};
+
+#alias {zuandong.stop} {
+    #class zuandong_inner kill;
+    status.set_action 空闲;
+};
+
+#alias {cjglw.start} {
+    status.set_action 阁楼领悟;
+    
+    #class cjglw_inner open;
+    
+    #var cjglw_stop 0;
+    
+    #act {^你结束了对佛法的冥思，觉得颇有所获} {
+        do 3 eat liang;
+        do 4 he jiudai;
+        
+        #math cjglw_count {$cjglw_count + 1};
+        log 已完成 $cjglw_count 次藏经阁领悟;
+        
+        #if {$cjglw_stop == 1} {
+            #class cjglw_inner kill;
+            
+            log 结束藏经阁领悟;
+        } {
+            #delay {3} {lingwu};
+        };
+    };
+    
+    #nop 你突然觉得窗外的扫地老僧对你笑了笑,回头却发现他只是在专心打扫;
+    #act {^你突然觉得窗外的扫地老僧对你笑了笑} {
+        #math cjglw_smile_count {$cjglw_smile_count + 1};
+        log 扫地僧对你笑了 $cjglw_smile_count 次了;
+    };
+    
+    #tic {cjglw}{lingwu}{300};
+    
+    #class cjglw_inner close;
+    
+    lingwu;
+};
+#alias {cjglw.stop} {
+    status.set_action 空闲;
+    #var cjglw_stop 1;
+    #show <139>test : 藏经阁领悟停止<079>;
+};
+
+#alias {xiul} {
+    #if {"%1" == ""} {
+        #show <139>Usage: xiul <target> <count><079>;
+        #return;
+    }
+    
+    #if {"%1" == "stop"} {
+        #class xiul_inner kill;
+        #return;
+    };
+    
+    #class xiul_inner open;
+    
+    #var xiul[target] %1;
+    #var xiul[count] %2;
+    
+    log 开始修炼 $xiul[count] 次 $xiul[target];
+    
+    #act {^你从玄幻之境回过神来，顿觉内功修为增进不小} {
+        #math xiul[count] {$xiul[count] - 1};
+        
+        #if {$xiul[count] <= 0} {
+            log 修炼完毕 $xiul[target];
+            #show <139>MISSION_COMPLETE<079>;
+            
+            #class xiul_inner kill;
+        } {
+            log 还要修炼 $xiul[count] 次 $xiul[target];
+            xiulian $xiul[target];
+        };
+    };
+    
+    #class xiul_inner close;
+    
+    xiulian $xiul[target];
+};
+
+#nop 你终于战胜了心魔，心智完全恢复了;
+
+#alias {bhdin} {n;e;n;w;n;s;e;e};
+#alias {bhdxd} {e;e;w;n;s};
+#alias {bhdsl} {n;n;w;n;s;e;s;w;climb tree;kan shugan};
+
+#alias {bhdgo} {
+    #act {^冰火岛海滩} {
+        #unact {^冰火岛海滩};
+        #untic {tk_gobhd};
+    };
+    #tic {tk_gobhd}{north}{1};
+};
+#alias {zyqsq} {
+    #if {"%1" == "stop"} {
+        status.set_action 空闲;
+        #class zyqsq.inner kill;
+    } {
+        status.set_action 钻研七伤;
+        
+        #class zyqsq.inner open;
+
+        #var count 10;
+        #var zy_mode 1;
+        
+        #act {^你正读着七伤拳谱，突然感觉经脉运行不顺} {
+            zyqsq stop;
+            #nop #delay {qsq}{zyqsq}{60};
+        };
+        #act {^你减缓真气运行，让自身恢复正常} {
+            #if {$status[force] > @eval{$status[force_max] * 0.95}} {
+                log 内力充足 全速钻研;
+                #var zy_mode 1;
+                #var count 10;
+            } {
+                yun jing;
+            };
+        };
+        #act {^你已经很累了，歇歇再读吧,身体要紧} {
+            #if {$zy_mode == 1} {
+                log yun regenerate;
+                yun regenerate;
+            } {
+                log 钻研累了 放慢速度;
+                yun jing;
+                #if {$count != 1} {
+                    #var count 1;
+                };
+            };
+        };
+        
+        #tic {tk_zuanyan} {
+            #if {$zy_mode == 1} {
+                #if {$status[force] < @eval{$status[force_max] * 0.5}} {
+                    log 内力不够 放慢速度;
+                    #var zy_mode 0;
+                    yun jing;
+                };
+            } {
+                #if {$status[sp] < @eval{$status[sp_max] * 0.5}} {
+                    #if {$count != 1} {
+                        log 精神欠佳 慢慢钻研;
+                        hpbrief1;
+                        #var count 1;
+                    };
+                };
+                #elseif {$status[sp] > @eval{$status[sp_max] * 0.95}} {
+                    #if {$count != 10} {
+                        log 精神充沛 快速钻研;
+                        #var count 10;
+                        hpbrief1;
+                    };
+                };
+            };
+            zuanyan book $count;
+        } {1};
+        
+        #tic {tk_chihe} {eat liang;he jiudai} {100};
+            
+        #class zyqsq.inner open;
+    }; 
+};
+
+#alias {filljiudai} {
+    
+    #if {$fjd[count] > 0} {
+        fill jiudai;
+        drop jiudai;
+        
+        #math fjd[count] {$fjd[count] - 1};
+        
+        #delay {0.5} {filljiudai};
+    } {
+        #show 酒袋装填完毕;
+        get all;
+    };
+};
+#alias {fjd} {
+    #var fjd[count] %1;
+    
+    filljiudai;
+    
+};
+
+#alias {ch} {
+    #if {"%1" == "stop"} {
+        #class ch.inner kill;
+    } {
+        #class ch.inner open;
+        
+        #act {^你感觉心中的杀气渐渐消失} {
+            chanhui;
+        };
+        #act {^{你心中已没有丝毫杀气|你心中一片平和，已经没有丝毫杀气}} {
+            ch stop;
+        };
+        
+        #class ch.inner close;
+        
+        chanhui;
+    };
+};
+
+#alias {maijd} {
+    
+    #class mai.inner open;
+    
+    #var item[need] %2;
+    #var item[own] 0;
+    #var item[id] %1;
+    
+    #act {^你向当铺买下一个牛皮酒袋} {
+        #math item[own] {$item[own] + 1};
+        
+        #if {$item[own] == $item[need]} {
+            #show $item[need]个 $item[id] 购买完毕;
+            #class mai.inner kill;
+        } {
+            #delay {1} { buy $item[id]};
+        };
+    };
+    #act {^你现在正忙着呢} {
+        #delay {1} { buy $item[id]};
+    };
+    
+    #class mai.inner close;
+    buy $item[id];
+};
+
+#alias {bxs} {goto 百晓生;};
+
+#alias {w2e} {e;e;e;e;e;e;e;e};
+#alias {w2n} {e;e;e;e;n;n;n;n};
+#alias {w2s} {e;e;e;e;s;s;s;s};
+#alias {s2n} {n;n;n;n;n;n;n;n};
+#alias {s2w} {n;n;n;n;w;w;w;w};
+#alias {s2e} {n;n;n;n;e;e;e;e};
+#alias {e2w} {w;w;w;w;w;w;w;w};
+#alias {e2n} {w;w;w;w;n;n;n;n};
+#alias {e2s} {w;w;w;w;s;s;s;s};
+#alias {n2s} {s;s;s;s;s;s;s;s};
+#alias {n2w} {s;s;s;s;w;w;w;w};
+#alias {n2e} {s;s;s;s;e;e;e;e};
+#alias {ka} {killall};
+#alias {kb} {kill bing};
+#alias {kz} {kill qianhu zhang};
+
+#class $mod_name close;
+
+${mod_name}_load;

@@ -1,0 +1,3 @@
+#class learnemt kill;
+#class learnemt_data kill;
+#unvar learnemt_%*;

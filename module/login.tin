@@ -1,0 +1,86 @@
+#class $mod_name open;
+
+#alias {${mod_name}_load} {
+    #showme Module $mod_name loaded;
+    #unalias ${mod_name}_load;
+};
+
+#alias {${mod_name}_unload}{
+    #showme Module $mod_name unloaded;
+    #class $mod_name kill;
+};
+
+#alias {cfg} {
+    #if {"%1" == "load"} {
+        #class %2.cfg.inner open;
+        
+        #read etc/%2.cfg;
+        
+        #class %2.cfg.inner close;
+        
+        #show %2.cfg loaded;
+    };
+    #elseif {"%1" == "unload"} {
+        #class %2.cfg.inner kill;
+        #show %2.cfg removed;
+    };
+};
+#alias {cfg.reload} {
+    cfg unload @lower{$status[id]};
+    cfg load @lower{$status[id]};
+};
+
+#list login_host create {mud.pkuxkx.net;mud.pkuxkx.com;pkuxkx.com};
+
+#alias {login} {
+    #class login_inner open;
+    
+    #event {SESSION TIMED OUT} {
+        #delay {120} { login %0 };
+    };
+    #event {SESSION CONNECTED}{
+    
+        #format screen[rows] {%R};
+        #format screen[cols] {%C};
+
+        #list {startup_modules} {create} {event;common;path;sched;bag;misc;test;map;fullskill;fight};
+
+        startup_mod_init;
+        
+        cfg load %%0;
+        
+        #send {%%0};
+        
+    };
+    #act {{			欢迎来到北大侠客行|重新连线完毕}} {
+        #cr;
+        #event {SESSION DISCONNECTED} {
+            #nop %0 name %1 host %2 ip %3 port;
+            log auto_relogin;
+            login %%%0;
+        };
+        #delay {1} {
+            #nop #gts #class login_inner kill;
+            
+            mod status load;
+            #delay {1} {
+                map load;
+            };
+        };
+        #class login_inner kill;
+    };
+    #act {此ID档案已存在，请输入密码：} {
+        #read pwd_%1.tin;
+    };
+    #act {^您要将另一个连线中的相同人物赶出去，取而代之吗} {
+        y;
+    };
+    
+    #class login_inner close;
+    
+    #ses %1 mud.pkuxkx.com 8080;
+};
+
+#class $mod_name close;
+
+${mod_name}_load;

@@ -1,0 +1,5 @@
+#nop onLogin.tin;
+
+#nop 帐号登录成功时加载此脚本;
+
+mm.load status;

@@ -1,0 +1,552 @@
+#class xiaoyao open;
+
+#var xiaoyao.accu 10;
+#var xiaoyao.delayLong 1;
+#var xiaoyao.delayShort 0.2;
+#var xiaoyao.currentPosition {};
+
+#VAR {xiaoyao-walk-callback} {};
+#VAR {xiaoyao-walk-cmds} {};
+#VAR {xiaoyao.step} {1};
+#VAR {xiaoyao.stepaccu} {1};
+#VAR {xiaoyao.stepmax} {0};
+
+#alias gt {
+    #switch {"%1"} {
+        #case {""}      { xiaoyao.help  };
+        #case {"here"}  { xiaoyao.here  };
+        #case {"list"}  { xiaoyao.list  };
+        #default        {
+            #format xiaoyao.currentPosition {};
+            #class tmp open;
+            #action {^你抱膝而坐，迎风呼吸，只觉胸腹间清气充塞，竟似欲乘风飞去。$} {
+                #class tmp kill;
+                #delay 0 {xiaoyao.goto {%1} {%2}}
+            };
+            #action {^风景要慢慢的看。$} {
+                #delay 1 {look};
+                #delay ready2go {unme} 2;
+            };
+            #delay ready2go {unme} 1;
+            #class tmp close;
+            look
+        };
+    };
+};
+
+#alias {xiaoyao.help} {
+    #echo {%c%h} {light yellow};
+    #echo ;
+    #echo {%c%+2s命令格式：gt [节点id|here|list]} {light yellow};
+    #echo {%c%+2s说明：gt 节点id：前往指定节点} {light yellow};
+    #echo {%c%+8sgt here：显示当前节点信息} {light yellow};
+    #echo {%c%+8sgt list：显示所有可通行节点的名称} {light yellow};
+    #echo {%c%+8sgt：显示本说明} {light yellow};
+    #echo ;
+    #echo {%c%h} {light yellow};
+    #return;
+};
+
+#alias {xiaoyao.here} {
+    #local hereId   {${xiaoyao.currentPosition}};
+    #local hereInfo {${xiaoyao-map[$hereId]}};
+
+    #if { "$hereId" == "" || "$hereInfo" == "" } {
+        #echo {%c%h} {light yellow};
+        #echo {%c  不能确定当前位置} {light yellow};
+        #echo {%c%h} {light yellow};
+    };
+    #else {
+        #echo {%c%h} {light yellow};
+        #echo {%c  当前位置：$hereId($hereInfo[long], $hereInfo[name])} {light yellow};
+        #echo {%c%h} {light yellow};
+    };
+};
+
+#alias {xiaoyao.list} {
+    #local position {};
+
+    #echo {%c%h} {light yellow};
+
+    #local count {0};
+    #local message {};
+    #foreach *{xiaoyao-map[]} {position} {
+        #local info {${xiaoyao-map[$position]}};
+        #math count {$count + 1};
+        #if { $count == 1 } {
+            #format message {$message<efa>%-35s} {$position ($info[long],$info[name])};
+        };
+        #else {
+            #format message {$message\t<efa>%-35s} {$position ($info[long],$info[name])};
+        };
+        #if { $count == 3 } {
+            #echo $message;
+            #format message {};
+            #format count {0};
+        };
+    };
+
+    #echo {%c%h} {light yellow};
+};
+
+#alias {xiaoyao.goto} {
+    #local hereId   {${xiaoyao.currentPosition}};
+    #local targetId {%1};
+    #local callback {%2};
+
+    #local hereInfo {${xiaoyao-map[$hereId]}};
+    #if { "$hereId" == "" || "$hereInfo" == "" } {
+        #echo {%c%h} {light yellow};
+        #echo {%c  不能确定当前位置} {light yellow};
+        #echo {%c%h} {light yellow};
+        #return;
+    };
+
+    #local targetInfo {${xiaoyao-map[$targetId]}};
+    #if { "$targetInfo" == "" } {
+        #echo {%c%h} {light yellow};
+        #echo {%c  没有$targetId这个地区} {light yellow};
+        #echo {%c%h} {light yellow};
+        #return;
+    };
+
+    #if { "$hereId" == "$targetId" } {
+        #echo {%c%h} {light yellow};
+        #echo {%c  你喜欢原地逛逛么？} {light yellow};
+        #echo {%c%h} {light yellow};
+        #return;
+    };
+
+    #echo {%c%a%a%h} {light yellow}{10}{13}{行走信息};
+    #echo {%c  你的目的地区是：$targetInfo[name] ($targetInfo[long], $targetId)} {light yellow};
+    
+    mark $user[id];
+
+    #local cmds {@__xiaoyao_findPath__{$hereId;$targetId}};
+    #echo {%c%h} {light yellow};
+    
+    xiaoyao.doCmds {$cmds} {$callback};
+};
+
+#alias {gt stop} {#class xiaoyao-walk kill};
+
+#nop ==路径计算==;
+#function {__xiaoyao_findPath__} {
+    #local src  {%1};
+    #local dst  {%2};
+
+    #local routeMap {};
+    #list todoList create {$src};
+
+    #local depth {0};
+    #while {1} {
+        #math depth {$depth + 1};
+        #if { $depth > 100 || "$routeMap[$dst]" != "" } {
+            #break;
+        };
+
+        #nop 遍历所有新发现的节点;
+        #local todo     {$todoList};
+        #list todoList  create {};
+        #foreach *todo[] {index} {
+            #local node $todo[$index];
+            #local nodeLinks {${xiaoyao-map[$node][links]}};
+            #foreach *nodeLinks[] {link} {
+                #if { "$routeMap[$link]" == "" } {
+                    #list {todoList} {add} {$link};
+                    #format routeMap {%s} {$routeMap {$link}{$node}};
+                };
+            };
+        };
+    };
+
+    #if { "$routeMap[$dst]" == "" } {
+        #echo <110>找不到可用的路径。<070>;
+        #return;
+    };
+
+    #local route    {$dst};
+    #list allSteps  create {};
+    #while { "$dst" != "$src" } {
+        #format from    {%s} {$routeMap[$dst]};
+        #format route   {%s} {$from;$route};
+        #local path     {${xiaoyao-map[$from][links][$dst]}};
+        #list steps     create {$path};
+        #format dst {%s} {$from};
+
+        #format {allSteps} {%s} {@joinCmds{{$steps}; {$allSteps}}};
+    };
+
+    #echo {<120>节点:<070> $route};
+    #echo {<120>路径:<070> @list2string{{$allSteps}}};
+
+    #return {$allSteps};
+};
+
+#function {list2string} {
+    #local pathList {%1};
+    #list pathList {simplify} {result};
+};
+
+#function {joinCmds} {
+    #var left  {%1};
+    #var right {%2};
+
+    #local leftLen  {&left[]};
+    #local rightLen {&right[]};
+
+    #while { $leftLen > 0 && $rightLen > 0 } {
+        #local dir  $left[$leftLen];
+        #local back {@reverseDir{$dir}};
+        #if { "$back" == "" || "$back" == "$dir" || "$back" != "$right[1]" } {
+            #break;
+        };
+
+        #list left  delete $leftLen 1;
+        #list right delete 1 1;
+        #math leftLen {$leftLen - 1};
+        #math rightLen {$rightLen - 1};
+    };
+
+    #while { $leftLen > 0 } {
+        #list right insert 1 {$left[$leftLen]};
+        #math leftLen {$leftLen - 1};
+    };
+
+    #return {$right};
+};
+
+#nop ==行走命令==;
+
+#alias {script.Play} {
+    #local cmds     {%1};
+    #local callback {%2};
+
+    #list {xiaoyao-walk-cmds} create {$cmds};
+    xiaoyao.doCmds {${xiaoyao-walk-cmds}} {$callback};
+};
+
+#alias {xiaoyao.doCmds} {
+    #var xiaoyao-walk-cmds      {%1};
+    #var xiaoyao-walk-callback  {%2};
+
+    #var {xiaoyao.stepmax} {0};
+    #list {xiaoyao-walk-cmds} size {xiaoyao.stepmax};
+
+    #class xiaoyao-walk open;
+
+    #action {^你双手抱拳，作了个揖道：各位英雄请了！$} {
+        #class xiaoyao-walk kill;
+        #echo {%c行走完成。} {light green};
+
+        #if { "${xiaoyao-walk-callback}" != "" } {
+            ${xiaoyao-walk-callback};
+        };
+    };
+
+    #alias walk {
+        #nop 最后一步恢复 brief，这样可以看到房间描述，并据此触发定位。;
+        #if { ${xiaoyao.step} == ${xiaoyao.stepmax} }   { set brief 0; map.WatchRoom };
+        #nop 全部走完之后，发出抱拳指令触发回调，接力下一步动作。;
+        #if { ${xiaoyao.step} > ${xiaoyao.stepmax} }    { hi; #return };
+
+        #local cmd {};
+        #list {xiaoyao-walk-cmds} get {${xiaoyao.step}} cmd;
+        #math {xiaoyao.step} {${xiaoyao.step} + 1};
+        #nop 此处可以利用模式匹配识别自定义指令，已实现 DSL。;
+        #switch {"$cmd"} {
+            #case {"stop"} {
+            };
+            #case {"cr%*"} {    #nop 这里用来处理 cross*/crush_* 命令;
+                $cmd;
+            };
+            #case {"SlowWalk"} {
+                #delay {2} {walk};
+            };
+            #case {"{[A-Z].*}"} {    #nop 规定大写字母打头的命令为插件命令;
+                map.$cmd;
+            };
+            #case {"wait%s%d"} {
+                #local time {$cmd};
+                #replace time {wait} {};
+                #replace time { } {};
+                #delay {$time} {walk};
+            };
+            #case {"wait{For|Line} %*"} {
+                #local waitFor      {$cmd};
+                #local matchLine    {false};
+                #if { "$cmd" == "waitLine %*" } {
+                    #format matchLine {true};
+                };
+                #replace waitFor {waitFor }  {};
+                #replace waitFor {waitLine } {};
+                #if { "$matchLine" == "true" } {
+                    #format waitFor {^%p$} {$waitFor};
+                };
+                #else {
+                    #format waitFor {%p}   {$waitFor};
+                };
+                #local cmd {
+                    #class xiaoyao-walk-tmp kill;
+                    #class xiaoyao-walk-tmp open;
+                    #echo {%s} {等待事件「$waitFor」出现。};
+                    #action {$waitFor} {
+                        #class xiaoyao-walk-tmp kill;
+                        #delay 1 walk;
+                    }
+                    #class xiaoyao-walk-tmp close;
+                };
+                $cmd;
+            };
+            #default {
+                #class xiaoyao-walk open;
+                $cmd;
+                #class xiaoyao-walk close;
+                #local nextCmd {};
+                #list {xiaoyao-walk-cmds} get {${xiaoyao.step}} {nextCmd};
+                #math xiaoyao.stepaccu {${xiaoyao.stepaccu}+1};
+                #if { "$nextCmd" == "wait{For|Line} %*" } {
+                    #delay 0 walk;
+                    #break;
+                };
+                #if {${xiaoyao.stepaccu} >= ${xiaoyao.accu}} {
+                    #delay {${xiaoyao.delayLong}} {walk};
+                    #var xiaoyao.stepaccu 1;
+                };
+                #else {
+                    #delay {${xiaoyao.delayShort}} {walk};
+                };
+            };
+        };
+    };
+
+    #alias meizhuang_gate   {#foreach {4;2;5;3} {i} {knock gate $i}};
+    #alias tiandihui_andao  {knock guancai 3;ed;s;s;s;w;e;n;n;n;n;e};
+    #alias tiandihui_andaob {w;#4 s;w;n;n;e;n;s;wu};
+
+    #alias gb_andao         {enter shudong;say 天堂有路你不走呀;d;%%1;};
+
+    #alias guohe3s2n        {#if {"$char[menpai]"=="明教"} {sw;n;ban stone;you;#alias guohe3 {n;ne}} {xiaoyao.askGuoHe}};
+    #alias guohe3n2s        {#if {"$char[menpai]"=="明教"} {sw;s;ban stone;you;#alias guohe3 {s;ne}} {xiaoyao.askGuoHe}};
+    #alias guohe3           {n;ne};
+    #alias taohuadao        {#if {"$char[menpai]"=="桃花岛"} {ride diao} {enter boat}};
+    #alias baituofufei      {#if {"$char[menpai]"=="白驼山"} {give qian 30 silver} {give qian 1 gold}};
+    #alias murongboat       {#if {"$char[menpai]"=="姑苏慕容"} {find boat} {enter boat}};
+    #alias shenlongboat     {#if {"$char[menpai]"=="神龙教"} {find boat} {enter boat}};
+    #alias qytoyzw          {#if {$char[skills][dodge][lv]>120} {e;cai yanziwu} {#3 n;tan qin;row yanziwu}};
+    #alias qytotx           {#if {$char[skills][dodge][lv]>120} {e;cai tingxiang} {#3 n;tan qin;row tingxiang}};
+    #alias gotoqinyun       {#if {$char[skills][dodge][lv]>120} {cai qinyun} {enter boat;row qinyun}};
+    #alias gototingxiang    {#if {$char[skills][dodge][lv]>120} {cai tingxiang} {enter boat;row tingxiang}};
+    #alias gotoyanziwu      {#if {$char[skills][dodge][lv]>120} {cai yanziwu} {enter boat;row yanziwu}};
+
+    #alias {xiaoyao.RetryLastStep} {#math {xiaoyao.step} {${xiaoyao.step} - 2}};
+
+    #action {^你小心翼翼往前挪动，遇到艰险难行处，只好放慢脚步。$}      {xiaoyao.RetryLastStep};
+    #action {^青海湖畔美不胜收，你不由停下脚步，欣赏起了风景。$}        {xiaoyao.RetryLastStep};
+    #action {^你还在山中跋涉，一时半会恐怕走不出这藏边群山！$}          {xiaoyao.RetryLastStep};
+    #action {^你还在山中跋涉，一时半会恐怕走不出这西南地绵绵群山！$}    {xiaoyao.RetryLastStep};
+    #action {^你还在山中跋涉，一时半会恐怕走不出这六盘山！$}            {xiaoyao.RetryLastStep};
+    #action {^你走着走着就陷进了一处沼泽当中，艰难地从沼泽中拔出来。$}  {xiaoyao.RetryLastStep};
+
+    #action {^你沿着踏板走了上去。$}                                    {walk};
+    #action {^不知过了多久，船终于靠岸了，你累得满头大汗。$}            {walk};
+    #action {^小舟终于划到近岸，你从船上走了出来。$}                    {walk};
+    #action {^绿衣少女将小船系在树枝之上，你跨上岸去。$}                {walk};
+    #action {^你定了定神，走了出来。$}                                  {walk};
+    #action {^你终于一步步的终于挨到了桥头$}                            {walk};
+    #action {^你朝船夫挥了挥手便跨上岸去。$}                            {walk};     #nop 神龙岛;
+    #action {^你终于来到了对面，心里的石头终于落地。$}                  {walk};     #nop 灵鹫宫;
+    #action {^半晌，你终于游到了对岸，随手扔掉了石块。}                 {guohe3; walk};
+    #action {^你终于飞到了%*，白雕落了下来。$}                          {walk};
+    #action {^不一会儿，你来到参合庄。$}                                {walk};
+    #action {^不一会儿，小船划到了岸边。$}                              {walk};
+    #action {^不一会儿就到了神龙岛，你纵身跃上码头。$}                  {walk};
+    #action {^不一会儿就到了天津塘沽口，你走上码头。$}                  {walk};
+    #action {^你健步如飞，不一会就走到}                                 {walk};
+    #action {^六名雪山弟子一齐转动机关，吊桥便又升了起来。$}            {walk};
+    #action {^艄公把踏脚板收了起来，竹篙一点，扁舟向江心驶去。$}        {yell boat};
+    #action {^大车停稳了下来，你可以下车(xia)了。$}                     {walk};
+
+    #action {^你身在半空，双手乱挥，只盼能抓到什么东西，这么乱挥一阵，又下堕下百馀丈。$}    {walk};
+    #action {^你反应迅速，急忙双手抱头，身体蜷曲。眼前昏天黑地，顺着山路直滚了下去。$}      {falldown to qbl};
+    #action {^你从山上滚了下来，只觉得浑身无处不疼，还受了几处伤。$}                        {falldown to dzf};
+
+    #alias {falldown to %1} {#class xiaoyao-walk kill; #var xiaoyao.currentPosition %1};
+
+    #class xiaoyao-walk close;
+
+    #var xiaoyao.step 1;
+    #var xiaoyao.stepaccu 1;
+    set brief 3;
+    halt;
+    walk;
+};
+
+#alias {xiaoyao.GuoJiang}   {xiaoyao.shaogong 过江};
+#alias {xiaoyao.GuoHe}      {xiaoyao.shaogong 过河};
+#alias {xiaoyao.YellBoat}   {xiaoyao.shaogong 自助};
+
+#alias {xiaoyao.shaogong} {
+    #local words {%1};
+
+    #class xiaoyao.shaogong open;
+
+    #alias {xiaoyao.waitBoat} { #var xiaoyao.waitBoat {true} };
+
+    #action {^只听得江面上隐隐传来：“别急嘛，这儿正忙着呐……”$} {
+        #nop;
+    };
+    #action {^岸边一只渡船上的老艄公说道：正等着你呢，上来吧。$} {
+        #var xiaoyao.waitBoat {false};
+        #untick xiaoyao.yellboat;
+        enter
+    };
+    #action {^一叶扁舟缓缓地驶了过来，艄公将一块踏脚板搭上堤岸，以便乘客$} {
+        #var xiaoyao.waitBoat {false};
+        #untick xiaoyao.yellboat;
+        enter
+    };
+
+    #action {^%*接过你递给的船资%S。$}                                  {xiaoyao.waitBoat};
+    #action {^你的车船通账上还剩%S，这一趟的船资是%S。$}                {xiaoyao.waitBoat};
+    #action {^%S道：原来是%S的人，快请上船。$}                          {xiaoyao.waitBoat};
+    #action {^你吸了口气，一声“船家”，声音中正平和地远远传了出去。$}  {xiaoyao.waitBoat};
+    #action {^你使出吃奶的力气喊了一声：“船家”$}                      {xiaoyao.waitBoat};
+
+    #action {^江心驶去。$} {
+        #class xiaoyao.shaogong open;
+        #action {^艄公说“到啦，上岸吧”，随即把一块踏脚板搭上堤岸。$} {
+            #var xiaoyao.stepaccu 1;
+            #class xiaoyao.shaogong kill;
+            out; walk;
+        };
+        #class xiaoyao.shaogong close;
+    };
+
+    #tick xiaoyao.yellboat {yell boat} 1;
+
+    #class xiaoyao.shaogong close;
+
+    #if { "$words" == "自助" } {
+        yell boat;
+    };
+    #else {
+        ask shao gong about $words;
+    };
+};
+
+#alias {xiaoyao.jqg} {
+    #class xiaoyao-jqg-walk open;
+
+    #action {^{(前|后|左|右| )+}$} {
+        #local path {};
+        #format path {%p} {%%0};
+        #replace path { } {;};
+        #replace path {前} {move qian};
+        #replace path {后} {move hou};
+        #replace path {左} {move zuo};
+        #replace path {右} {move you};
+        enter;enter;$path;
+    };
+
+    #action {^你终于走出了这段黑暗的山洞。$} {
+        #class xiaoyao-jqg-walk kill;
+        out; #delay 1 walk;
+    };
+
+    #class xiaoyao-jqg-walk close;
+
+    look zi;
+};
+
+#alias {xiaoyao.getSibao} {
+    #class xiaoyao.getSibao open;
+
+    #var xiaoyao-sibao-id {};
+
+    #action {^你要进入哪间储物柜？$} {
+        score;
+        #delay 1 {
+            enter $user[id];
+            find;
+        };
+    };
+
+    #action {^%d%s《{广陵散|率意帖|溪山行旅图|呕血谱}》$} {
+        #var xiaoyao-sibao-id { ${xiaoyao-sibao-id} {%%3}{%%1} };
+    };
+
+    #action {^柜子里目前存放的物品有：$} {
+        #delay {1} {
+            #local sibaoIndex {${xiaoyao-sibao-id}};
+            #class xiaoyao.getSibao kill;
+            #if { &sibaoIndex[] == 4 } {
+                #local book {};
+                #foreach {广陵散;率意帖;溪山行旅图;呕血谱} {book} {
+                    getout $sibaoIndex[$book];
+                };
+                #delay 1 {walk};
+            };
+            #else {
+                #showme 你的柜子里四宝不齐或有多余，无法自动前往梅庄。;
+                set brief 0;
+            };
+        };
+    };
+
+    #class xiaoyao.getSibao close;
+
+    find
+};
+
+#alias {xiaoyao.setPosition} {
+    #local nodeId {%1};
+    #var xiaoyao.currentPosition    {%1};
+
+    #if { "${xiaoyao-map[$nodeId]}" == "" } {
+        #echo {%c%h} {light yellow};
+        #echo {%c  没有%1这个地区} {light yellow};
+        #echo {%c%h} {light yellow};
+        #return;
+    };
+
+    #local neighbourList {};
+    #foreach *{xiaoyao-map[$nodeId][links][]} {link} {
+        #format neighbourList {%s %s} {$neighbourList} {${xiaoyao-map[$link][name]}($link)};
+    };
+
+    #showme {<130>当前位置：${xiaoyao-map[$nodeId][name]}(${xiaoyao.currentPosition}) <170>>>$neighbourList<070>};
+};
+
+#alias {xiaoyao.setupTrigger} {
+    #local END {%s-%s{\[大.*国\][ ]*|}{\[(城内|门派|野外|.*势力范围)\][ ]*(|\[存盘点\])(|\[玩家储物柜\])|}%s};
+
+    #local position {};
+    #foreach *{xiaoyao-map[]} {position} {
+        #local room {${xiaoyao-map[$position][room]}};
+        #local trigger {${xiaoyao-map[$position][trigger]}};
+        #if { "$room" != "" } {
+            #local cmd {#action {^$room$END$} {xiaoyao.setPosition $position}};
+        };
+        #else {
+            #local cmd {#action {$trigger} {xiaoyao.setPosition $position}};
+        };
+        #class xiaoyao-data open;
+        $cmd;
+        #class xiaoyao-data close;
+    };
+};
+
+#alias {xiaoyao.loadData} {
+    #read {data/xiaoyao.tin};
+    #nop 设置节点定位触发器。;
+    xiaoyao.setupTrigger;
+};
+
+#alias {xiaoyao.off} {
+    #class xiaoyao kill;
+    #class xiaoyao-data kill;
+};
+#class xiaoyao close;
+
+xiaoyao.loadData;

@@ -1,0 +1,213 @@
+#class $mod_name open;
+
+#alias {${mod_name}_load} {
+    #showme Module $mod_name loaded;
+    #unalias ${mod_name}_load;
+    tune fb;
+};
+
+#alias {${mod_name}_unload}{
+    #unvar baowei;
+    #undelay {dl_go_for_jl};
+    #showme Module $mod_name unloaded;
+    #class $mod_name kill;
+    tune fb;
+};
+
+#nop #list baowei[path] add {n;n;n;s;w;e;e;n;s;s;n;e;n;e;w;n;w;e;e;w;n;w;e;e;w;s;s;s;e;n;s;e;n;s;e;s;n;w;w;w;s;e;w;w;e;s;w;e;s;e;w;w;e;n;n;n;w;w;s;s};
+#list baowei[path] add {n;n;w;w;e;e;e;e;n;n;n;n;s;s;s;s;e;e;e;e;w;w;w;w;s;s;s;n;n;n;w;w;s;s};
+#list baowei[path] size baowei[pathlen];
+#var baowei[pathidx] 1;
+
+#alias {bw} {
+    ask guo about 襄阳保卫;
+};
+#alias {gs} {
+    ask huang about 工事;
+};
+#alias {jl} {
+    ask guo about 奖励;
+    
+    #var baowei[pathidx] 1;
+    
+    #act {^郭靖说道：「蒙古兵大军来袭，这位英雄预要参加襄阳保卫战，可以在我这里报名（join）。」} {
+        #unact {^郭靖说道：「蒙古兵大军来袭，这位英雄预要参加襄阳保卫战，可以在我这里报名（join）。」};
+        bw;
+        #delay {0.5} {
+            join 3;
+        };
+    };
+};
+#alias {bwok} {
+    ask guo about 脱离保卫;
+};
+
+#alias {_bwmsg} {
+    #showme <139>baowei : %0<079>;
+};
+#alias {_go_for_jl} {
+    #if {$baowei[pathidx] == 1} {
+        jl;
+    } {
+        _next_pos;
+        #delay {dl_go_for_jl} {
+            _go_for_jl;
+        }{0.5};
+    };
+};
+
+#var baowei[startpos] 8;
+#alias {baowei_start} {
+    #var baowei[startpos] %1;
+};
+#alias {_next_pos} {
+    #var baowei[new_pos] 1;
+
+    #send $baowei[path][$baowei[pathidx]];
+    
+    #math baowei[pathidx] {$baowei[pathidx] + 1};
+    #if {$baowei[pathidx] > $baowei[pathlen]} {
+        #var baowei[pathidx] 1;
+    };
+};
+#alias {_go_start_pos} {
+    #if {$baowei[pathidx] == $baowei[startpos]} {
+        #delay {1} {
+            #var baowei[status] 1;
+            look;
+        };
+    } {
+        _next_pos;
+        #delay {0.3} {
+            _go_start_pos;
+        };
+    };
+};
+#act {^【任务】襄阳保卫战开启，请大家踊跃从军，到襄阳的郭靖处报名（ask guojing about 襄阳保卫）} {
+    #unact {^【任务】襄阳保卫战开启，请大家踊跃从军，到襄阳的郭靖处报名（ask guojing about 襄阳保卫）};
+    bw;
+    #delay {0.5} {
+        join 3;
+    };
+};
+#act {郭靖吩咐下面兵士将你带到襄阳保卫战的前线} {
+    #var baowei[status] 0;
+    #var baowei[digging] 0;
+    #var baowei[jlgo] 0;
+    #var baowei[enterflag] 1;
+    #var baowei[new_pos] 1;
+    
+    _bwmsg 进入<保卫襄阳>副本地图;
+
+};
+#act {你向黄蓉打听有关『工事』的消息} {
+    #var baowei[digging] 0;
+    #var baowei[enterflag] 2;
+    
+    #delay {1} {
+        #nop #send look;
+        _go_start_pos;
+    };
+};
+#act {位置：%S  性质：%S  防御值：%d/%d} {
+    #var baowei[shield] %3;
+    #if {$baowei[new_pos] == 1} {
+        #var baowei[shield_max] %4;
+        #var baowei[new_pos] 0;
+    };
+    
+    #if {$baowei[enterflag] == 1} {
+        gs;
+    };
+    #elseif {$baowei[status] == 1} {
+        #if {$baowei[digging] == 0} {
+            #if {$baowei[shield] < @eval{$baowei[shield_max] - 1}} {
+                _bwmsg 这里需要加固;
+                dig;
+            } {
+                _bwmsg 工事修筑完毕,换个地方;
+                
+                _next_pos;
+            };
+        } {
+            _bwmsg 正在修筑工事;
+        };
+    };
+};
+#act {    郭夫人「桃花仙子」黄蓉(Huang rong)} {
+    _bwmsg 发现黄蓉;
+    #if {$baowei[enterflag] == 1} {
+        ask huang about 工事;
+    };
+};
+#act {    %*(Menggu bing)} {
+    _bwmsg 发现蒙古兵;
+};
+#act {你正忙着呢，修不了工事} {
+    #if {$baowei[digging] == 0} {
+        #delay {3} {dig};
+    };
+};
+#act {^%*抡起铁锹，修筑起工事来} {
+    #if {"%1" == "你"} {
+        #var baowei[digging] 1;
+    } {
+        #math baowei[shield_max] {$baowei[shield_max] - 1};
+    };
+};
+#act {^%*正在搬运沙袋加固城门的防御} {
+    #if {"%1" == "你"} {
+        #var baowei[digging] 1;
+    } {
+        #math baowei[shield_max] {$baowei[shield_max] - 1};
+    };
+};
+#act {你直起身来，看看已具规模的工事，擦了擦汗，停下来歇一歇} {
+    #var baowei[digging] 0;
+    
+    #if {$baowei[status] == 1} {
+        #send look;
+    } {
+        _go_for_jl;
+        _bwmsg 可以领奖了;
+    };
+};
+#act {此地的官兵正在和蒙古兵鏖战，现在无法修筑工事} {
+    _next_pos;
+};
+#act {襄阳保卫战正在进行中，现在是蒙古兵第%*轮发兵} {
+    #var baowei[round] %1;
+    
+    #act {现在现实中的时间是北京时间 %*} {
+        #unact {现在现实中的时间是北京时间 %*};
+        #var baowei[time] %%1;
+        #system {echo -e "第$baowei[round]轮 $baowei[time]" >> data/baowei.log};
+    };
+    time;
+};
+#act {蒙古发兵攻打襄阳%*门} {
+    #system {echo -e "%1" >> data/baowei.log};
+};
+#act {{各位可以到郭靖处领奖|襄阳保卫战已经全部结束|襄阳保卫战取得胜利}} {
+    #var baowei[status] 0;    
+    _bwmsg 守卫成功，赶快去找郭靖领奖;    
+};
+#act {襄阳保卫战已经全部结束} {
+
+};
+#act {来犯蒙古兵全军覆没，襄阳保卫战取得胜利} {
+
+};
+
+#nop 你向郭靖打听有关『奖励』的消息。;
+#act {郭靖双手抱拳，讨好地对你说道：「在下对大师的景仰之情，有如滔滔江水连绵不绝！」} {
+    _bwmsg 奖励领取成功，将自动传出副本。;
+};
+
+#nop 【副本】【三号副本】渡化在保卫襄阳的战斗中杀死敌军将士零人，修筑防御工事二十一次，获得战绩二十一，排名十四名，特此嘉奖!;
+#nop 你共得到三万三千七百五十点经验，和三千三百七十五点潜能的奖励!;
+#nop 由于你在战斗中的突出表现，你的江湖声望上升了三万三千七百五十点!;
+
+#class $mod_name close;
+
+${mod_name}_load;

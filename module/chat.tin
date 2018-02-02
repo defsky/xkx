@@ -1,0 +1,53 @@
+#class $mod_name open;
+
+#alias {${mod_name}_load} {
+    #showme Module $mod_name loaded;
+    #unalias ${mod_name}_load;
+};
+
+#alias {${mod_name}_unload}{
+    event_handler_del {_hnd_chat} {RECEIVED LINE};
+    
+    #showme Module $mod_name unloaded;
+    #class $mod_name kill;
+};
+
+#alias {chat.on} {
+    event_handler_add {_hnd_chat} {RECEIVED LINE};
+};
+#alias {chat.off} {
+    event_handler_del {_hnd_chat} {RECEIVED LINE};
+};
+
+#function {nowtime} {
+    #format {result}{%t}{%H:%M}
+};
+
+#nop     ^【江湖】%*;
+
+#list chat_filter_list create {
+    ^【北侠QQ群】%*;
+    ^【闲聊】%*;
+    ^【谣言】%*;
+    ^%*回答你：%*;
+    ^%*告诉你：%*;
+    %*放出祝福题目%*;
+};
+#alias {_hnd_chat} {
+    #foreach $chat_filter_list[%*] {pattern_str} {
+        #regexp {%1} {$pattern_str} {
+            #var chatcmdstr {chatstr='[@nowtime{}]%2';echo -e $\{chatstr//\\\;/\;\}>> data/chatlog};
+
+            #system {script/do_log.sh '\033[1;37m[@nowtime{}]\033[0m%2\033[0m' chatlog};
+            
+            #return;
+        };
+    };
+    
+    #unvar chatcmdstr;
+    #unvar pattern_str;
+};
+
+#class $mod_name close;
+
+${mod_name}_load;

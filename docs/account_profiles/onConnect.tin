@@ -1,0 +1,6 @@
+#nop onConnect.tin;
+
+#nop 连接上服务器，tintin会话创建时加载此脚本;
+mm.load beautify
+
+#event {SESSION ACTIVATED}{prompt.Init;prompt.Enable;#buffer end};

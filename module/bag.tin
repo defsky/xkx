@@ -1,0 +1,159 @@
+#class $mod_name open;
+
+#alias {${mod_name}_load} {
+    _update_bag;
+    #showme Module $mod_name loaded;
+    #unalias ${mod_name}_load;
+};
+
+#alias {${mod_name}_unload}{
+    #showme Module $mod_name unloaded;
+    #class $mod_name kill;
+};
+
+#alias {${mod_name}_help}{
+    #showme <139>模块帮助文档 : ${mod_name}<079>;
+    #showme <139> sellall       : 自动出售bag[sell_list]包含的物品<079>;
+    #showme <139> gc <corpse id>: 拾取指定corpse id的全部物品<079>;
+    #showme <139> pgem          : 自动将所有宝石放入锦囊<079>;
+    #showme <139> mgem <id>     : 自动从锦囊取出3个指定id的宝石combine后再放回<079>;
+    #showme <139> filljd <count>: 自动将指定count的酒袋装满再放入bao中<079>;
+    
+    #showme  ;
+    #showme <139> -> 按任意键继续...<079>;
+    #buffer lock;
+};
+
+#var bag {};
+#list bag[sell_list] add {Heise pifeng;Changjian;Tie bishou;Chang bian;Gangzhang};
+#list bag[sell_list] add {Fish;Fei biao};
+
+#read data/equipid.tin;
+
+#var junkid {{石炭}{shi tan}{玄冰}{xuan bing}};
+
+#act {^你获得了%*份{石炭|玄冰}【{劣质|瑕疵|普通}】} {
+    drop $junkid[%2];
+};
+
+#alias {_count} {
+    #regexp {%2} {^%S{两|文|粒|支|根|张|只|个|条|块|件|柄|把}%*} {
+        #var bag[items][%1] @ctd{&1};
+    };
+};            
+#alias {_hnd_i2} {
+    
+    #regexp {%1} {-------------------------------------------} {
+        #var _hnd_i2[bag_start] 0;
+        #var _hnd_i2[equip_start] 1;
+    };
+    #if {$_hnd_i2[bag_start] == 1} {
+        #regexp {%1} {%*(%*)} {
+            #var bag[items][&2] {1};
+            _count {&2} {&1};
+            #if { 1 == @isListMember{bag[sell_list];&2}} {
+                #list bag[forsell] add {&2};
+            };
+        };
+    };
+    #regexp {%1} {你身上带著下列这些东西(负重%s%d\%)} {
+        #var _hnd_i2[start] 1;
+        #var _hnd_i2[bag_start] 1;
+        #var bag[weight] &2;
+        #var status[weight_pct] &2;
+    };
+    #regexp {%1} {^>%s} {
+        #unvar _hnd_i2;
+
+    };
+    #if {$_hnd_i2[start] == 1} {
+        #line gag;
+    };
+};
+
+#alias {_update_bag} {
+    #undelay {dl_update_bag};
+    event_handler_add {_hnd_i2} {RECEIVED LINE};
+    #unvar bag[items];
+    #unvar bag[forsell];
+    #send i2;
+    
+    #delay {dl_update_bag}{event_handler_del {_hnd_i2} {RECEIVED LINE};}{3};
+};
+
+#nop #tic {tk_upd_bag} {_update_bag;}{66};
+
+#nop =========================================================================;
+
+#alias {gc} {
+    #if {"%1" == ""} {
+        get all from corpse;    
+    } {
+        get all from corpse %1;
+    };
+    drop jin hua;
+    drop shenghuo ling;
+};
+
+#alias {pgem} {
+    #class pgem_inner open;
+    #act {你要把什么东西放进宝石袋} {
+        #class pgem_inner kill;
+    };
+    #act {以你目前的级别，你放不了更多宝石} {
+        #class pgem_inner kill;
+        dbg 宝石袋子满了！！！;
+    };
+    #act {你将手中%*放进了宝石袋} {
+        pack gem;
+    };
+    #class pgem_inner close;
+    pack gem;
+};
+#alias {mgem} {
+    #if {"%1" != ""} {
+        do 3 pickgem %1 ;combine gem;pack gem;
+    } {
+        #showme <129> Usage : mgem <gem id><079>;
+    };
+};
+
+#alias {filljd} {
+    #class filljd_inner open;
+    
+    #var need_count %1;
+    #var filled_count 0;
+    
+    #act {你将牛皮酒袋装满清水} {
+        #math filled_count {$filled_count + 1};
+        #if {$filled_count >= $need_count} {
+            #showme <139>bag : ${filled_count} 个酒袋装填完毕。<079>;
+            #class filljd_inner kill;
+        } {
+            put jiudai in bao;
+            #delay {0.5} {fill jiudai};
+        };
+    };
+    #class filljd_inner close;
+    fill jiudai;
+};
+#alias {sellall} {
+    _update_bag;
+    #delay {1} {
+        #tic {tk_sell} {
+            #list bag[forsell] size _len;
+            #if {$_len !=0 } {
+                #list bag[forsell] get {1} {_name};
+                #list bag[forsell] delete 1;
+                #send {sell @lower{$_name} for $bag[items][$_name]};
+            } {
+                #untic tk_sell;
+                #unvar _len;
+            };
+        } {1};
+    };
+};
+
+#class $mod_name close;
+
+${mod_name}_load;

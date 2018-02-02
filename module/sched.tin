@@ -1,0 +1,19 @@
+#class $mod_name open;
+
+#alias {${mod_name}_load} {
+    #showme module $mod_name loaded.;
+    #unalias ${mod_name}_load;
+};
+
+#alias {${mod_name}_unload}{
+    #showme module $mod_name unloaded.;
+    #class $mod_name kill;
+};
+
+#ticker {keep_alive} {#cr} {300}
+#ticker {save} {save} {660}
+#ticker {backup} {backup} {3660}
+
+#class $mod_name close;
+
+${mod_name}_load;

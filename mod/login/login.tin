@@ -1,0 +1,34 @@
+#class login open;
+
+#var loginServerInfo {
+    {host}{mud.pkuxkx.net}
+    {port}{8080}
+};
+
+#alias {login} {
+    #local id {%1};
+    
+    #if {"$id" == ""} {
+        #echo {%c命令格式：login <your id>}{light red};
+        #return
+    };
+    
+    #echo {%c登录帐号:$id}{light green};
+    
+    #class login open;
+    #act {Input 1 for GBK, 2 for UTF8, 3 for BIG5} {#send 2};
+    #act {此ID档案已存在，请输入密码：} {#class login kill};
+    #act {对不起，你的英文名字只能用英文字母} {#class login kill};
+    
+    #local cmd {#act {您的英文名字} {#send $id}};
+    
+    $cmd;
+    
+    #class login close;
+    
+    #session $id $loginServerInfo[host] $loginServerInfo[port];
+};
+
+#class login close;
+
+mm.help login;
