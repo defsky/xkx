@@ -1,0 +1,20 @@
+#config {mccp} {on}
+#config {packet patch} {0.5}
+
+#list {modules} {create} {path;sched}
+
+#alias {reload} {
+    #foreach {$modules[%*]} {m} {
+        #format {file} {%s.tin} {$m};
+        #class {$m} kill;
+        #class {$m} read {$file};
+        #echo {Module Reloaded : $m};
+    };
+    #unvar m;#unvar file;
+}
+
+#alias {login} {#ses %0 mud.pkuxkx.net 8080}
+
+#split
+
+reload

@@ -1,0 +1,7 @@
+#alias {gcp}		{e;e;s;s;e;n;e;e}
+#alias {tdhout}		{#4 s;w;n;n;e;n;s;wu;w;w;s;w;n;n;w;w}
+#alias {tdhin}		{knock guancai 3;ed;#3 s;w;e;#4 n}
+#alias {tdh}		{gcp;tdhin}
+#alias {wxdout}		{n;w;n;e;s;u;out}
+#alias {toyangzhou}	{w;w;s;drink;w;gu che;qu yangzhou;#delay {5}{xia che;e;e;n;n}}
+#alias {toluoyang}	{s;s;w;w;gu che;qu luoyang;#delay {5}{xia che;e;drink;n;e;e}}
