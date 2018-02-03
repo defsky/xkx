@@ -1,0 +1,274 @@
+#class fullskill open;
+
+#alias logmsg
+{
+	#format {logstr}{%t $id %1}{%m-%d %T};
+	#line {log}{/ttplugin/log/robot}{$logstr};
+
+	#if { "%2" == "true"}
+	{
+		#showme <129>===>%1<===<088>;
+	};
+};
+
+#var skills {};
+#var settings {};
+
+#var work {};
+#var work[status] 0;
+#var work[index] 1;
+#var work[action] {lian};
+#var work[count] 10;
+
+#alias {work.freq}
+{
+    #var work[count] %1;
+};
+#alias {work.add}
+{
+    #list work[target] add %1 %2 %3;
+    #var work[length] @eval{$work[length] + 1};
+};
+
+#alias {work.next}
+{
+    #if {$work[index] > $work[length]}
+    {
+        #echo {<129>Work Completed at %t.<088>} {%Y-%m-%d %H:%M:%S};
+        #buffer lock;
+        #var work[index] 1;
+        fullskill.stop;
+    };
+    #else
+    {
+        #var work[skill] $work[target][@eval{$work[index]*3-2}];
+        #var _SpecSK $work[target][@eval{$work[index]*3-1}];
+        #var _w $work[target][@eval{$work[index]*3}];
+        
+        enable $work[skill] $_SpecSK;
+        unwield all;
+        
+        #if {"$_w" != "none"}
+        {
+            wield $_w;
+        };
+        
+        #var work[index] @eval{$work[index]+1};
+
+    };
+    
+};
+
+#alias {fullskill.path}
+{
+    #var settings[path2sleep] {%1};
+};
+
+#alias {fullskill.start}
+{
+    #class fullskill.start.inner open;
+        
+        fullskill.get_skill_info;
+        
+        #alias {fullskill.stop}
+        {
+            #if {$work[status] == 1}
+            {
+                fullskill.workstop;
+            };
+            #class fullskill.start.inner kill;
+        };
+
+        work.next;
+        
+    #class fullskill.start.inner close;
+    
+    fullskill.workstart;
+};
+
+#alias {fullskill.go2sleep}
+{
+    he jiudai;eat liang;
+    #var status[action] 睡觉;
+    #class fullskill.go2sleep.inner open;
+    
+        #path load $settings[path2sleep];
+        #ticker {go_sleep}
+        {
+            #path walk forward;
+        }{0.5};
+        #event {END OF PATH}
+        {
+            #class fullskill.go2sleep.inner kill;
+            
+            #class go2sleep.path_of_end.inner open;
+                #act {不一会儿，你就进入了梦乡。}
+                {
+                    #unticker try_sleep;
+                };
+                #act {你一觉醒来，精神抖擞地活动了几下手脚。}
+                {
+                    #class go2sleep.path_of_end.inner kill;
+                    fullskill.back2work;
+                };
+                #ticker {try_sleep}
+                {
+                    sleep;
+                }{8};
+            #class go2sleep.path_of_end.inner close;
+            
+            sleep;
+        };
+    #class fullskill.go2sleep.inner close;
+}
+
+#alias {fullskill.back2work}
+{
+    #var status[action] 练功;
+    #class fullskill.back2work.inner open;
+        #path load $settings[path2sleep];
+        #ticker {back_work}
+        {
+            #path walk backward;
+        }{0.5};
+        #event {END OF PATH}
+        {
+            #class fullskill.back2work.inner kill;
+            fullskill.workstart;
+        };
+    #class fullskill.back2work.inner close;
+}
+
+#alias {fullskill.workstart}
+{
+    #var work[status] 1;
+    
+    #class fullskill.workstart.inner open;
+        
+        #alias {fullskill.workstop}
+        {
+            #var work[status] 0;
+            #class fullskill.workstart.inner kill;
+            #untic do_work;
+        };
+        
+    #class fullskill.workstart.inner close;   
+    
+    #if {"$work[action]" == "lian"}
+    {
+        #var status[action] 练功;
+        #if {"$work[skill]" == "force"}
+        {
+            fullskill.workstop;
+            #var work[action] {lingwu};
+            fullskill.workstart;
+        };
+        
+        #class fullskill.workstart.inner open;
+        
+            #act {你必须空手才能练习}
+            {
+                unwield all;
+            };
+            #act {{你需要提高基本功|不能通过练习来提高}}
+            {
+                fullskill.workstop;
+                #var work[action] {lingwu};
+                fullskill.workstart;
+            };
+            #act {{你的体力太低|你的体力太差|你的体力不够|你现在气血虚浮|你太累了}}
+            {        
+                exert recover;
+            };
+        
+        #class fullskill.workstart.inner close;
+    };
+    #else
+    {
+        #var status[action] 领悟;
+        fullskill.get_skill_info;
+        
+        #if {$skills[learned][$work[skill]][1] >= $skills[limit]}
+        {
+            work.next;
+        };
+        
+        #class fullskill.workstart.inner open;
+            
+            #act {你的基本功夫比你的高级功夫还高！}
+            {   
+                #if {"$work[skill]" == "force"}
+                {
+                    work.next;
+                };
+                #else
+                {
+                    fullskill.workstop;
+                    #var work[action] {lian};
+                    fullskill.workstart;
+                }
+            };
+            #act {{你现在过于疲倦,无法静下心来领悟功夫！|你领悟了一次}}
+            {
+                exert regenerate;
+            };
+        
+        #class fullskill.workstart.inner close;
+    };
+    
+    #class fullskill.workstart.inner open;
+    
+        #ticker {do_work}
+        {
+            $work[action] $work[skill] $work[count];
+        }{1};
+        
+        #act {你的内力不够}
+        {
+            fullskill.workstop;
+            fullskill.go2sleep;
+        };
+    #class fullskill.workstart.inner close;
+    
+}
+
+#alias {fullskill.get_skill_info}
+{
+    #class fullskill.get_skill_info.inner open;
+        #var tmp_get_limit {};
+    
+        #event {RECEIVED LINE}
+        {
+            #var tmp_get_limit[rcvd_line] {%%1};
+            #if {"$tmp_get_limit[rcvd_line]" != ""}
+            {
+                #regexp {$tmp_get_limit[rcvd_line]}{^{┌|├}{[─]*}%S{[─]*}{┬|┼}{[─]*}{┬|┼}{[─]*}{┬|┼}{[─]*}{┬|┼}{[─]*}{┐|┤}$}
+                {
+                    #line {gag};
+                };
+                #regexp {$tmp_get_limit[rcvd_line]}{└─────────────┴─────────────┴─◎ 北大侠客行 ◎──┘}
+                {
+                    #line {gag};
+                    #class fullskill.get_skill_info.inner kill;
+                };
+                #regexp {$tmp_get_limit[rcvd_line]}{^│{□|  }%S%s│%S%s│%S│%s%S│%S%s│$}
+                {
+                    #line {gag};
+                    #list skills[learned][&4] create {&8}{&9}{&6}{&2};
+                };
+                #regexp {$tmp_get_limit[rcvd_line]}{^你目前所学过的技能：（共%*项技能，你的技能等级最多能达到%*级）$}
+                {
+                    #line {gag};
+                    #var skills[count] @ctd{&1};
+                    #var skills[limit] @ctd{&2};
+                };
+            }{
+                #line {gag};
+            };
+        };
+    
+    #class fullskill.get_skill_info.inner close;
+    skills;
+};
+
+#class fullskill close;

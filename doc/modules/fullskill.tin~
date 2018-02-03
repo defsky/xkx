@@ -1,0 +1,23 @@
+#class fullskill open;
+
+#alias {fullskill.on_load}
+{
+    #nop;
+};
+
+#alias {fullskill.on_reload}
+{
+    #nop;
+};
+
+#alias {fullskill.on_unload}
+{
+    #nop;
+};
+
+#alias {fullskill.help}
+{
+    #showme {模块名称：fullskill，获取帮助：fullskill.help};
+};
+
+#class fullskill close;

@@ -1,0 +1,107 @@
+#class timer open;
+
+#act {北大侠客行再过%*分钟将重新启动 ...}
+{
+	#showme @ctd{%1}分钟;
+};
+
+#act {^│{□|  }%S%s│%S%s│%S│%s%S│%S%s│$}
+{
+    #showme <129>%1 %3 %5 %7 %8<078>;
+    #line {gag};
+};
+
+#alias {cjon}
+{
+    #class cj open;
+    
+    #var cj_cnt 0;
+    
+    #act {你对着残局研究了一会,似乎有些心得。}
+    {
+        #math cj_cnt {$cj_cnt + 1};
+        
+        #if {@eval{$cj_cnt % 100} == 0}
+        {
+            eat liang;
+            he jiudai;
+        };
+        #delay {dl_w}{watch canju}{1};
+        
+    };
+    
+    #act {你精力不够，无法领悟残局。}
+    {
+        yun regenerate;
+    };
+    
+    #act {你减缓真气运行，让自身恢复正常。}
+	{
+		yun jing;
+	};
+    
+    #alias {cjoff}
+    {
+        #class cj kill;
+    };
+    
+    #delay {dl_w}{watch canju}{1};
+    
+    #class cj close;
+    
+    yun jing;
+}
+
+#act {{你的内力增加了！！|你将运转于任督二脉间的内息收回丹田，深深吸了口气，站了起来。}}
+{
+    dz
+}
+
+#alias {kaixue}
+{
+    #var status[action] 学习中;
+    
+	#class xuexi open;
+
+	#var cmd {xue %1 for %2 %3};
+
+	#act {你今天太累了，结果什么也没有学到。}
+	{
+		#unticker tk_xue;
+		#delay dl_xue {#ticker {tk_xue}{#send $cmd;}{1.5};}{3};
+		yun regenerate;
+	};
+
+	#act {你减缓真气运行，让自身恢复正常。}
+	{
+		yun jing;
+	};
+	
+	#act {%*缺乏实战经验，你%*总是无法领会。}
+    {
+	    tingxue;
+    };
+    
+    #act {你的内力不够。}
+    {
+        tingxue;
+            dazuo 1000
+        #delay {dl_kaixue}{kaixue}{150};
+    };
+
+	#alias {tingxue}
+	{
+	    #var status[action] 空闲;
+		#class xuexi kill;
+		#undelay dl_xue;
+		#unticker tk_xue;
+	};
+
+	#ticker {tk_xue}{#send $cmd;}{1.5};
+	#nop yun jing;
+
+	#class xuexi close;
+};
+
+
+#class timer close;

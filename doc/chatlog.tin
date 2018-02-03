@@ -1,0 +1,42 @@
+#FUNCTION {fn_chatlog}
+{
+	#format {msg}{<149>[%t]<088>%1}{%T};
+	#line {log}{/ttplugin/log/chatlog}{$msg};	
+
+	#return {}
+}
+
+#ACTION {【北侠QQ群】:  %*}
+{
+	#line {gag};
+	#var result @fn_chatlog{<129>[QQ群]<088>%1}
+}
+{4}
+
+#ACTION {【北侠QQ群】%*}
+{
+	#line {gag};
+	#var result @fn_chatlog{<129>[QQ群]<088>%1}
+}
+{5}
+
+#ACTION {【闲聊】%1}
+{
+	#line {gag};
+	#var result @fn_chatlog{<169>[闲聊]<088>%1}
+}
+{5}
+
+#nop #ACTION {【求助】%1}
+#nop {
+#nop 	#line {gag};
+#nop 	#var result @fn_chatlog{[求助]%1}
+#nop }
+#nop {5};
+
+#ACTION {【谣言】%1}
+{
+	#line {gag};
+	#var result @fn_chatlog{<159>[谣言]<088>%1}
+}
+{5}

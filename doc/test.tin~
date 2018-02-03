@@ -1,0 +1,106 @@
+#nop #class mapper open;
+
+#alias logmsg
+{
+	#format {logstr}{%t $id %1}{%m-%d %T};
+	#line {log}{/ttplugin/log/robot}{$logstr};
+
+	#if { "%2" == "true"}
+	{
+		#return {#showme <129>===>%1<===<088>};
+	}
+	{
+		#return {#nop};
+	};
+}
+
+#event {MAP ENTER MAP}
+{
+	logmsg {MAP ENTER MAP event->%0} true
+}
+
+#event {MAP EXIT MAP}
+{
+	logmsg {MAP EXIT MAP event->%0} true
+}
+
+#event {MAP ENTER ROOM}
+{
+	logmsg {MAP ENTER ROOM event->%0}；
+
+
+}
+
+#event {MAP EXIT ROOM}
+{
+	logmsg {MAP EXIT ROOM event->%0} true
+}
+
+#act {^#MAP CREATE%s%d%*}{logmsg {map created->%2} true}
+
+#alias {mapper.get_room_data}
+{
+	#class mapper.get_room_data.inner open;
+
+	#act {^%S%s-%s$}
+	{
+		#var is_room_desc_line 1;
+		#var tmp_room_desc {};
+
+		#nop #act {^>%s}{#unevent {RECEIVED LINE};#unact {^>%s};};
+		#act {^>%s}{#class kill mapper.get_room_data.inner};
+
+		#event {RECEIVED LINE}
+		{
+			#regexp {%%1}{^%s这里%*出口是%*。$}{#var is_room_desc_line 0;logmsg {exit:&3};};
+			#regexp {%%1}{^%s你可以看看(look):%w$}
+			{
+				#var is_room_desc_line 0;
+				logmsg {look:&2};
+			}{
+				#regexp {%%1}{^%s你可以看看(look):%w,%w$}
+				{
+					#var is_room_desc_line 0;
+					logmsg {look:&2 &3};
+				};
+			};
+			#regexp {%%1}{^%s%S「%S」%S(%w %w)%*}
+			{
+				logmsg {npc:&4:&5 &6};
+			}{
+				#regexp {%%1}{^%s%S(%w %w)%*}
+				{
+					logmsg {npc:&2:&3 &4};
+				}{
+					#regexp {%%1}{^%s%S%s%S(%w %w)%*}
+					{
+						logmsg {npc:&4:&5 &6};
+					};
+				};
+			};
+
+			#if {"%%1" == ">%*"}
+			{
+				#nop logmsg {描述-$tmp_room_desc};
+				#map set roomdesc $tmp_room_desc;
+				#nop #unevent {RECEIVED LINE};
+				#class kill mapper.get_room_data.inner;
+			}
+			{
+				#regexp {%%1}{^%s「%*」: %*。$}
+				{
+					#var is_room_desc_line 0;
+					#var status[season] &2;
+					#var status[weather] &3;
+				};
+			};
+			#if {$is_room_desc_line == 1}{#var tmp_room_desc {$tmp_room_desc%%1};};
+		};
+		#nop logmsg %1 true;
+		#map name %1;
+	}
+
+	#class mapper.get_room_data.inner close;
+};
+
+#nop #class mapper close;

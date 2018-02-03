@@ -1,0 +1,457 @@
+#nop ==帮助==;
+#alias {myhelp}
+{
+	#show {<afa>自定义命令如下：};
+	#show {xlon/xloff：修炼内功打开/关闭，格式为xlon [skname]};
+	#show {dzon/dzoff：打坐打开/关闭，自动打坐至支持的最大内力，完成后会自动切换为吐纳};
+	#show {tnon/tnoff：吐纳打开/关闭，自动吐纳至支持的最大精力};
+	#show {studyon/studyoff：读书打开/关闭，18岁以下需带好bag，18岁买房后在自己房间内存书，如有不可保存的书籍，也需要带bag};
+	#show {louon/louoff：少林跳楼};
+	#show {lxon/lxoff：练习技能打开/关闭，格式为lxon [base skill]，需设定alias vf skbrief [skname]};
+	#show {fsk on/off：自动练功。};
+	#show {canju on/off：无量山看残局};
+	#show {cc on/off：少林参禅，在方丈楼使用};
+	#show {renew：自动打坐到双倍内力，根据狂欢（双倍）或休息周（加成30%）请设置#var dztn_rt 为2或1.3。};
+	#show {goout：蒙古地区在老年牧人处ask ren about path后可以使用goout [n/s/e/w]自动前往指定区域};
+	#show {mazeout：老林迷宫和苗岭迷宫内使用，可自动向指定的方向走出迷宫，格式为mazeout [n/s/e/w]};
+	#show {looksnow：在雪山派的雪地中可以look snow的地方使用，练习基本轻功。};
+	#show {cq：存钱，在钱庄使用，整体身上的钱财至1 gold。};
+};
+
+#nop ==常用alias==;
+
+#alias {h} {halt;stopwalk;set brief 2};
+#alias {ga} {get all};
+#alias {gc} {get all from corpse};
+#alias {bf %1} {set brief %1};
+#alias {k} {kill %0};
+#alias {ka} {killall %0};
+#alias {ts} {zou tiesuo};
+#alias {clbar} {#echo {{ } {-1}}};
+#alias {xlon} {#read xiulian.tin;#unti hp;#echo {{修炼内功：} {-1}};exp;#alias xl {xiulian %1};alias vf skbrief %1;verify %1;xl};
+#alias {xloff} {#class xiulian kill;hpticker;clbar};
+#alias {dzon} {#read dazuo.tin;#unti hp;#echo {{打坐中} {-1}};jifa;hpbrief;#var skname 打坐中};
+#alias {dzoff} {#class dazuo kill;hpticker;clbar};
+#alias {tnon} {#read tuna.tin;#unti hp;#echo {{吐纳中} {-1}};sk;hpbrief;#var skname 吐纳中};
+#alias {tnoff} {#class tuna kill;hpticker;clbar};
+#alias {studyon} {#read study.tin;#unti hp;#echo {{读书中} {-1}}};
+#alias {studyoff} {#class study kill;hpticker;clbar};
+#alias {louon} {#read lou.tin;#unti hp;#echo {{跳楼中} {-1}};set brief 1;alias vf skbrief dodge;vf;exp;#var skname 基本轻功;hpbrief};
+#alias {louoff} {#class lou kill;hpticker;clbar;set brief 2};
+#alias {lxon} {#read lianxi.tin;#unti hp;#echo {{练习中} {-1}};exp;#alias lx {lian %1 50};set brief 1;lx};
+#alias {lxoff} {#class lianxi kill;hpticker;clbar;set brief 2};
+#alias {lwon} {#read lingwu.tin;#unti hp;#echo {{领悟中} {-1}};exp;verify %1;#alias lw {lingwu %1 50};alias vf skbrief %1;set brief 1;golingwu;lw};
+#alias {lwoff} {#class lingwu kill;hpticker;clbar;set brief 2};
+#alias {looksnow} {#re snow.tin};
+#alias {fsk}
+{
+	#if {"%1"=="on"}
+	{
+		#re fullsk.tin;
+	};
+	#elseif {"%1"=="off"}
+	{
+		lxoff;
+		lwoff;
+		#class fullskills kill;
+		#show {<faa>停止练功。};
+	};
+	#else {mess 提示：请在各门派领悟地点输入 fsk on 或 fsk off。};
+};
+#alias {canju}
+{
+	#if {"%1"=="on"}
+	{
+		#re canju.tin;
+		#echo {{研究残局} {-1}};
+		verify literate;
+		alias vf skbrief literate;
+		hp;
+	};
+	#elseif {"%1"=="off"}
+	{
+		#class canju kill;
+		clbar;
+	};
+	#else {mess 提示：请在围棋室输入 canju on 或 canju off。};
+};
+#alias {cc}
+{
+	#if {"%1"=="on"}
+	{
+		#echo {{参禅：} {-1}};
+		#var skname {禅宗心法};
+		#class canchan open;
+		#act {^skbrief ok$}
+		{
+			#echo {{参禅：%d(%d%a)} {-1}} {$level} {@eval{$lvpot*100/($level+1)/($level+1)}} {37};
+		};
+		#gag {^%*坐在蒲团上，盘膝坐下，口中仿佛念念有词。$};
+		#act {^你受到自身经验和悟性的影响，无法继续参禅了。$} {#class canchan kill;#delay 5 {quit}};
+		#act {^你现在无法静下心来参禅！$} {#delay 1 {canchan}};
+		#act {你心神无法专一} {#delay 1 {canchan}};
+		#act {^你修行完毕，收心定神，满心释然的站了起来。$} {skbrief buddhism;hp};
+		#act {^≡━━━━━━━━━━━━━━━━━━━━━━━◎北大侠客行◎━━≡$}
+		{
+			#if {$food<200} {drink jiudai;#delay 2 {canchan}};
+			#elseif {$water<200} {eat liang;#delay 2 {canchan}};
+			#else {canchan};
+		};
+		#class canchan close;
+		n;nu;u;n;canchan;
+	};
+	#elseif {"%1"=="off"}
+	{
+		#class canchan kill;
+		clbar;
+	};
+	#else {mess 提示：请在方丈楼输入 cc on 或 cc off。};
+};
+#alias pu
+{
+	#if {"$mymenpai"=="大轮寺"} {yun longxiang};
+	#elseif {"$mymenpai"=="古墓派"} {yun xinjing};
+	#else {yun powerup};
+};
+
+#alias {andao} {enter shudong;say 天堂有路你不走呀;d};
+#alias {fast} {shouqi;gua};
+#alias {slow} {sheng;xia};
+#alias {jq} {jobquery};
+#alias {jv} {jump valley};
+#alias {mao} {ask mao about 老朋友};
+#alias {mapi} {flatter 星宿老仙德配天地威震寰宇古今无比};
+#alias {damo} {open door;n;sw;se;n;s;w;e;w;#2 e;s;w;n;nw;n};
+#alias {sa} {sell all};
+#alias {fjd} {#10 {fill jiudai;drop jiudai};get all};
+#alias {jiuyin} {ask yang about 九阴真经;give whip book to yang;#delay 2 {#3 n;e;#2 ne;e;swim river;#2 n;e;#2 n;w;enter xuanwo;get jiuyin zhenjing;#delay 1 {out;#2 s;out;w;#2 sw;w}}};
+#alias {shiban} {say 上报四重恩，下济三途苦;#4 pull stone up;#3 push stone down};
+#alias {shuikao} {e;nd;ask chou diao about 独孤求败;nu;ask yu fu about 过河;se;catch fish;nw;give fish to yu fu;swim;pick sword};
+#alias {shuikaob} {swim;#2 sd;su;w};
+#alias {swe} {swear 我将永远忠于帮主，若有悖逆，天诛地灭!!};
+#alias {swordbook} {#2 s;w;nw;ask punk about 王小二;se;e;#2 n;#2 nw;ne;enter hole;ask wang about 鸡;bihua};
+#alias {swordbookb} {w;sw;#2 se};
+#alias {bladebook} {#2 w;#3 n;ask tian about 淫贼;accept};
+#alias {bladebookb} {#3 s;#2 e};
+#alias {ua} {unwield all};
+#alias {ut} {uptime};
+#alias {wb} {wield all};
+#alias {weizao} {ask teller about 伪造;give teller paper;#delay {1} {give teller 50 silver};#delay {2} {give teller 50 silver}};
+#alias {xiaoyuan} {say 红花老祖本姓朱 为救苍生下凡来};
+#alias {yb} {yell boat};
+#alias {eb} {enter boat};
+#alias {zb} {remove cloth;wear jia;wield bi;wield bian;wield jian;wield sword;wield ling;wield dao;wield zhang;wield zhang 2};
+#alias {zbb} {drop cloth;drop xue;drop shoes;wear all;wield staff;wield staff 2;wield sword;wield blade;wield whip};
+#alias {zbbj} {draw sword;draw whip;draw armor;draw head;draw boots;draw cloth;draw surcoat;enter;wield whip;wield sword;remove all;wear all};
+#alias {zbdj} {draw blade;draw sword;draw armor;draw head;draw boots;draw cloth;draw surcoat;enter;wield sword;wield blade;remove all;wear all}
+#alias {zbg} {draw staff;draw staff;draw armor;draw head;draw boots;draw cloth;draw surcoat;enter;wield all;remove all;wear all};
+#alias {zbj} {draw sword;draw sword;draw armor;draw head;draw boots;draw cloth;draw surcoat;enter;wield all;remove all;wear all};
+#alias {st} {status_me};
+#alias {choudiao} {ask chou diao about 独孤求败};
+#alias {sanfeng} {w;sw;s;se;e;ne;n;nw;sw;s;e;open door;n};
+#alias {showmax} {#show $jingli_max,$neili_max};
+#alias {jinding} {n;n;w;e;s;e;e;n;n};
+#alias {mess}
+{
+#nop	#echo {{<171>%h<099>} {-2}} {  %0  };
+#nop	#delay {5} {#echo {{<072>%h<099>} {-2}}};
+	#show <171>!Alarm!========== %0 ========== !Alarm!<099>
+};
+#alias {hpticker} {#ticker {hp} {#var hpbf 1;hpbrief} {15}};
+#alias {renew}
+{
+	#class renew open;
+	#act {^{你运功完毕，深深吸了口气，站了起来。|你将内息走了个小周天，流回丹田，收功站了起来。|你只觉神元归一，全身精力弥漫，无以复加，忍不住长啸一声，徐徐站了起来。|你将真气在体内沿脉络运行了一圈}} {exert recover;hp};
+	#act {^≡━━━━━━━━━━━━━━━━━━━━━━━◎北大侠客行◎━━≡$}
+	{
+		#if {$neili<@int{@eval{$maxneili*1.9}}}
+		{
+			#math dazuo {$qi*9/10};
+			#if {@eval{$neili+$dazuo*$dz_ration*$dztn_rt}>@int{@eval{$maxneili*1.95}}}
+			{
+				dazuo @int{@eval{($maxneili*1.95-$neili)/$dz_ration/$dztn_rt}};
+			};
+			#else
+			{
+				dazuo $dazuo;
+			};
+		};
+		#else
+		{
+			#class renew kill;
+			mess renewed;
+			#show renewed;
+		};
+	};
+	#class renew close;
+	hp;
+};
+#alias {goout}
+{
+	#if {"%1"=="e" | "%1"=="s" | "%1"=="n" | "%1"=="w"}
+	{
+		#if {@numitems{getout%1}==0}
+		{
+			#show 没有记录 %1 方向的路径。
+		};
+		#else
+		{
+			#forall {${getout%1}[%*]} {&0};
+			#var getoute {};#var getoutn {};#var getoutw {};#var getouts {};
+		};
+	};
+	#elseif {"%1"==""} {#show 请指定方向(n|s|e|w)。};
+	#else {#show 没有 %0 这个方向。};
+};
+#alias {mazeout}
+{
+	#if {"%1"=="n" | "%1"=="s" | "%1"=="e" | "%1"=="w"}
+	{
+		#show {<afa>开始过迷宫。};
+		#class mazeout open;
+		#var mazeout 1;
+		#ticker mazeout
+		{
+			#switch $mazeout
+			{
+				#case 1 {%1;#show %1};
+				#case 2 {%1u;#show %1u};
+				#case 3 {%1d;#show %1d};
+			};
+			#math mazeout {$mazeout+1};
+			#if {$mazeout>3} {#var mazeout 1};
+		} {6};
+		#act {^在你筋疲力尽之际，终于找到了出路(out)。$} {#unticker mazeout;#class mazeout kill;#delay 6 out};
+		#class mazeout close;
+	};
+	#else {#show {请指定正确的方向，格式为mazeout [dir]。}};
+};
+#alias {cq}
+{
+	#class cunqian open;
+	#var cmi 1;
+	#alias cunqian
+	{
+		#switch $cmi
+		{
+			#case 1 {cun all cash};
+			#case 2 {cun all gold};
+			#case 3 {cun all silver};
+			#case 4 {cun all coin};
+			#case 5 {qu 1 gold};
+		};
+	};
+	#act {^你拿出%*，存进了银号。} {#math cmi {$cmi+1};#delay 1 {cunqian}};
+	#act {^您身上没有带这种钱。} {#math cmi {$cmi+1};#delay 1 {cunqian}};
+	#act {说道：「哟，抱歉啊，我这儿正忙着呢……您请稍候。」} {#delay 1 {cunqian}};
+	#act {^你从银号里取出一两黄金。} {#class cunqian kill};
+	#class cunqian close;
+	cunqian;
+};
+#alias {gu} {gan che to up};
+#alias {gd} {gan che to down};
+#alias {gn} {gan che to north};
+#alias {gs} {gan che to south};
+#alias {ge} {gan che to east};
+#alias {gw} {gan che to west};
+#alias {gnu} {gan che to northup};
+#alias {gnd} {gan che to northdown};
+#alias {gsu} {gan che to southup};
+#alias {gsd} {gan che to southdown};
+#alias {geu} {gan che to eastup};
+#alias {ged} {gan che to eastdown};
+#alias {gwu} {gan che to westup};
+#alias {gwd} {gan che to westdown};
+#alias {gne} {gan che to northeast};
+#alias {gnw} {gan che to northwest};
+#alias {gse} {gan che to southeast};
+#alias {gsw} {gan che to southwest};
+#alias {genter} {gan che to enter};
+#alias {gout} {gan che to out};
+#alias {fm} {fullme};
+#alias {shlink} {#show $link};
+
+#nop ==常用action==;
+
+#act {^你有很长一段时间没有备份档案了} {backup};
+#act {^你拿起冷馒头，小心翼翼地吃了起来。$} {#delay {1} {eat}};
+#act {^你拿起水瓢舀出井水来喝。$} {#delay {1} {drink}};
+#act {^你已经吃饱了，还是别吃了。$} {#delay {1} {e;n;drink}};
+#act {^你已经喝饱了，还是别喝了。$} {#delay {1} {s}};
+#act {^│%s基本内功%s(force)%s-%*%d/%s%d│$} {#var jingli_max @eval{%5*15}};
+#act {^%s内功%s(force)%s：%*有效等级：%?%d$} {#var neili_max @eval{%6*10}};
+#act {^吊桥还没有升起来，你就这样走了，可能会给外敌可乘之机的。$} {sheng bridge};
+#act {^你拿出一两黄金(Gold)给钱老本。$} {ask qian about 进宫};
+#act {^你必须先把木门打开！$} {open door};
+#act {^你在这里找到了一本武功心得。$} {kan xinde};
+#act {^你找到了一些奇怪的线索。$} {mess clue};
+#act {^你感觉心中的杀气渐渐消失} {#delay 1 {chanhui}};
+#act {^┌【%*功能表】} {#var skname %1};
+#act {^│等级：%s%*%s%d/%s%d%s类别} {#var level %4;#var lvpot %6};
+#act {~|%s\e[1;31m%?%d%s%d\e[2;37;0m%s|} {#var maxsk @eval{%3-1}};
+#act {^%s中年女佣(Nvyong)} {ask nvyong about 郭大侠};
+#act {^你从%*{搜出|拿出}一柄长剑。$} {drop changjian};
+#act {^你从%*{搜出|拿出}一柄长鞭。$} {drop whip};
+#act {^你从%*{搜出|拿出}一只铁轮。$} {drop falun};
+#act {^守将大声喝到:干什么的?(answer)} {answer 送信};
+#act {^虚%*伸手拦住你白眼一翻说道：千年以来，少林向不许女流擅入。} {pu;exert qi;killall xu};
+#act {^江百胜伸手拦住你说道：盟主很忙，现在不见外客，你下山去吧！} {killall jiang baisheng};
+#act {^童百熊说道：「你不是我日月神教弟子，来我教干什么？速速离开！」} {hit tong baixiong};
+#act {^陆大有喝道：你不是华山弟子，不得入内。} {hit lu dayou};
+#act {^师太拦住了你的去路！！} {killall shitai};
+#act {^守山弟子说: 非我派弟子不许上峨嵋山。} {killall dizi};
+#act {^天狼子伸手拦住了你的去路，说道“你们所谓白道人士到我们星宿干什么？} {hit tianlang zi};
+#act {^庄丁挡住了你：喂，你总该意思意思吧？} {killall zhuang ding};
+#act {^门卫把手一拦：你这种正派人物，老子一看就恶心，快滚！} {killall men wei};
+#act {^卫士对你大吼一声：站住，干什么的？(answer)} {answer 送信};
+#act {^卫士对你大吼一声：我看你是奸细吧，还不快滚？} {killall wei shi};
+#act {你给神灵一个手印} {s};
+#act {^你的客户端不支持MXP功能，使用普通文本模式。} {tune jy;sc;hp;hpbrief};
+#act {^你从%*{除下|搜出|拿出}一件铁甲。$}
+{
+	#class armor open;
+	#act {^{宝和记|当铺|皇城当铺|泉州当铺|襄阳当铺|祚德庙}$} {sell armor};
+	#act {^你把身上的一件铁甲卖掉。$} {#class armor kill};
+	#class armor close;
+};
+#act {^http://pkuxkx.net/antirobot/robot.php?filename=%1}
+{
+	#var link {http://pkuxkx.net/antirobot/robot.php?filename=%1};
+#nop	#system sh ./fullme.sh %1;
+}
+#act {^你向老年牧人打听有关『path』的消息。$} {#var getoute {};#var getoutn {};#var getoutw {};#var getouts {}};
+#act {^老年牧人%*：要穿过%*，到达%1边，路径是%2，千万不要走错了！$}
+{
+	#var i %2;
+	#while {@pos{$i;>}>0}
+	{
+		#var k @pos{$i;>};
+		#if {"%1"=="北"} {#var j n};
+		#elseif {"%1"=="南"} {#var j s};
+		#elseif {"%1"=="东"} {#var j e};
+		#elseif {"%1"=="西"} {#var j w};
+		#list getout$j add {@copy{$i;1;@eval{$k-2}}};
+		#var i @copy{$i;@eval{$k+1};@eval{@len{$i}-$k}};
+	};
+	#list getout$j add {$i};
+};
+#act {^#%d/%d$} {#var level %1;#var lvpot %2;#show skbrief ok};
+
+#nop ==常用macro==;
+
+#macro {\eOP} {exert recover};
+#macro {\eOQ} {exert regenerate};
+#macro {\eOR} {exert heal};
+#macro {\eOS} {exert inspire};
+#macro {\e[15~} {pu};
+
+#nop ==状态显示==;
+
+#class hp open;
+	#var dztn_rt 1;
+	#var hpbf 1;
+	#var pmt1 {};
+	#var pmt2 {};
+#nop	#gag {> #%*$};
+#nop	#act {> #%*$} {#show #%1};
+	#gag {#%*,%*,%*,%*,%*,%*$};
+	#act {#%*,%*,%*,%*,%*,%*$}
+	{
+		#if {$hpbf==1}
+		{
+			#var exp %1;
+			#var qn %2;
+			#var maxneili %3;
+			#var neili %4;
+			#if {%3<1000} {#var dz_ration 2} {#var dz_ration 1};
+			#math {dazuo} {($maxneili*2-$neili)/$dz_ration/$dztn_rt+1};
+			#var maxjingli %5;
+			#var jingli %6;
+			#if {%5<1000} {#var tn_ration 2} {#var tn_ration 1};
+			#math {tuna} {($maxjingli*2-$jingli)/$tn_ration/$dztn_rt+1};
+			#var hpbf 2;
+		}
+		{
+			#var realmaxqi %1;
+			#var maxqi %2;
+			#var qi %3;
+			#var realmaxjing %4;
+			#var maxjing %5;
+			#var jing %6;
+			#math effjing {$maxjing*100/$realmaxjing};
+			#math effqi {$maxqi*100/$realmaxqi};
+			#var hpbf 1;
+			#var pmt1 {精神 $jing/$maxjing [$effjing%] 气血 $qi/$maxqi [$effqi%] 精力 $jingli/$maxjingli 内力 $neili/$maxneili};
+			#var pmt2 {经验 $exp 潜能 $qn};
+		#nop ==图形化hp==;
+			showhp;
+			#show {self state};
+		};
+	};
+
+	#alias showhp
+	{
+		#if {@screenw{}>@eval{84+@len{$myid}}}
+		{
+			#echo {{<074>$myid @hpcolor{精神[;$jing}@hpdraw{$jing;$realmaxjing}@hpcolor{];$jing} @hpcolor{气血[;$qi}@hpdraw{$qi;$realmaxqi}@hpcolor{];$qi} @hpcolor{精力[;$jingli}@hpdraw{$jingli;$maxjingli}@hpcolor{];$jingli} @hpcolor{内力[;$neili}@hpdraw{$neili;$maxneili}@hpcolor{];$neili} @hpcolor{食物[;$food}@hpdraw{$food;$maxfood}@hpcolor{];$food} @hpcolor{饮水[;$water}@hpdraw{$water;$maxwater}@hpcolor{];$water}@space{@eval{@screenw{}-84-@len{$myid}}}<099>} {1}};
+		};
+		#else
+		{
+			#echo {{<074>$myid @hpcolor{精神[;$jing}@hpdraw{$jing;$realmaxjing}@hpcolor{];$jing} @hpcolor{气血[;$qi}@hpdraw{$qi;$realmaxqi}@hpcolor{];$qi} @hpcolor{精力[;$jingli}@hpdraw{$jingli;$maxjingli}@hpcolor{];$jingli} @hpcolor{内力[;$neili}@hpdraw{$neili;$maxneili}@hpcolor{];$neili}@space{@eval{@screenw{}-56-@len{$myid}}}<099>} {1}};
+		};
+	};
+
+	#act {^【 精神 】%s%1%s/%s%2%s[%*]%s【 精力 】%s%3%s/%s%4%s(%*)$} {#var jing %1;#var maxjing %2;#var jingli %3;#var maxjingli %4};
+	#act {^【 气血 】%s%1%s/%s%2%s[%*]%s【 内力 】%s%3%s/%s%4%s(%*)$} {#var qi %1;#var maxqi %2;#var neili %3;#var maxneili %4};
+	#act {^【 食物 】%s%1%s/%s%2%s[%*]%s【 潜能 】%s%3$} {#var food %1;#var maxfood %2;#var qn %3;}
+	#act {^【 饮水 】%s%1%s/%s%2%s[%*]%s【 经验 】%s%3$} {#var water %1;#var maxwater %2;#var exp %3;}
+	#act {^【 状态 】%*} {#var state %1;showhp};
+
+	#act {^目前权限：(player)$} {hpticker};
+	#act {^重新连线完毕。$} {hpticker;sc;hp;hpbrief};
+
+	#act {^你突然感到精神一振，浑身似乎又充满了力量！} {hpbrief};
+	#act {^( 你似乎有些疲惫，但是仍然十分有活力。 )} {hpbrief};
+	#act {^( 你受了几处伤，不过似乎并不碍事。 )} {hpbrief};
+	#act {^( 你动作似乎开始有点不太灵光，但是仍然有条不紊。 )} {hpbrief};
+	#act {^( 你%*，看起来状况并不太好。 )} {hpbrief};
+	#act {^( 你已经%*，正在勉力支撑著不倒下去。 )} {hpbrief};
+	#act {^( 你看起来已经力不从心了。 )} {hpbrief};
+	#act {^( 你气息粗重，动作开始散乱，看来所受的伤著实不轻。 )} {hpbrief};
+	#act {^( 你似乎十分疲惫，看来需要好好休息了。 )} {hpbrief};
+	#act {^( 你受了相当重的伤，只怕会有生命危险。 )} {hpbrief};
+	#act {^( 你%*，眼看就要倒在地上。 )} {hpbrief};
+	#act {^( 你已经陷入半昏迷状态，随时都可能摔倒晕去。 )} {hpbrief};
+	#act {^( 你受伤过重，已经有如风中残烛，随时都可能断气。 )} {hpbrief};
+
+	#gag {self state};
+
+	#var stbar 0;
+	#ticker {stbar}
+	{
+		#if {@len{$pmt1 $pmt2}>@screenw{}}
+		{
+			#if {$stbar==0}
+			{
+				#show {<074>$pmt1@space{@eval{@screenw{}-@len{$pmt1}-1}}<099>} {-2};
+				#var stbar 1;
+			};
+			#else
+			{
+				#show {<074>$pmt2@space{@eval{@screenw{}-@len{$pmt2}-1}}<099>} {-2};
+				#var stbar 0;
+			};
+		};
+		#else
+		{
+			#show {<074>$pmt1 $pmt2@space{@eval{@screenw{}-@len{$pmt1 $pmt2}-1}}<099>} {-2};
+		};
+	} {5};
+
+#nop	#prompt {self state} {<074>精神 $jing/$maxjing [$effjing%] 气血 $qi/$maxqi [$effqi%] 精力 $jingli/$maxjingli 内力 $neili/$maxneili 经验 $exp 潜能 $qn @space{@eval{@screenw{}-@len{{$pmt}}-1}}<099>};
+
+#class hp close;
+
+#nop ==其他设置==;
+
+#gag {^设定环境变量：echo =};

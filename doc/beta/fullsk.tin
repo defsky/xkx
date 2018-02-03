@@ -1,0 +1,274 @@
+#class getsklist open;
+#nop ==技能列表==;
+#act {你目前所学过的技能：}
+{
+	#var skills_base {};
+	#var skills_base_ch {};
+	#var skills_base_lv {};
+	#var skills_special {};
+	#var skills_special_ch {};
+	#var skills_special_lv {};
+};
+#act {^┌%s%*项基本功夫}
+{
+	#class tmp open;
+	#act {^│%s%*%s(%*)%s-%s%*%s%d/%*│$}
+	{
+		#list skills_base add {%%4};
+		#list skills_base_ch add {%%2};
+		#list skills_base_lv add {%%9};
+	};
+	#class tmp close;
+};
+#act {^┌%s%*项特殊功夫}
+{
+	#class tmp open;
+	#act {^│□%*%s(%*)%s-%s%*%s%d/%*│$}
+	{
+		#list skills_special add {%%3};
+		#list skills_special_ch add {%%1};
+		#list skills_special_lv add {%%8};
+	};
+	#class tmp close;
+};
+#act {^└─────────────────────────────────┘$}
+{
+	#class tmp kill;
+	#if {@ismember{parry;skills_base}>0}
+	{
+		#var i @item{skills_base_lv;@ismember{parry;skills_base}};
+		#list {skills_base_lv} {set} {@ismember{parry;skills_base}} {@item{skills_base_lv;1}};
+		#list {skills_base_lv} {set} {1} {$i};
+		#list {skills_base_ch} {set} {@ismember{parry;skills_base}} {@item{skills_base_ch;1}};
+		#list {skills_base_ch} {set} {1} {基本招架};
+		#list {skills_base} {set} {@ismember{parry;skills_base}} {@item{skills_base;1}};
+		#list {skills_base} {set} {1} {parry};
+	};
+};
+
+#class getsklist close;
+
+#class fullskills open;
+
+#nop ==武器种类==;
+#list weapon_type {create} {sword}{jian}{blade}{dao}{whip}{bian}{staff}{gun}{hammer}{dagger};
+#var weapon_id 1;
+
+#nop ==开始练功==;
+#act {设定环境变量：echo = "fullsk"$}
+{
+	#class getsklist kill;
+	#nop ==领悟路径==;
+	#if {"$mymenpai"=="少林派"}
+	{
+		#alias gosleep {d;sd;w;n};
+		#alias golingwu {s;e;nu;u};
+	};
+	#elseif {"$mymenpai"=="武当派"}
+	{
+		#alias gosleep {e;e;s;e;e};
+		#alias golingwu {w;w;n;w;w};
+	};
+	#elseif {"$mymenpai"=="峨嵋派"}
+	{
+		#alias gosleep {d;n;w;w};
+		#alias golingwu {e;e;s;u};
+	};
+	#elseif {"$mymenpai"=="丐帮"}
+	{
+		#alias gosleep {enter};
+		#alias golingwu {out};
+	};
+	#elseif {"$mymenpai"=="华山派"}
+	{
+		#alias gosleep {w;w;s};
+		#alias golingwu {n;e;e};
+	};
+	#elseif {"$mymenpai"=="雪山派"}
+	{
+		#alias gosleep {w;s};
+		#alias golingwu {n;e};
+	};
+	#elseif {"$mymenpai"=="全真派"}
+	{
+		#alias gosleep {n;n;n};
+		#alias golingwu {s;s;s};
+	};
+	#elseif {"$mymenpai"=="天地会"}
+	{
+		#alias gosleep {e;e};
+		#alias golingwu {w;w};
+	};
+	#elseif {"$mymenpai"=="天龙寺"}
+	{
+		#alias gosleep {s;enter};
+		#alias golingwu {out;n};
+	};
+	#elseif {"$mymenpai"=="白驼山"}
+	{
+		#alias gosleep {out;w;w;n};
+		#alias golingwu {s;e;e;ask trainer about 练功};
+	};
+	#elseif {"$mymenpai"=="大轮寺"}
+	{
+		#if {"$mygender"=="男"}
+		{
+			#alias gosleep {e;s;e;enter};
+			#alias golingwu {out;w;n;w};
+		};
+		#else
+		{
+			#alias gosleep {e;s;w;enter};
+			#alias golingwu {out;e;n;w};
+		};
+	};
+	#elseif {"$mymenpai"=="日月神教"}
+	{
+		#alias gosleep {w;w};
+		#alias golingwu {e;e};
+	};
+	#elseif {"$mymenpai"=="神龙教"}
+	{
+		#alias gosleep {s;w};
+		#alias golingwu {e;n};
+	};
+	#elseif {"$mymenpai"=="星宿派"}
+	{
+		#alias gosleep {w;n};
+		#alias golingwu {s;e};
+	};
+	#elseif {"$mymenpai"=="朝廷"}
+	{
+		#alias gosleep {w};
+		#alias golingwu {e};
+	};
+	#elseif {"$mymenpai"=="古墓派"}
+	{
+		#alias gosleep {out;w;s;s;s;w;w;s};
+		#alias golingwu {n;e;e;n;n;n;e;enter};
+	};
+	#elseif {"$mymenpai"=="灵鹫宫"}
+	{
+		#alias gosleep {n;w;s};
+		#alias golingwu {n;e;s};
+	};
+	#elseif {"$mymenpai"=="明教"}
+	{
+		#alias gosleep {w;w;w;n};
+		#alias golingwu {s;e;e;e};
+	};
+	#elseif {"$mymenpai"=="姑苏慕容"}
+	{
+		#alias gosleep {w;w;n;n;e};
+		#alias golingwu {w;s;s;e;e};
+	};
+	#elseif {"$mymenpai"=="桃花岛"}
+	{
+		#alias gosleep {e;e;e;s;e};
+		#alias golingwu {w;n;w;w;w};
+	};
+	#else
+	{
+		#alias gosleep {e;e};
+		#alias golingwu {w;w};
+	};
+	#show {<faa>开始练功。};
+	#delay 1 {gosleep;jifask};
+};
+#gag {设定环境变量：echo = "fullsk"$};
+#act {你决定用%*作为你的%*。$}
+{
+	#if {@item{skills_special_lv;$skid_special}<$maxsk & @item{skills_special_lv;$skid_special}<@item{skills_base_lv;$skid_base}}
+	{
+		#var fsktype lx;
+		#var skname @item{skills_special_ch;$skid_special};
+		alias vf skbrief @item{skills_special;$skid_special};
+		lxon @item{skills_base;$skid_base};
+	};
+	#elseif {@item{skills_base_lv;$skid_base}<$maxsk}
+	{
+		#var fsktype lw;
+		lwon @item{skills_base;$skid_base};
+	};
+	#else {#delay {0.1} {changeskill}};
+};
+#act {这个技能不能当成这种用途。} {#show 技能切换中……;#delay {0.1} {changeskill}};
+#gag {这个技能不能当成这种用途。};
+#act {没有这个技能种类} {#show 技能切换中……;#delay {0.1} {changeskill}};
+#gag {没有这个技能种类};
+#act {你的基本%*水平有限，无法领会更高深的} {lxoff;;#delay {0.1} {changeskill}};
+#act {特殊内功无法练习} {lxoff;#delay {0.1} {changeskill}};
+#act {你还没有领悟到辟邪剑法的真谛，如何练习？} {lxoff;#delay {0.1} {changeskill}};
+#act {乾坤大挪移心法只能用学习} {lxoff;#delay {0.1} {changeskill}};
+#act {你需要提高基本功，不然练得再多也没有用。$} {lxoff;jifask};
+#act {你的%*的级别还没有%*的级别高，不能通过练习来提高了。$} {lxoff;jifask};
+#act {你使用的武器不对} {#delay 0.1 {changeweapon}};
+#act {你必须先找%*才能练} {#delay 0.1 {changeweapon}};
+#act {你要装备%*类武器才能练习} {#delay 0.1 {changeweapon}};
+#act {必须使用%*类武器} {#delay 0.1 {changeweapon}};
+#act {必须空手} {#delay 0.1 {unwield all;lx}};
+#act {你必须用} {#delay 0.1 {changeweapon}};
+#act {你的太极拳火候太浅。} {lxoff;#delay {0.1} {changeskill}};
+#act {你的基本功夫比你的高级功夫还高！} {lwoff;#delay 1 {gosleep;jifask}};
+#act {你的「%*」进步了！}
+{
+	#if {"$fsktype"=="lw"}
+	{
+		#list skills_base_lv {set} {$skid_base} {@eval{@item{skills_base_lv;$skid_base}+1}};
+		#if {@item{skills_base_lv;$skid_base}==@eval{@item{skills_special_lv;$skid_special}+1} | @item{skills_base_lv;$skid_base}==$maxsk}
+		{
+			lwoff;
+			#delay 2 {gosleep;jifask};
+		};
+	};
+	#else
+	{
+		#list skills_special_lv {set} {$skid_special} {@eval{@item{skills_special_lv;$skid_special}+1}};
+		#if {@item{skills_base_lv;$skid_base}==@item{skills_special_lv;$skid_special}}
+		{
+			lxoff;
+			#delay 2 {jifask};
+		};
+	};
+};
+#alias jifask {jifa @item{skills_base;$skid_base} @item{skills_special;$skid_special}};
+#alias changeskill
+{
+	#math skid_special {$skid_special+1};
+	#if {$skid_special>@numitems{skills_special}}
+	{
+		#var skid_special 1;
+		#math skid_base {$skid_base+1};
+		#if {$skid_base>@numitems{skills_base}}
+		{
+			fsk off;
+			#show <faa>练功完毕，将自动切换到打坐状态。;
+			#delay 10 {dzon};
+		};
+		#else {jifask};
+	};
+	#else {jifask};
+};
+#alias changeweapon
+{
+	#if {$weapon_id==@numitems{weapon_type}} {#var weapon_id 1} {#math weapon_id {$weapon_id+1}};
+	unwield all;
+	wield @item{weapon_type;$weapon_id};
+	lx;
+};
+#gag {走了过来};
+#gag {离开};
+#gag {衣弟子};
+
+#nop ==初始化==;
+#var fsktype {lx};
+#var skid_base 1;
+#var skid_special 1;
+bei none;
+wbei none;
+sk;
+exp;
+set brief 1;
+set echo fullsk;
+
+#class fullskills close;

@@ -1,0 +1,27 @@
+#class fish open;
+
+#alias gofish {out;d;w;s;do 4 w;nw;do 6 w;s;hp};
+#alias fishback {n;do 7 e;se;do 4 e;n;e;u;enter;sleep};
+#act {你刚在三分钟内睡过一觉, 多睡对身体有害无益} {#delay 15 {gofish}};
+#act {你一觉醒来，精神抖擞地活动了几下手脚。} {eat liang;#delay 1 {drink jiudai};#delay 2 {gofish}};
+#act {≡━━━━━━━━━━━━━━━━━━━━━━━◎北大侠客行◎━━≡} {#if {$jing>20} {l yuer} {fishback}};
+#act {你从%*那里买下了五十个鱼饵。} {eat mantou;#delay 1 {drink soup};#delay 2 {n;do 5 w;nw;do 6 w;s;hp}};
+#act {你已经有足够的资本出去闯荡了，不用再浪费时间在钓鱼上了！} {#delay 5 {quit}};
+#act {你把身上的%*鱼卖掉。} {#delay 1 {sell fish 5}};
+#act {你不由的在心里大骂} {hp};
+#act {你的潜能增加了} {hp};
+#act {你的鱼钩上已经有了一个鱼饵了，不能再挂了！} {diao yu};
+#act {你还没把鱼饵挂在鱼钩上哪！} {l yuer};
+#act {你看着%*，眼睛立刻红了。} {hp};
+#act {你看着%*不由的发呆了。} {hp};
+#act {你连声叫到：晦气，晦气。} {hp};
+#act {你身上没有fish} {w;n;e;s;buy yuer 50};
+#act {你小心的把鱼饵挂到鱼钩上。} {diao yu};
+#act {你要看什么} {n;do 6 e;se;do 4 e;s;e;sell fish 5};
+#act {你只有一条fish，没那么多可卖。} {sell fish};
+#act {你只有二条fish，没那么多可卖。} {sell fish 2};
+#act {你只有三条fish，没那么多可卖。} {sell fish 3};
+#act {你只有四条fish，没那么多可卖。} {sell fish 4};
+#act {这是个钓鱼用的鱼饵。} {gua yuer};
+
+#class fish close;

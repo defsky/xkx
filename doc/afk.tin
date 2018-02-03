@@ -1,0 +1,333 @@
+你在攻击中不断积蓄攻势。(气势：2%)
+你蓄足攻势，在战斗中发出绝招「一拍两散」。(气势：40%)
+你在攻击中不断积蓄攻势。(气势：74%)
+你逐步从之前战斗的紧张气氛中平缓下来。(气势：25%)
+经过一段时间后，你终于完全从紧张地战斗氛围中解脱出来。
+
+郝巴对你说道：你可以向我打听有关帮助，蛇床子，地骨皮，交个朋友，热水，木桶，千金方，独门秘方，生甘草的内容！
+
+你向郝巴打听有关『独门秘方』的消息。
+郝巴说道：“我家世代行医，也留下一些珍贵的秘方。”
+郝巴说道：“蛇床子，地骨皮加生甘草用热水煮开，每岁坚持泡澡，会有神奇的功效。”
+郝巴说道：“二十岁之前坚持用这些药材连续泡澡甚至有易筋锻骨的功效。”
+郝巴说道：“唯一的遗憾这种夺天造化的功法似乎不青睐懒人，发呆偷懒过的好像就没有什么效果了。”
+
+
+#act {^%S%s-%s$}
+{
+	#var tmp_room_desc {};
+	#act {^>%s}{#unevent {RECEIVED LINE};#unact {^>%s};};
+	#event {RECEIVED LINE}
+	{
+		#if {"%%1" == "%*这里%*出口是%*"}
+		{
+			logmsg {出口-&1<>%%2<>%%3};
+		};
+		#if {"%%1" == ">%*"}
+		{
+			logmsg {描述-$tmp_room_desc};
+			#unevent {RECEIVED LINE};
+		}
+		{
+			#var tmp_room_desc {$tmp_room_desc%%1};
+		};
+	};
+	logmsg %1 true;
+}
+
+#regexp {%%1}{^%s这里%*出口是 %w 和 %w。$}
+			{
+				#var tmp_room_data[flag_desc_line] 0;
+				#var tmp_room_data[exit] {&3;&4};
+
+				logmsg {$tmp_room_data[exit]};
+			};
+			#regexp {%%1}{^%s这里%*出口是 %w、%w 和 %w。$}
+			{
+				#var tmp_room_data[flag_desc_line] 0;
+				#var tmp_room_data[exit] {&3;&4;&5};
+
+				logmsg {$tmp_room_data[exit]};
+			};
+			#regexp {%%1}{^%s这里%*出口是 %w、%w、%w 和 %w。$}
+			{
+				#var tmp_room_data[flag_desc_line] 0;
+				#var tmp_room_data[exit] {&3;&4;&5;&6};
+
+				logmsg {$tmp_room_data[exit]};
+			};
+			#regexp {%%1}{^%s这里%*出口是 %w、%w、%w、%w 和 %w。$}
+			{
+				#var tmp_room_data[flag_desc_line] 0;
+				#var tmp_room_data[exit] {&3;&4;&5;&6;&7};
+
+				logmsg {$tmp_room_data[exit]};
+			};
+			#regexp {%%1}{^%s这里%*出口是 %w、%w、%w、%w、%w 和 %w。$}
+			{
+				#var tmp_room_data[flag_desc_line] 0;
+				#var tmp_room_data[exit] {&3;&4;&5;&6;&7;&8};
+
+				logmsg {$tmp_room_data[exit]};
+			};
+			#regexp {%%1}{^%s这里%*出口是 %w、%w、%w、%w、%w、%w 和 %w。$}
+			{
+				#var tmp_room_data[flag_desc_line] 0;
+				#var tmp_room_data[exit] {&3;&4;&5;&6;&7;&8;&9};
+
+				logmsg {$tmp_room_data[exit]};
+			};
+
+			#regexp {%%1}{^%s这里%*出口是 %w、%w、%w、%w、%w、%w、%w。$}
+			{
+				#var tmp_room_data[flag_desc_line] 0;
+				#var tmp_room_data[exit] {&3;&4;&5;&6;&7;&8;&9};
+
+				logmsg {$tmp_room_data[exit]};
+			};
+
+#function comment
+{
+#var pingdiao_cnt 0;
+
+#act {^你凭吊完毕,站起身来%*}
+{
+	#if {$status[food] < 100 || $status[water] < 100}
+	{
+		@fn_log{fullme补充体力;true};
+		fullme;
+		#delay 3 {pingdiao};
+	};
+	#else
+	{
+		#math pingdiao_cnt $pingdiao_cnt + 1;
+		@fn_log{开始第 $pingdiao_cnt 次凭吊;true};
+		pingdiao;
+	};
+}
+
+#nop #ticker pd {pingdiao}{300}
+
+#act {^{你的内力增加了！！|你将运转于任督二脉间的内息收回丹田，深深吸了口气，站了起来。}$}
+{
+	hpbrief;
+	#if {$status[sp] > 99}
+	{
+		#ticker xuexi 
+		{
+			hpbrief;
+			#if {$status[sp] < 80}
+			{
+				#unticker xuexi;
+				dz;
+			}
+			{
+				#if {$status[food] < 50 || $status[water] < 50}{fullme};
+				xue xu for cangming-gong 1
+			};
+		}{1}
+	}{dz};
+}
+#act {^你现在精不够，无法控制内息的流动！$}{#delay 10 dz;}
+
+}
+
+#nop =================自动吐纳打坐=====================================================;
+
+#var cmd dazuo;
+
+#function {get_liangong_value}
+{
+	hpbrief;
+	#if {"%1" == "tuna"}
+	{
+		#var status[action] {吐纳};
+		#var test_tmp @eval{$status[energy_max] * 2 - $status[energy] + 1};
+		#if {$test_tmp > @eval{$status[sp] - $status[sp_valid] * 2 / 10}}{#var test_tmp @eval{$status[sp] - $status[sp_valid] * 2 / 10}};
+		#if {$status[sp] < @eval{$status[sp_valid] * 3 / 10}}{#var test_tmp @eval{$status[sp] / 2}};
+		#if {$test_tmp < 10}{#var result 10}{#var result $test_tmp};
+	};
+	#elseif {"%1" == "dazuo"}
+	{
+		#var status[action] {打坐};
+		#var test_tmp @eval{$status[force_max] * 2 - $status[force] + 1};
+		#if {$test_tmp > @eval{$status[hp] - $status[hp_valid] * 2 / 10}}{#var test_tmp @eval{$status[hp] - $status[hp_valid] * 2 / 10}};
+		#if {$status[hp] < @eval{$status[hp_valid] * 3 / 10}}{#var test_tmp @eval{$status[hp] / 2}};
+		#if {$test_tmp < 10}{#var result 10}{#var result $test_tmp};
+	};
+
+	#nop #unvar test_tmp;
+}
+
+#ticker liangong {$cmd @get_liangong_value{$cmd};}{120}
+
+#act {^{你吐纳完毕，睁开双眼，站了起来。|你运功完毕，深深吸了口气，站了起来。}$}
+{
+	#if {$status[force_max] > 930}{#var cmd tuna};
+	#if {$status[energy_max] > 930}{test off};
+	$cmd @get_liangong_value{$cmd};
+	@fn_log{$status[action]：$result;true};
+}
+
+#nop #act {^你运功完毕，深深吸了口气，站了起来。$}
+{
+	tuna @get_liangong_value{tuna};
+	@fn_log{$status[action]：$result;true};
+};
+
+#act {^{你现在精不足，无法修行精力！|你现在精不够，无法控制内息的流动！|你现在身体状况太差了，无法集中精神！|你现在的气太少了，无法产生内息运行全身经脉。}$}
+{
+	#var status[action] {睡觉};
+	hpbrief;
+	sleep;
+}
+#act {^你一觉醒来，精神抖擞地活动了几下手脚。$}{$cmd @get_liangong_value{$cmd};@fn_log{$statu[action]：$result;true};}
+#act {%*你刚在三分钟内睡过一觉, 多睡对身体有害无益!%*}{@fn_log{睡觉CD中等待10s;true};#delay {slp}{ sleep}{10}}
+
+#alias dzon {$cmd @get_liangong_value{$cmd};}
+#alias dzoff {test off}
+
+#TICKER {AntiAFK}{#show AntiAFK executed!;hp}{300}
+#echo {{<179>气血<182>                <DED>  <DDD>  <088>}{1}}
+#echo {{<179>气血<FFA>                <DEE>             <DDD>  <088>}{1}}
+
+#nop green;
+#echo {{<179>气血<ADA>                        <DED>       <CCC>  <088>}{1}};
+
+#nop red;
+#echo {{<179>气血<FAA>      <DED>                      <CCC>  <088>}{1}};
+
+#nop yellow;
+#echo {{<179>气血<FFA>                 <DED>             <CCC>  <088>}{1}};
+
+ACA BCA CCA DCA ECA FCA FBA FAB FAA
+
+#echo {{<ADA>气血：5483 [90\x25]                 <DED>       <DDD>  <088>}{1}}
+
+#echo {{<ADA><faa>测试<088>颜色}{1}}
+
+#echo {{HP@fn_draw_status_bar{$status[hp];$status[hp_max];$status[hp_valid]}}{1}}
+
+	#var tmp @eval{%1*100/%2};
+
+	#if {$tmp > 100}{#var color_code $color_table[%4][1]};
+	#elseif {$tmp > 90}{#var color_code $color_table[%4][2]};
+	#elseif {$tmp > 80}{#var color_code $color_table[%4][3]};
+	#elseif {$tmp > 70}{#var color_code $color_table[%4][4]};
+	#elseif {$tmp > 60}{#var color_code $color_table[%4][5]};
+	#elseif {$tmp > 50}{#var color_code $color_table[%4][6]};
+	#elseif {$tmp > 40}{#var color_code $color_table[%4][7]};
+	#elseif {$tmp > 30}{#var color_code $color_table[%4][8]};
+	#elseif {$tmp > 20}{#var color_code $color_table[%4][9]};
+	#else {#var color_code $color_table[%4][10]};
+
+
+#function {fn_draw_status_bar}
+{
+	#var bar[size] 30;
+	#var tmp @eval{%1*100/%2};
+
+	#if {$tmp > 90}{#var color_code {<ACA>}};
+	#elseif {$tmp > 80}{#var color_code {<BCA>}};
+	#elseif {$tmp > 70}{#var color_code {<CCA>}};
+	#elseif {$tmp > 60}{#var color_code {<DCA>}};
+	#elseif {$tmp > 50}{#var color_code {<ECA>}};
+	#elseif {$tmp > 40}{#var color_code {<FCA>}};
+	#elseif {$tmp > 30}{#var color_code {<FBA>}};
+	#elseif {$tmp > 20}{#var color_code {<FBA>}};
+	#else {#var color_code {<FAA>}};
+
+	#var bar[width] @eval{%1*$bar[size]/%2};
+	#if {$bar[width] == 0}
+	{
+		#if {%1 > 0}{#var bar[width] 1};
+	};
+
+	#var bar[valid_width] @eval{%3*$bar[size]/%2};
+
+	#var bar[code] $color_code;
+	#loop 0 @eval{$bar[size]-1} cnt
+	{
+		#if {$cnt == $bar[width]}{#var bar[code] {$bar[code]<EEE>}};
+		#if {$cnt == $bar[valid_width]}{#var bar[code] {$bar[code]<CCC>}};
+		#var bar[code] {$bar[code] };
+	};
+	#var bar[code] {$bar[code]<088>};
+
+	#var result $bar[code];
+
+	#unvar bar;
+	#unvar tmp;
+	#unvar color_code;
+	#unvar cnt;
+}
+
+#function {aaaaa}
+{
+	#act {^你突然感到精神一振，浑身似乎又充满了力量！} {hpbrief};
+	#act {^( 你似乎有些疲惫，但是仍然十分有活力。 )} {hpbrief};
+	#act {^( 你受了几处伤，不过似乎并不碍事。 )} {hpbrief};
+	#act {^( 你动作似乎开始有点不太灵光，但是仍然有条不紊。 )} {hpbrief};
+	#act {^( 你%*，看起来状况并不太好。 )} {hpbrief};
+	#act {^( 你已经%*，正在勉力支撑著不倒下去。 )} {hpbrief};
+	#act {^( 你看起来已经力不从心了。 )} {hpbrief};
+	#act {^( 你气息粗重，动作开始散乱，看来所受的伤著实不轻。 )} {hpbrief};
+	#act {^( 你似乎十分疲惫，看来需要好好休息了。 )} {hpbrief};
+	#act {^( 你受了相当重的伤，只怕会有生命危险。 )} {hpbrief};
+	#act {^( 你%*，眼看就要倒在地上。 )} {hpbrief};
+	#act {^( 你已经陷入半昏迷状态，随时都可能摔倒晕去。 )} {hpbrief};
+	#act {^( 你受伤过重，已经有如风中残烛，随时都可能断气。 )} {hpbrief};
+
+#function {fn_show_status2}
+{
+	#math status[valid_hp_pct] ($status[valid_hp] / $status[max_hp]) * 100;
+	#math status[valid_sp_pct] ($status[valid_sp] / $status[max_sp]) * 100;
+
+	#format status[str_hp] {%c%+6s%-6s/%+6s [%+3s\x25]%c}{light green}{气血：}{$status[hp]}{$status[valid_hp]}{$status[valid_hp_pct]}{<088>};
+	#format status[str_sp] {%c%+6s%-6s/%+6s [%+3s\x25]%c}{light green}{精神：}{$status[sp]}{$status[valid_sp]}{$status[valid_sp_pct]}{<088>};
+	#format status[str_neili] {%c%+6s%-6s/%+6s%c}{light green}{内力：}{$status[force]}{$status[max_force]}{<088>};
+	#format status[str_jingli] {%c%+6s%-6s/%+6s%c}{light green}{精力：}{$status[energy]}{$status[max_energy]}{<088>};
+	#format status[str_qianli] {%c%+6s%+8s%c}{light green}{潜能：}{$status[pot]}{<088>};
+	#format status[str_jingyan] {%c%+6s%+8s%c}{light green}{经验：}{$status[exp]}{<088>};
+	#format status[str_food] {%c%+6s%-5s/%+5s [%+3s]%c}{light green}{食物：}{$status[food]}{$status[food_max]}{$status[food_desc]}{<088>};
+	#format status[str_water] {%c%+6s%-5s/%+5s [%+3s]%c}{light green}{饮水：}{$status[water]}{$status[water_max]}{$status[food_desc]}{<088>};
+	#format status[str_overall] {%c%+6s%-12s%c}{light green}{状态：}{$status[overall]}{<088>};
+
+	#echo {{%s}{4}}{$status[str_sp]  $status[str_jingli]  $status[str_qianli]  $status[str_food]};
+	#echo {{%s}{3}}{$status[str_hp]  $status[str_neili]  $status[str_jingyan]  $status[str_water]};
+	#echo {{%s}{2}}{$status[str_overall]};
+}
+
+
+#var status[hp_max] 16430;
+#var status[hp_valid] 16430;
+#var status[hp] 16430;
+#var status[hp_valid_pct] @eval{$status[hp_valid]*100/$status[hp_max]};
+#var delta 1500;
+
+}
+
+#alias rs
+{
+	#var status[hp] @eval{$status[hp]-$delta};
+	#if {$status[hp] < 0}
+	{
+		#var status[hp_valid] @eval{$status[hp_valid]-$delta};
+		#if {$status[hp_valid] < 0}
+		{
+			#var status[hp_valid] $status[hp_max];
+		};
+		#var status[hp] $status[hp_valid];
+		#var status[hp_valid_pct] @eval{$status[hp_valid]*100/$status[hp_max]};
+	};
+
+	#echo {{%-4s%+30s%+5s[%+3s\x25]}{1}}
+		{气血}
+		{@fn_draw_status_bar{$status[hp];$status[hp_max];$status[hp_valid]}}{$status[hp]}
+		{$status[hp_valid_pct]};
+}
+
+#act {^≡━◎个人档案◎━━━━━━━━━━━━━━━━━━━━━━━━≡\n\r\n\r【%s%1%s】%S%s%2(%3)\n\r\n\r%s你是一位%4的%*男性人类%*}
+{
+	#showme <119>===>%1 %2 %3 %4<078>;
+}

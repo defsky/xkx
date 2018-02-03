@@ -1,0 +1,562 @@
+#CLASS pkuxkx open;
+
+#CONFIG           {256 COLORS}  {ON}
+#CONFIG           {AUTO TAB}  {5000}
+#CONFIG           {BUFFER SIZE}  {20000}
+#CONFIG           {CHARSET}  {ASCII}
+#CONFIG           {COLOR PATCH}  {OFF}
+#CONFIG           {COMMAND COLOR}  {<078>}
+#CONFIG           {COMMAND ECHO}  {ON}
+#CONFIG           {CONNECT RETRY}  {15}
+#CONFIG           {HISTORY SIZE}  {1000}
+#CONFIG           {LOG}  {RAW}
+#CONFIG           {PACKET PATCH}  {0.5}
+#CONFIG           {REPEAT CHAR}  {!}
+#CONFIG           {REPEAT ENTER}  {OFF}
+#CONFIG           {SCROLL LOCK}  {ON}
+#CONFIG           {SPEEDWALK}  {OFF}
+#CONFIG           {TINTIN CHAR}  {#}
+#CONFIG           {VERBATIM}  {OFF}
+#CONFIG           {VERBATIM CHAR}  {\}
+#CONFIG           {VERBOSE}  {OFF}
+#CONFIG           {WORDWRAP}  {ON}
+
+#PATHDIR          {n}  {s}  {1}
+#PATHDIR          {s}  {n}  {2}
+#PATHDIR          {e}  {w}  {4}
+#PATHDIR          {w}  {e}  {8}
+#PATHDIR          {u}  {d}  {16}
+#PATHDIR          {d}  {u}  {32}
+#PATHDIR          {ne}  {sw}  {5}
+#PATHDIR          {se}  {nw}  {6}
+#PATHDIR          {nw}  {se}  {9}
+#PATHDIR          {sw}  {ne}  {10}
+#PATHDIR          {nu}  {sd}  {17}
+#PATHDIR          {nd}  {su}  {33}
+#PATHDIR          {su}  {nd}  {18}
+#PATHDIR          {sd}  {nu}  {34}
+#PATHDIR          {wu}  {ed}  {24}
+#PATHDIR          {wd}  {eu}  {40}
+#PATHDIR          {eu}  {wd}  {20}
+#PATHDIR          {ed}  {wu}  {36}
+#PATHDIR          {out}  {enter}  {62}
+#PATHDIR          {enter}  {out}  {63}
+
+#nop #MACRO {\e[A}{#send n};
+#nop #MACRO {\e[B}{#send s};
+#nop #MACRO {\e[C}{#send e};
+#nop #MACRO {\e[D}{#send w};
+#nop #MACRO {\e[1;5A}{#send nu};
+#nop #MACRO {\e[1;5B}{#send su};
+#nop #MACRO {\e[1;5C}{#send eu};
+#nop #MACRO {\e[1;5D}{#send wu};
+#nop #MACRO {\e[1;3A}{#send nd};
+#nop #MACRO {\e[1;3B}{#send sd};
+#nop #MACRO {\e[1;3C}{#send ed};
+#nop #MACRO {\e[1;3D}{#send wd};
+
+#var host pkuxkx.net;
+#var port 5555;
+
+#var qfd2dmd {n;sw;se;n;s;w;e;w;e;e;s;w;n;nw;n}
+#var tdin {s;s;s;w;e;n;n;n;n}
+#var tdout {s;s;s;s;w;n;n;e;n;s;wu}
+
+#var flag[auto_fullme] 0;
+#var flag[auto_reconnect] 0;
+
+#nop ==========================常用函数================================;
+#FUNCTION {eval}		{#math result {%1}};
+#FUNCTION {trim}		{#format result {%p}{%1}};
+#function {lower} 	{#format result {%l} {%1}};
+#function {upper} 	{#format result {%u} {%1}};
+#function {len} 		{#format result {%L} {%1}};
+#function {screenw} 	{#format result {%C}};
+#function {screenh} 	{#format result {%R}};
+#function {replace} 	{#var result %1;#replace result {%2} {%3}};
+#function {ctd} 		{#math result {@replace{@replace{{0+@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{%1;{零};{*0+}};{十};{*10+}};{百};{*100+}};{千};{*1000+}};{万};{*10000+}};{六};{6}};{一};{1}};{二};{2}};{三};{3}};{四};{4}};{五};{5}};{七};{7}};{八};{8}};{九};{9}}+0};{++};{+}};{+*};{+}}}};
+
+#nop =========================功能函数=================================;
+#FUNCTION {fn_log}
+{
+	#format {logstr}{%t $id %1}{%m-%d %T};
+	#line {log}{/ttplugin/log/robot}{$logstr};
+
+	#if { "%2" == "true"}
+	{
+		#return {#showme <129>===>%1<===<088>};
+	}
+	{
+		#return {#nop};
+	};
+}
+
+#FUNCTION {fn_fill_all_jiudai}
+{
+	#loop 1 %1 cnt
+	{
+		#send fill jiudai;drop jiudai
+	};
+	#send do %1 get jiudai;
+
+	#var result $cnt
+}
+
+#EVENT {SEND OUTPUT}
+{
+	#TICKER {AntiAFK}
+	{
+		@fn_log{AntiAFK executed!;true};
+		#send hp;
+	}{300}
+}
+
+#TICKER           {AntiAFK}  {#show AntiAFK executed!;#var status[action] AFK;hp}     {300}
+#TICKER		{BackData}	{#send save;#send backup}	{3600}
+
+#ACTION {^#SESSION '%0' DIED.$}
+{
+	#format timestr {%c%0断线 at %t%c}{light green}{%Y年%m月%d日 %T}{<088>};
+	@fn_log{$timestr;true};
+
+	#if {$flag[auto_reconnect] == 1}
+	{
+		#gts {#delay {autologin}{#ses %0 $host $port}{10}};
+	}
+}
+{5}
+
+#ACTION {^重新连线完毕%*}
+{
+	#read /ttplugin/status.tin;
+	#format timestr {%c重新连线 at %t%c}{light green}{%Y年%m月%d日 %T}{<088>};
+	#var result @fn_log{$timestr;true};
+	#send {\r;#split};
+	status on;
+
+	#UNACT {%*您的英文名字%*};
+	#UNACT {%*输入密码%*}
+}
+{5}
+
+#ACTION {%*另一个连线中的相同人物赶出去，取而代之吗%*}
+{
+	#send {y\r}
+}
+{5}
+
+#ACTION {^目前权限%*}
+{
+	#read /ttplugin/status.tin;
+	#format timestr {%c登录 at %t%c}{light green}{%Y年%m月%d日 %T}{<088>};
+	@fn_log{$timestr;true};
+	#send {\r;#split};
+	status on;
+
+	#UNACT {%*您的英文名字%*};
+	#UNACT {%*输入密码%*}
+}
+{5}
+
+#ACTION {^#SESSION '%0' TIMED OUT.$}
+{
+	@fn_log{%0连接服务器超时;true};
+	#gts {#delay {autologin}{#ses %0 $host $port}{120}};
+}
+{5}
+
+#ACTION {^#SESSION '%0' CONNECTED%*}
+{
+	#if {"%0" == "liangcheng"}
+	{
+		#VAR id liangcheng;
+		#VAR pwd 451590896def;
+
+	};
+	#elseif {"%0" == "duhua"}
+	{
+		#VAR id duhua;
+		#VAR pwd 76364409def;
+
+	};
+	#elseif {"%0" == "duku"}
+	{
+		#VAR id duku;
+		#VAR pwd 76364409def;
+
+	};
+	#elseif {"%0" == "duren"}
+	{
+		#VAR id duren;
+		#VAR pwd 76364409def;
+
+	};
+
+	#ACTION {%*您的英文名字%*请输入%*}{#line gag;#send $id}{5};
+	#ACTION {%*输入密码%*}{#line gag;#send $pwd}{5};
+}
+{5}
+
+#ACTION {%*你的活跃度已经偏低%*}
+{
+	#if {$flag[auto_fullme] == 1}
+	{
+		fullme
+	}{
+		@fn_log{活跃度偏低，请手动运行fullme;true}
+	}
+}
+{5}
+
+#ACTION {^图片内容显示：%*}
+{
+	@fn_log{验证码:%1;true};
+	#if {$status[food] < 100 || $status[water] < 100}
+	{
+		#send {fullme %1};
+	};
+}
+{5}
+
+#ACTION {http://pkuxkx.net/antirobot/robot.php?filename=%1}
+{
+	@fn_log{开始下载验证码:%1;true};
+	#script cmdout {/ttplugin/getpic.sh %1 $id};
+	#nop #showme $cmdout;
+	
+	#if {&cmdout[2]}
+	{
+	    @fn_log{验证码下载完成：$cmdout[2];true};
+	    #if {$flag[auto_fullme] == 1}
+         {
+            #nop;
+         }{
+	        #system {gthumb /ttplugin/img/$cmdout[2] &};
+	    };
+	}{
+	    @fn_log{验证码下载失败：%1;true};
+	};
+}
+{5}
+
+#alias {INVOKE} {
+    #script {file_name} {python3 -m bin.%0 ${char_id}};
+    #var file_name ${file_name}[1];
+    #if {"${file_name}" != ""} {
+        #read ${file_name};
+        #system {rm ${file_name}};
+    };
+};
+
+#ALIAS {login}
+{
+	#session %1 $host $port
+}
+
+#alias {afm}
+{
+	#if {$flag[auto_fullme] == 1}
+	{
+		@fn_log{关闭自动fullme;true};
+		#var flag[auto_fullme] 0
+	}
+	{
+		@fn_log{打开自动fullme;true};
+		#var flag[auto_fullme] 1
+	}
+}
+
+#alias {colorpad}
+{
+    #var count 0;
+	#var color_str {};
+	#parse {ABCDEF}{c1}
+	{
+		#parse {ABCDEF}{c2}
+		{
+			#parse {ABCDEF}{c3}
+			{
+				#var color_str {$color_str<$c1$c2$c3>$c1$c2$c3};
+				#var count @eval{$count + 1};
+				#if {$count % 36 == 0}
+				{
+				    #var color_str {$color_str<088>\n};
+				}
+			}
+		}
+	};
+	#showme {$color_str};
+	#unvar color_str;
+	#unvar c1;
+	#unvar c2;
+	#unvar c3;
+	#unvar count;
+}
+
+#ALIAS {fillall}
+{
+	#If {"%1" == ""}
+	{
+		#showme <129>Usage:fillall <int><088>
+	};
+	#else
+	{
+		#showme <129>===>已经装满@fn_fill_all_jiudai{%1}个酒袋<===<088>
+	}
+}
+
+#ALIAS {plugin}
+{
+	#switch {"%1"}		
+	{
+		#case "reload"
+		{
+			#all {#class pkuxkx_plugin kill};
+			#all {#read /ttplugin/pkuxkx.tin};
+			#gts {#class pkuxkx_plugin kill};
+			#gts {#read /ttplugin/pkuxkx.tin};
+
+			@fn_log{plugin重载完毕;true};
+		};
+		#default {@fn_log{alias.plugin未知参数：%1;true}};
+	}
+}
+
+#ALIAS {module}
+{
+	#if {"%2" == "load"}
+	{
+		@fn_log{加载测试脚本:%1.tin;true};
+		#read /ttplugin/%1.tin;
+	};
+	#elseif {"%2" == "reload"}
+	{
+		#class %1 kill;
+		#read /ttplugin/%1.tin;
+		@fn_log{重载测试脚本%1.tin;true};
+	};
+	#elseif {"%2" == "unload"}
+	{
+		#class %1 kill;
+		@fn_log{卸载测试脚本%1.tin;true};
+	};
+	#elseif {"%2" == "create"}
+	{
+		#system {/ttplugin/bin/module_create.sh %1}
+	};
+	#else
+	{
+		#showme <129>Usage:module <classname> <load|reload|unload><088>
+	}
+}
+
+#ALIAS {cc}
+{
+	#if {"%1" == "on"}
+	{
+		@fn_log{开始参禅;true};
+		#class canchan read /ttplugin/canchan.tin;
+		#send canchan;
+	};
+	#elseif {"%1" == "off"}
+	{
+		set_action 空闲;
+		#class canchan kill;
+		#undelay dl_cc;
+		#unticker tk_cc;
+		@fn_log{停止参禅;true};
+	};
+	#else
+	{
+		#showme <129>Usage:cc <on|off><088>
+	}
+}
+
+#ALIAS {autologin}
+{
+	#if {"%1" == "on"}
+	{
+		@fn_log{开启自动重连;true};
+		#var flag[auto_reconnect] 1;
+	};
+	#elseif {"%1" == "off"}
+	{
+		#var flag[auto_reconnect] 0;
+		#gts {#undelay {autologin}};
+		@fn_log{关闭自动重连;true};
+	};
+	#else
+	{
+		#showme <129>Usage:autologin <on|off><088>
+	}
+}
+
+#ALIAS {status}
+{
+	#if {"%1" == "on"}
+	{
+		#read /ttplugin/status.tin;
+		hpbrief;sc;i;hp;
+		@fn_log{开启状态监测;true};
+	};
+	#elseif {"%1" == "off"}
+	{
+		#class status kill;
+		#split;
+		#unvar status;
+		#unticker status_refresh;
+		#unticker status_refresh2;
+		#unticker status_refresh3s;
+		@fn_log{关闭状态监测;true};
+	};
+	#else
+	{
+		#showme <129>Usage:status <on|off><088>
+	}
+}
+{5}
+
+#ALIAS {chatlog}
+{
+	#if {"%1" == "on"}
+	{
+		@fn_log{开启聊天日志;true};
+		#class chatlog read /ttplugin/chatlog.tin
+	};
+	#elseif {"%1" == "off"}
+	{
+		#class chatlog kill;
+		@fn_log{关闭聊天日志;true};
+	};
+	#else
+	{
+		#showme <129>Usage:chatlog <on|off><088>
+	}
+}
+
+#ALIAS {lianwu}
+{
+	#if {"%1" == "on"}
+	{
+		@fn_log{开始领悟练武功:%2;true};
+		#var wugong %2;
+		#var action %3;
+		#class lianwu read /ttplugin/lianwu.tin
+	};
+	#elseif {"%1" == "off"}
+	{
+		@fn_log{结束领悟练武功:$wugong;true};
+		#class lianwu kill;
+		#undelay dl_lianxi;
+		#undelay dl_lingw;
+		#undelay dl_wakeup;
+		#unticker lianxi;
+		#unticker lingw;
+		#unticker tk_waitsleep;
+		#unvar wugong;
+	};
+	#else
+	{
+		#showme <129>Usage:lianwu <on <wugong>|off><088>;
+	}
+}
+
+#ALIAS {dushu}
+{
+	#if {"%1" == "on"}
+	{
+		#var dushu_cmd {%3 %2};
+		#if {"%3" == "read" || "%3" == "lian"}
+		{
+		};
+		#elseif {"%3" == "du"}
+		{
+			#var dushu_cmd {$dushu_cmd for}
+		};
+		#elseif {"%3" == "xue"}
+		{
+			#var status[action] {学武功};
+			#var dushu_cmd {$dushu_cmd for %4}
+		};
+		#else
+		{
+			#showme 未知得读书指令:%3;
+			#return
+		};
+		
+		#if {"%3" == "xue"}
+		{
+			#var dushu_cnt {%5}
+		};
+		#else
+		{
+			#var dushu_cnt {%4}
+		};
+		
+		#if {"$dushu_cnt" == ""}
+		{
+			#var dushu_cmd {$dushu_cmd 5}
+		};
+		#else
+		{
+			#var dushu_cmd {$dushu_cmd $dushu_cnt}
+		};
+
+		#class dushu read /ttplugin/dushu.tin;
+		@fn_log{开始读书:$dushu_cmd;true}
+	};
+	#elseif {"%1" == "off"}
+	{
+		set_action 空闲;
+		@fn_log{停止读书:$dushu_cmd;true};
+		#class dushu kill;
+		#unticker dushu;
+		#undelay dl_dushu;
+		#unvar dushu_cmd;
+		#unvar dushu_cnt;
+	};
+	#else
+	{
+		#showme <129>Usage:dushu <on <name> <du|read|lian> [cnt] | off><088>
+	}
+	hpbrief;
+}
+
+
+#alias dzon {@fn_log{开始打坐练功;true};#read /ttplugin/dazuo.tin;}
+#alias dzoff {@fn_log{结束打坐练功;true};#class dazuo kill;#undelay slp;#var status[action] 空闲;}
+
+#ALIAS {liangong}
+{
+	#if {"%1" == "on"}
+	{
+		@fn_log{开始练功;true};
+		#class liangong read /ttplugin/liangong.tin
+	};
+	#elseif {"%1" == "off"}
+	{
+		#class liangong kill;
+		@fn_log{停止练功;true};
+	};
+	#else
+	{
+		#showme <129>Usage:liangong <on|off><088>
+	}
+}
+
+#ACTION {^【江湖】听说%*有飞贼横行%*}
+{
+	#var result @fn_log{<139>听说<159>%1<139>有飞贼横行%2<088>;true}
+}
+{5}
+
+#ACTION {^【江湖】听说%*铲除了飞贼%*}
+{
+	#var result @fn_log{<139>听说<129>%1<139>铲除了飞贼%2<088>;true}
+}
+{5}
+
+#ACTION {^鱼漂突然一沉，你大吃一惊！$}{#delay 2 {#send gua yuer};#delay 3 {#send diao yu}};
+#ACTION {^你太累了，歇会再钓吧！$}{#delay 120 {#send {diao yu}}};
+
+#CLASS pkuxkx close;
