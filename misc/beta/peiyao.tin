@@ -1,0 +1,15 @@
+#class peiyao open;
+
+#act {^你向平一指打听有关『工作』的消息。$}
+{
+	#class tmp open;
+	#act {^平一指说道：「我们现在正好缺少一种药，这是药方，你去配吧」$} {#class tmp kill;n;peiyao};
+	#act {^平一指说道：「在我这里配药太埋没您拉，您还是去干点别的吧。」$} {#class tmp kill;#class peiyao kill;#delay {1} {quit}};
+	#class tmp close;
+};
+
+#act {^不知过了多久，你终于把药配完。$} {s;give cheng yao to ping yizhi};
+
+#act {^平一指笑呵呵接过你配好的药，说：谢谢} {ask ping yizhi about 工作};
+
+#class peiyao close;

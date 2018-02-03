@@ -1,0 +1,98 @@
+#class dazuo open;
+#nop =================自动吐纳打坐=====================================================;
+
+#var cmd {dazuo};
+
+#function {get_liangong_value}
+{
+	hpbrief;
+	#if {"%1" == "tuna"}
+	{
+		#var status[action] {吐纳};
+		#var test_tmp @eval{$status[energy_max] * 2 - $status[energy] + 1};
+		#if {$test_tmp > @eval{$status[sp] - $status[sp_valid] * 1 / 10}}{#var test_tmp @eval{$status[sp] - $status[sp_valid] * 1 / 10}};
+		#if {$status[sp] < @eval{$status[sp_valid] * 2 / 10}}{#var test_tmp $status[sp]};
+		#if {$test_tmp < 10}{#var result 10}{#var result $test_tmp};
+	};
+	#elseif {"%1" == "dazuo"}
+	{
+		#var status[action] {打坐};
+		#var test_tmp @eval{$status[force_max] * 2 - $status[force] + 1};
+		#if {$test_tmp > @eval{$status[hp] - $status[hp_valid] * 1 / 10}}{#var test_tmp @eval{$status[hp] - $status[hp_valid] * 1 / 10}};
+		#if {$status[hp] < @eval{$status[hp_valid] * 2 / 10}}{#var test_tmp $status[hp]};
+		#if {$test_tmp < 10}{#var result 10}{#var result $test_tmp};
+	};
+
+	#nop #unvar test_tmp;
+}
+
+#ticker liangong {$cmd @get_liangong_value{$cmd};}{120}
+
+#act {^%s内功 (force)%*有效等级%*%d$}
+{
+	#var status[force_level] %4;
+	#var status[power_max] @eval{$status[force_level] * 10};
+	
+	#if {$status[power_max] > $status[force_max]}
+	{
+	    #var cmd dazuo;
+	};
+	#elseif {$status[power_max] > $status[energy_max]}
+	{
+	    #var cmd tuna;
+	};
+	
+	$cmd @get_liangong_value{$cmd};
+};
+
+#act {^{你吐纳完毕，睁开双眼，站了起来。|你运功完毕，深深吸了口气，站了起来。|你将内息走了个小周天，流回丹田，收功站了起来。}$}
+{
+	#nop #if {$status[force_max] > $status[power_max]}{#var cmd tuna};
+	#if {$status[energy_max] > $status[power_max]}
+	{
+		#nop dzoff;
+		@fn_log{energy_max=$status[energy_max];true};
+	};
+	
+		$cmd @get_liangong_value{$cmd};
+		@fn_log{$status[action]：$result;true};
+	
+}
+
+#act {^{你现在精不足，无法修行精力！|你现在精不够，无法控制内息的流动！|你现在身体状况太差了，无法集中精神！|你现在的气太少了，无法产生内息运行全身经脉。}$}
+{
+	@fn_log{开始睡觉;true};
+	#var status[action] {睡觉};
+	hpbrief;
+	sleep;
+}
+
+#act {^你一觉醒来，精神抖擞地活动了几下手脚。$}{eat liang;drink jiudai;$cmd @get_liangong_value{$cmd};@fn_log{$status[action]：$result;true};};
+#act {%*你刚在三分钟内睡过一觉, 多睡对身体有害无益!%*}
+{
+	#var status[action] {等待睡觉};
+	hpbrief;
+	#if {$status[hp] > @eval{$status[hp_valid] * 2 / 10} && $status[sp] > @eval{$status[sp_valid] * 2 / 10}}
+	{
+		@fn_log{睡觉CD中再练会儿;true};
+		$cmd @get_liangong_value{$cmd};
+	}
+	{
+		@fn_log{睡觉CD中等待10s;true};
+		#delay {slp}{sleep}{10};
+	};
+};
+
+#act {你的内力修为似乎已经达到了瓶颈。}
+{
+	@fn_log{%0;false};
+	#var cmd tuna;
+	$cmd @get_liangong_value{$cmd};
+	@fn_log{$status[action]：$result;true};
+};
+
+#act {你的精力修为已经达到了瓶颈。}{@fn_log{%0;false};dzoff};
+
+jifa;
+
+#class dazuo close;

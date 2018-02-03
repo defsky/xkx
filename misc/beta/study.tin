@@ -1,0 +1,137 @@
+#class books open;
+
+#act {^%*(%*)$}
+{
+	#if {@ismember{%1;bookname}>0}
+	{
+		#list bookid add {@lower{%2}};
+		#list bookidx add {@ismember{%1;bookname}};
+		#var booki 1;
+	};
+};
+
+#class books close;
+
+#class study open;
+
+#list bookname create {说文解字}{射雕英雄传}{天竺梵语}{六脉神剑剑谱}{棒法密籍}{英雄剑法秘籍}{华山剑谱}{飞沙走石十三式}{鞭法秘籍}{大藏经}{天山器法}{『星宿毒经〖上册〗』}{古刺客秘籍}{无量寿经}{大般涅磐经}{阿含经}{金刚经}{波罗蜜多心经}{达摩心经}{道德经}{「大清律例」}{「明书辑略」}{「厚黑学」}{「资治通鉴」}{大乘涅磐经}{「唐太宗李卫公问对」}{「六韬」}{「三略」}{「孙膑兵法」}{「尉缭子」}{「吴子兵法」}{「孙子兵法」}{道德经「下卷」}{爪法入门}{鹰爪功秘诀}{拳法入门}{旧竹片}{指法入门}{内功入门}{薄绢}{太极十三势}{桃花岛内功}{洗髓经}{手法入门}{招架入门}{铁手掌}{枪法总诀}{剑法入门}{掌法入门}{掌法秘籍}{开山掌法精要}{拳脚入门}{血刀秘籍}{凌波微步图谱}{北冥神功图谱}{「丹心诀」}{楚家内功秘籍}{九阴真经}{玉女心经}{玉女心经「下」}{云龙经「上卷」}{云龙经「下卷」}{紫霞秘籍}{马屁宝典}{雪山剑谱}{丹心剑谱「上册」}{丹心剑谱「下册」}{九龙鞭法}{般若经}{维摩经}{法华经}{华严经}{兰花拂穴手秘诀}{风云手手法}{如来千叶手手法}{大金刚拳法}{罗汉拳法}{般若掌法}{散花掌法}{龙爪功法}{鹰爪功法}{拈花指法}{一指禅功}{慈悲刀法}{修罗刀法}{韦陀棍法}{醉棍棍法}{无常杖法}{普渡杖法}{伏魔剑法}{达摩剑法};
+#list bookskch create {读书写字}{基本内功}{基础梵文}{基本指法}{基本杖法}{英雄剑法}{基本剑法}{基本刀法}{基本鞭法}{欢喜禅}{基本暗器}{基本毒技}{基本匕法}{禅宗心法}{禅宗心法}{禅宗心法}{禅宗心法}{禅宗心法}{禅宗心法}{道学心法}{为官之道}{为官之道}{为官之道}{为官之道}{大乘涅磐功}{兵法战策}{兵法战策}{兵法战策}{兵法战策}{兵法战策}{兵法战策}{兵法战策}{道家养生术}{基本爪法}{基本爪法}{基本拳法}{基本轻功}{基本指法}{基本内功}{基本内功}{基本内功}{基本内功}{基本内功}{基本手法}{基本招架}{基本招架}{基本枪法}{基本剑法}{基本掌法}{基本掌法}{基本掌法}{基本拳脚}{血刀经}{凌波微步}{北冥神功}{碧血心法}{楚家内功}{九阴神功}{玉女心法}{玉女心法}{浩气苍冥功}{浩气苍冥功}{紫霞神功}{马屁神功}{雪山剑谱}{碧血丹心剑}{碧血丹心剑}{九龙鞭}{禅宗心法}{禅宗心法}{禅宗心法}{禅宗心法}{兰花拂穴手}{风云手}{如来千叶手}{大金刚拳}{罗汉拳}{般若掌}{散花掌}{龙爪功}{鹰爪功}{拈花指}{一指禅}{慈悲刀}{修罗刀}{韦陀棍}{少林醉棍}{无常杖法}{普渡杖法}{伏魔剑}{达摩剑};
+#list booksk create {literate}{force}{fanwen}{finger}{staff}{hero-jianfa}{sword}{blade}{whip}{huanxi-chan}{throwing}{poison}{dagger}{buddhism}{buddhism}{buddhism}{buddhism}{buddhism}{buddhism}{daoxue-xinfa}{leadership}{leadership}{leadership}{leadership}{mahayana}{stradgy}{stradgy}{stradgy}{stradgy}{stradgy}{stradgy}{stradgy}{taoism}{claw}{claw}{cuff}{dodge}{finger}{force}{force}{force}{force}{force}{hand}{parry}{parry}{spear}{sword}{strike}{strike}{strike}{unarmed}{xuedao-jing}{lingbo-weibu}{beiming-shengong}{bixue-xinfa}{chuforce}{jiuyin-shengong}{yunu-xinfa}{yunu-xinfa}{cangming-gong}{cangming-gong}{zixia-shengong}{flatter}{xueshan-jianfa}{danxin-jian}{danxin-jian}{jiulong-bian}{buddhism}{buddhism}{buddhism}{buddhism}{fuxue-shou}{fengyun-shou}{qianye-shou}{jingang-quan}{luohan-quan}{banruo-zhang}{sanhua-zhang}{longzhua-gong}{yingzhua-gong}{nianhua-zhi}{yizhi-chan}{cibei-dao}{xiuluo-dao}{weituo-gun}{zui-gun}{wuchang-zhang}{pudu-zhang}{fumo-jian}{damo-jian};
+#var bookid {};
+#var bookidx {};
+#var booki 0;
+
+#alias dushu
+{
+	#if {"$skname"=="基础梵文"}
+	{
+		read shu 5;
+	};
+	#elseif {"$book"=="shediao"}
+	{
+		read zhuan 50;
+	};
+	#else
+	{
+		study $book for 50;
+	};
+#nop	exert regenerate;
+};
+#gag {^你思索着小说中关于%*的情节，对%*有一些新的理解。$};
+#act {^{你运功完毕，深深吸了口气，站了起来。|你将内息走了个小周天，流回丹田，收功站了起来。|你只觉神元归一，全身精力弥漫，无以复加，忍不住长啸一声，徐徐站了起来。|你将真气在体内沿脉络运行了一圈}} {dushu};
+#act {self state} {dazuo @eval{$qi*9/10};};
+#act {skbrief ok} {#echo {{读书中：%s %d/%d(%d%a)} {-1}} {$skname} {$level} {$maxsk} {@eval{$lvpot*100/($level+1)/($level+1)}} {37}};
+#act {^你的精神太差，读不下去了。$} {exert regenerate};
+#act {你的内力不够。}
+{
+	#if {"$mymenpai"=="雪山派"} {s};
+	vf;
+	sleep;
+};
+#act {你正专心看着一本厚厚的小说。} {exert regenerate};
+#act {你从身上拿出一%*准备好好研读。} {exert regenerate};
+#act {你的%*火候} {cunbook};
+#act {你的%*等级已经高于} {cunbook};
+#act {你的武功等级受到经验限制} {cunbook};
+#act {也许是缺乏实战经验，你对%*总是无法领会。} {cunbook};
+#act {^你看着看着觉得郭靖的内功也不过如此。} {cunbook};
+#act {你把身上的%*拿出来放进柜子里了。} {setbook};
+#act {你将%*放进包袱。} {setbook};
+#act {这个东西不值得保存} {put $book in bag};
+#act {柜子里已经塞了太多的东西了} {put $book in bag};
+#act {这里没有这样东西。} {studyoff;#show <faa>读书已停止，请随身携带包袱再运行studyon。<099>}
+#act {你刚在三分钟内睡过一觉, 多睡对身体有害无益! }
+{
+	#if {"$mymenpai"=="雪山派"} {n};
+	eat liang;
+	#delay {7.5} {drink jiudai};
+	#delay {15} {dushu};
+};
+#act {你略一凝神，精神看起来好多了。} {#ticker dushu {#unticker dushu;dushu} {0.1}};
+#act {你现在精力充沛。} {#ticker dushu {#unticker dushu;dushu} {0.1}};
+#act {你一觉醒来，精神抖擞地活动了几下手脚。}
+{
+	#if {"$mymenpai"=="雪山派"} {n};
+	hpbrief;
+};
+#act {^设定环境变量：echo = "study"}
+{
+	#class books kill;
+	#if {$booki>0}
+	{
+		#show <afa>开始读书。<099>;
+		#var booki 0;
+		setbook;
+	};
+	#else
+	{
+		#show <faa>没有发现支持的书籍。<099>;
+		#show <ffa>目前支持的书籍如下：<099>;
+		#forall {$bookname[]}
+		{
+			#if {@eval{&0 % 10}==1}
+			{
+				#show {<132>序号  书名                  技能名@space{30}<099>};
+			};
+			#format i {%+3s.  %-22s%s} {&0} {@item{bookname;&0}} {@item{bookskch;&0}(@item{booksk;&0})};
+			#show $i;
+#nop			#show &0. @item{bookname;&0}：@item{bookskch;&0}（@item{booksk;&0}）
+		};
+		studyoff;
+	};
+};
+#alias cunbook
+{
+	#unticker dushu;
+	#if {$myage<18}
+	{
+		put $book in bag;
+	};
+	#else
+	{
+		store $book;
+	};
+};
+#alias setbook
+{
+	#math booki {$booki+1};
+	#if {$booki<=@numitems{bookid}}
+	{
+		#var book {@item{bookid;$booki}};
+		#var skname @item{bookskch;@item{bookidx;$booki}};
+		alias vf skbrief @item{booksk;@item{bookidx;$booki}};
+		exert regenerate;
+	};
+	#else
+	{
+		#show <afa>读书完毕，将切换为打坐状态。<099>;
+		studyoff;
+		#delay 1 {dzon};
+	};
+};
+
+#class study close;
+
+exp;
+i2;
+set echo study;

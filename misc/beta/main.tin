@@ -1,0 +1,10 @@
+#re init.tin;
+
+#act {^#SESSION 'gts' ACTIVATED.} {#re main.tin};
+#gag {^#SESSION 'gts' ACTIVATED.};
+
+#class tmp open;
+#alias pku {#class tmp kill;#re pkuxkx.tin};
+#class tmp close;
+
+#show {<afa>«Î ‰»Î£∫<ffa>pku<afa>°£};

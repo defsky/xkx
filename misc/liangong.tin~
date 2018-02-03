@@ -1,0 +1,12 @@
+
+#ACTION {%*你将内息走了个小周天，流回丹田，收功站了起来%*}
+{
+	#var result @fn_log{dazuo完毕;true}
+}
+{5}
+
+#ACTION {%*你吐纳完毕，睁开双眼，站了起来%*}
+{
+	#var result @fn_log{tuna完毕;true}
+}
+{5}

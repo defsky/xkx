@@ -1,0 +1,360 @@
+#CONFIG           {256 COLORS}  {ON}
+#CONFIG           {AUTO TAB}  {5000}
+#CONFIG           {BUFFER SIZE}  {20000}
+#CONFIG           {CHARSET}  {ASCII}
+#CONFIG           {COLOR PATCH}  {OFF}
+#CONFIG           {COMMAND COLOR}  {<078>}
+#CONFIG           {COMMAND ECHO}  {ON}
+#CONFIG           {CONNECT RETRY}  {15}
+#CONFIG           {HISTORY SIZE}  {1000}
+#CONFIG           {LOG}  {RAW}
+#CONFIG           {PACKET PATCH}  {0.00}
+#CONFIG           {REPEAT CHAR}  {!}
+#CONFIG           {REPEAT ENTER}  {OFF}
+#CONFIG           {SCROLL LOCK}  {ON}
+#CONFIG           {SPEEDWALK}  {OFF}
+#CONFIG           {TINTIN CHAR}  {#}
+#CONFIG           {VERBATIM}  {OFF}
+#CONFIG           {VERBATIM CHAR}  {\}
+#CONFIG           {VERBOSE}  {OFF}
+#CONFIG           {WORDWRAP}  {ON}
+#PATHDIR          {d}  {u}  {32}
+#PATHDIR          {e}  {w}  {2}
+#PATHDIR          {n}  {s}  {1}
+#PATHDIR          {ne}  {sw}  {3}
+#PATHDIR          {nw}  {se}  {9}
+#PATHDIR          {s}  {n}  {4}
+#PATHDIR          {se}  {nw}  {6}
+#PATHDIR          {sw}  {ne}  {12}
+#PATHDIR          {u}  {d}  {16}
+#PATHDIR          {w}  {e}  {8}
+
+#var qfd2dmd {n;sw;se;n;s;w;e;w;e;e;s;w;n;nw;n}
+
+#FUNCTION {fn_log}
+{
+	#format {logstr}{%t $id %1}{%m-%d %T};
+	#line {log}{/ttplugin/log/robot}{$logstr};
+	#if { "%2" == "true"}
+	{
+		#showme <129>===>%1<===<088>
+	};
+
+	#return {}
+}
+
+#FUNCTION {fn_fill_all_jiudai}
+{
+	#loop 1 %1 cnt
+	{
+		#send fill jiudai;drop jiudai
+	};
+	#send do %1 get jiudai;
+
+	#var result $cnt
+}
+
+#TICKER           {AntiAFK}  {#show AntiAFK executed!;hp}     {300}
+#TICKER		{BackData}	{#send save;#send backup}	{3600}
+
+#EVENT {SEND OUTPUT}
+{
+	#TICKER {AntiAFK}
+	{
+		#var result @fn_log{AntiAFK executed!;true};
+		#send hp;
+	}{300}
+}
+
+#ACTION {^【江湖】听说%*有飞贼横行%*}
+{
+	#var result @fn_log{<139>【江湖】听说<159>%1<139>有飞贼横行%2<088>;true}
+}
+{5}
+
+#ACTION {^【江湖】听说%*铲除了飞贼%*}
+{
+	#var result @fn_log{<139>【江湖】听说<129>%1<139>铲除了飞贼%2<088>;true}
+}
+{5}
+
+#ACTION {%*你的活跃度已经偏低%*}
+{
+	fullme
+}
+{5}
+
+#ACTION {http://pkuxkx.net/antirobot/robot.php?filename=%1}
+{
+	#var result @fn_log{开始下载验证码:%1;true};
+	#system /ttplugin/getpic.sh %1 $id;
+}
+{5}
+
+#ACTION {^重新连线完毕%*}
+{
+	#format timestr {%c$id重新连线 at %t%c}{light green}{%Y年%m月%d日 %T}{<088>};
+	#var result @fn_log{$timestr;true};
+
+	#UNACT {%*您的英文名字%*};
+	#UNACT {%*输入密码%*}
+}
+{5}
+
+#ACTION {^目前权限%*}
+{
+	#format timestr {%c$id登录 at %t%c}{light green}{%Y年%m月%d日 %T}{<088>};
+	#var result @fn_log{$timestr;true};
+
+	#UNACT {%*您的英文名字%*};
+	#UNACT {%*输入密码%*}
+}
+{5}
+
+#ACTION {^#SESSION '%0' CONNECTED%*}
+{
+	#if {"%0" == "liangcheng"}
+	{
+		#VAR id liangcheng;
+		#VAR pwd 451590896def
+
+	};
+	#elseif {"%0" == "duhua"}
+	{
+		#VAR id duhua;
+		#VAR pwd 76364409def
+
+	};
+	#elseif {"%0" == "duku"}
+	{
+		#VAR id duku;
+		#VAR pwd 76364409def
+
+	};
+	#ACTION {%*您的英文名字%*}{#send $id}{5};
+	#ACTION {%*输入密码%*}{#send $pwd}{5}
+}
+{5}
+
+#ACTION {^#SESSION '%0' TIMED OUT.$}
+{
+	#var result @fn_log{%0连接服务器超时;true};
+	#gts #delay 120 #ses %0 pkuxkx.net 8080;
+}
+{5}
+
+
+#ALIAS {droptask}
+{
+	ask chanshi about cancel
+}
+{5}
+
+#ALIAS {getask}
+{
+	ask chanshi about 新手任务
+}
+{5}
+
+#ALIAS {replytask}
+{
+	ask chanshi about success
+}
+{5}
+
+#ALIAS {fillall}
+{
+	#If {"%1" == ""}
+	{
+		#showme <129>Usage:fillall <int><088>
+	};
+	#else
+	{
+		#showme <129>===>已经装满@fn_fill_all_jiudai{%1}个酒袋<===<088>
+	}
+}
+
+#ALIAS {autologin}
+{
+	#if {"%1" == "on"}
+	{
+		#var result @fn_log{开启自动登录;true};
+		#gts {#class autologin read /ttplugin/autologin.tin};
+		#all {#class autologin read /ttplugin/autologin.tin}
+	};
+	#elseif {"%1" == "off"}
+	{
+		#var result @fn_log{关闭自动登录;true};
+		#all {#class autologin kill}
+	};
+	#else
+	{
+		#showme <129>Usage:autologin <on|off><088>
+	}
+}
+{5}
+
+#ALIAS {status}
+{
+	#if {"%1" == "on"}
+	{
+		#class status read /ttplugin/status.tin;
+		#split 0 5;
+		#send hpbrief;
+		#send hp;
+	};
+	#elseif {"%1" == "off"}
+	{
+		#class status kill;
+		#split;
+		#UNTICKER {status_refresh};
+		#UNTICKER {status_refresh2};
+		#unvar status;
+	};
+	#else
+	{
+		#showme <129>Usage:status <on|off><088>
+	}
+}
+{5}
+
+#ALIAS {chatlog}
+{
+	#if {"%1" == "on"}
+	{
+		#var result @fn_log{开启聊天日志;true};
+		#class chatlog read /ttplugin/chatlog.tin
+	};
+	#elseif {"%1" == "off"}
+	{
+		#class chatlog kill;
+		#var result @fn_log{关闭聊天日志;true};
+	};
+	#else
+	{
+		#showme <129>Usage:chatlog <on|off><088>
+	}
+}
+
+#ALIAS {lianwu}
+{
+	#if {"%1" == "on"}
+	{
+		#var result @fn_log{开始领悟练武功:%2;true};
+		#var wugong %2;
+		#class lianwu read /ttplugin/lianwu.tin;
+	};
+	#elseif {"%1" == "off"}
+	{
+		#var result @fn_log{结束领悟练武功:$wugong;true};
+		#class lianwu kill;
+		#undelay dl_lianxi;
+		#undelay dl_lingw;
+		#undelay dl_wakeup;
+		#unticker lianxi;
+		#unticker lingw;
+		#unticker tk_waitsleep;
+		#unvar wugong;
+	};
+	#else
+	{
+		#showme <129>Usage:lianwu <on <wugong>|off><088>
+	}
+}
+
+#ALIAS {dushu}
+{
+	#if {"%1" == "on"}
+	{
+		#var dushu_cmd {%3 %2};
+		#if {"%3" == "read" || "%3" == "lian"}
+		{
+		};
+		#elseif {"%3" == "du"}
+		{
+			#var dushu_cmd {$dushu_cmd for}
+		};
+		#elseif {"%3" == "xue"}
+		{
+			#var dushu_cmd {$dushu_cmd for %4}
+		};
+		#else
+		{
+			#showme 未知得读书指令:%3;
+			#return
+		};
+		
+		#if {"%3" == "xue"}
+		{
+			#var dushu_cnt {%5}
+		};
+		#else
+		{
+			#var dushu_cnt {%4}
+		};
+
+		#if {"$dushu_cnt" == ""}
+		{
+			#var dushu_cmd {$dushu_cmd 5}
+		};
+		#else
+		{
+			#var dushu_cmd {$dushu_cmd $dushu_cnt}
+		};
+
+		#class dushu read /ttplugin/dushu.tin;
+		#var result @fn_log{开始读书:$dushu_cmd;true}
+	};
+	#elseif {"%1" == "off"}
+	{
+		#var result @fn_log{停止读书:$dushu_cmd;true};
+		#class dushu kill;
+		#unticker dushu;
+		#undelay dl_dushu;
+		#unvar dushu_cmd;
+		#unvar dushu_cnt
+	};
+	#else
+	{
+		#showme <129>Usage:dushu <on <name> <du|read|lian|xue <wugong> > [cnt] | off><088>
+	}
+}
+
+#ALIAS {liangong}
+{
+	#if {"%1" == "on"}
+	{
+		#var result @fn_log{开始练功;true};
+		#class liangong read /ttplugin/liangong.tin
+	};
+	#elseif {"%1" == "off"}
+	{
+		#class liangong kill;
+		#var result @fn_log{停止练功;true};
+	};
+	#else
+	{
+		#showme <129>Usage:liangong <on|off><088>
+	}
+}
+
+#ALIAS {cc}
+{
+	#if {"%1" == "on"}
+	{
+		#var result @fn_log{开始参禅;true};
+		#class canchan read /ttplugin/canchan.tin;
+		#send canchan
+	};
+	#elseif {"%1" == "off"}
+	{
+		#class canchan kill;
+		#undelay dl_cc;
+		#unticker tk_cc;
+		#var result @fn_log{停止参禅;true};
+	};
+	#else
+	{
+		#showme <129>Usage:canchan <on|off><088>
+	}
+}

@@ -1,0 +1,13 @@
+#class xiulian open;
+
+#act {你从玄幻之境回过神来，顿觉内功修为增进不小。} {vf};
+#act {skbrief ok}
+{
+	#echo {{修炼内功：%s %d/%d(%d%a)} {-1}} {$skname} {$level} {$maxsk} {@eval{$lvpot*100/($level+1)/($level+1)}} {37};
+	#if {$level<$maxsk} {xl} {xloff;#delay 10 {louon}};
+};
+#gag {走了过来};
+#gag {往上离开};
+
+#class xiulian close;
+

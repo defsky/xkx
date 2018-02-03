@@ -1,0 +1,82 @@
+#CONFIG           {256 COLORS}  {OFF}
+#CONFIG           {AUTO TAB}  {5000}
+#CONFIG           {BUFFER SIZE}  {20000}
+#CONFIG           {CHARSET}  {ASCII}
+#CONFIG           {COMMAND COLOR}  {<078>}
+#CONFIG           {COMMAND ECHO}  {ON}
+#CONFIG           {CONNECT RETRY}  {15}
+#CONFIG           {HISTORY SIZE}  {1000}
+#CONFIG           {LOG}  {PLAIN}
+#CONFIG           {PACKET PATCH}  {1}
+#CONFIG           {REPEAT CHAR}  {!}
+#CONFIG           {REPEAT ENTER}  {ON}
+#CONFIG           {SCROLL LOCK}  {ON}
+#CONFIG           {SPEEDWALK}  {OFF}
+#CONFIG           {TINTIN CHAR}  {#}
+#CONFIG           {VERBATIM}  {OFF}
+#CONFIG           {VERBATIM CHAR}  {\}
+#CONFIG           {VERBOSE}  {OFF}
+#CONFIG           {WORDWRAP}  {ON}
+
+#split 2 1;
+
+#nop ==自定函数==;
+
+#function {numitems} {#list %1 size result};
+#function {ismember} {#list %2 find %1 result};
+#function {item} {#list %1 get %2 result};
+#function {eval} {#math result {%1}};
+#function {lower} {#format result {%l} {%1}};
+#function {upper} {#format result {%u} {%1}};
+#function {len} {#format result {%L} {%1}};
+#function {trim} {#format result {%p} {%1}};
+#function {screenw} {#format result {%C}};
+#function {screenh} {#format result {%R}};
+#function {replace} {#var result %1;#replace result {%2} {%3}};
+#function {ctd} {#math result {@replace{@replace{{0+@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{%1;{零};{*0+}};{十};{*10+}};{百};{*100+}};{千};{*1000+}};{万};{*10000+}};{六};{6}};{一};{1}};{二};{2}};{三};{3}};{四};{4}};{五};{5}};{七};{7}};{八};{8}};{九};{9}}+0};{++};{+}};{+*};{+}}}};
+#function {space} {#var result {};#loop 1 %1 tmp {#var result {$result }}};
+#function {copy}
+{
+	#var tmp {};
+	#parse {%1} {tmpa} {#list tmp add $tmpa};
+	#var result {};
+	#loop 1 %3 tmpa {#var result $result@item{tmp;@eval{%2+$tmpa-1}}};
+};
+#function {pos}
+{
+	#var result 0;
+	#var tmpa 1;
+	#parse {%1} {tmp} {#if {"$tmp"=="%2"} {#return $tmpa} {#math tmpa {$tmpa+1}}};
+};
+#function {int} {#format result {%d} {%1}};
+#function {rnd} {#math {result} {1 d (%2 - %1 + 1) + %1 - 1}};
+#function {hpdraw}
+{
+	#var tmp @eval{%1*7/%2};
+	#if {$tmp<0} {#var tmp 0};
+	#elseif {$tmp==0 & %1>0} {#var tmp 1};
+	#elseif {$tmp==7 & %1>%2} {#var tmp 8};
+	#elseif {$tmp>14} {#var tmp 14};
+	#switch {$tmp}
+	{
+		#case 0  {#var result {<074>       }};
+		#case 1  {#var result {<DAA> <074>      }};
+		#case 2  {#var result {<DBA>  <074>     }};
+		#case 3  {#var result {<DCA>   <074>    }};
+		#case 4  {#var result {<DDA>    <074>   }};
+		#case 5  {#var result {<CDA>     <074>  }};
+		#case 6  {#var result {<BDA>      <074> }};
+		#case 7  {#var result {<ADA>       <074>}};
+		#case 8  {#var result {<AEE> <ADA>      <074>}};
+		#case 9  {#var result {<AEE>  <ADA>     <074>}};
+		#case 10 {#var result {<AEE>   <ADA>    <074>}};
+		#case 11 {#var result {<AEE>    <ADA>   <074>}};
+		#case 12 {#var result {<AEE>     <ADA>  <074>}};
+		#case 13 {#var result {<AEE>      <ADA> <074>}};
+		#case 14 {#var result {<AEE>       <074>}};
+	};
+};
+#function {hpcolor}
+{
+	#if {%2<=0} {#var result <014>%1<074>} {#var result <074>%1};
+};

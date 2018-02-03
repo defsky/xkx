@@ -1,0 +1,35 @@
+#function {eval}		{#math result {%1}};
+#function {trim}		{#format result {%p}{%1}};
+#function {lower} 	{#format result {%l} {%1}};
+#function {upper} 	{#format result {%u} {%1}};
+#function {len} 		{#format result {%L} {%1}};
+#function {screenw} 	{#format result {%C}};
+#function {screenh} 	{#format result {%R}};
+#function {replace} 	{#var result %1;#replace result {%2} {%3}};
+#function {ctd} 		{#math result {@replace{@replace{{0+@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{%1;{零};{*0+}};{十};{*10+}};{百};{*100+}};{千};{*1000+}};{万};{*10000+}};{六};{6}};{一};{1}};{二};{2}};{三};{3}};{四};{4}};{五};{5}};{七};{7}};{八};{8}};{九};{9}}+0};{++};{+}};{+*};{+}}}};
+#alias {colorpad}
+{
+    #var count 0;
+	#var color_str {};
+	#parse {ABCDEF}{c1}
+	{
+		#parse {ABCDEF}{c2}
+		{
+			#parse {ABCDEF}{c3}
+			{
+				#var color_str {$color_str<$c1$c2$c3>$c1$c2$c3};
+				#var count @eval{$count + 1};
+				#if {$count % 36 == 0}
+				{
+				    #var color_str {$color_str<088>\n};
+				}
+			}
+		}
+	};
+	#showme {$color_str};
+	#unvar color_str;
+	#unvar c1;
+	#unvar c2;
+	#unvar c3;
+	#unvar count;
+}

@@ -1,2 +1,3 @@
 #ticker {keep_alive} {look} {300}
-#ticker {backup} {save} {660}
+#ticker {save} {save} {660}
+#ticker {backup} {backup} {3660}

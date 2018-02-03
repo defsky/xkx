@@ -1,0 +1,51 @@
+#class lou open;
+
+#act {^{你运功完毕，深深吸了口气，站了起来。|你将内息走了个小周天，流回丹田，收功站了起来。|你只觉神元归一，全身精力弥漫，无以复加，忍不住长啸一声，徐徐站了起来。|你将真气在体内沿脉络运行了一圈}} {checkbusy};
+#act {self state}
+{
+	#if {$level<$maxsk}
+	{
+		#if {$qi==$maxqi}
+		{
+			enter;
+			do 6 u;
+			out;
+		};
+		#else
+		{
+			#if {$neili>200}
+			{
+				exert regenerate;
+				exert recover;
+				enter;
+				do 6 u;
+				out;
+			};
+			#else
+			{
+				#delay {4} {dazuo @eval{$qi*9/10}};
+			};
+		};
+	};
+	#else
+	{
+		#show <faa>dodge已达上限。<099>;
+		louoff;
+		#if {"$mymenpai"=="少林派"}
+		{
+			#delay {5}
+			{
+				w;#2 n;nu;#3 n;nu;u;
+				fsk on;
+			};
+		};
+	};
+};
+#act {^你不忙} {hpbrief};
+#act {^你正忙} {checkbusy};
+#act {^你现在的气太少了，无法产生内息运行全身经脉。$} {#var hpbf 1;#delay {10} {hpbrief}};
+#act {^你不小心被什么东西绊了一下，差点摔个大跟头。$} {#delay {2} {checkbusy}};
+#act {^你已稳稳地站在地上。} {vf;#delay {1.5} {checkbusy}};
+#act {^skbrief ok$} {#echo {{跳楼中：%s %d/%d(%d%a)} {-1}} {基本轻功} {$level} {$maxsk} {@eval{$lvpot*100/($level+1)/($level+1)}} {37}};
+
+#class lou close;

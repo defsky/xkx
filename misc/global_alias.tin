@@ -1,0 +1,37 @@
+#class global_alias open;
+
+#nop 所有session可用的全局别名;
+
+#alias {st} {
+    #send {status_me};
+    lock ≡━◎;
+};
+
+#alias {hp} {
+    #send {hp};
+    lock ≡━━━━;
+};
+
+#alias {sk} {
+    #send {sk};
+    lock 你目前所学过的技能;
+};
+
+#alias {jifa} {
+    #send {jifa %0};
+    lock 以下是你目前使用中的特殊技能;
+};
+
+#alias {lock} {
+    #if {"%0" != ""} {
+        #action {%0} {
+            #action {^>} {
+                #buffer lock;
+                #unaction {^>}
+            };
+            #unaction {%0};
+        };
+    };
+};
+
+#class global_alias close;

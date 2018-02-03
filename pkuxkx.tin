@@ -1,7 +1,7 @@
 #config {mccp} {on}
 #config {packet patch} {0.5}
 
-#list {modules} {create} {path;sched}
+#list {modules} {create} {common;path;sched;status}
 
 #alias {reload} {
     #foreach {$modules[%*]} {m} {
@@ -13,7 +13,7 @@
     #unvar m;#unvar file;
 }
 
-#alias {login} {#ses %0 mud.pkuxkx.net 8080}
+#alias {login} {#ses %1 mud.pkuxkx.net 8080}
 
 #split
 
