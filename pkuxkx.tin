@@ -1,11 +1,33 @@
 #config {mccp} {on}
-#config {packet patch} {0.5}
+#config {packet patch} {0.8}
 
-#list {modules} {create} {common;path;sched;status}
+#list {modules} {create} {common;path;sched}
+
+#var screen[rows] 0;
+#var screen[cols] 0;
+
+#event {PROGRAM START}
+{
+    #showme %0 %1 %2 %3 %4;
+}
+
+#alias {mod} {
+    #format {file} {module/%s.tin} {%1};
+    #if {"%2" == "load"} {
+        #class {%1} read {$file};
+    };
+    #elseif {"%2" == "unload"} {
+        #class {%1} kill;
+    };
+    #elseif {"%2" == "reload"} {
+        mod %1 unload;
+        mod %1 load;
+    };
+}
 
 #alias {reload} {
     #foreach {$modules[%*]} {m} {
-        #format {file} {%s.tin} {$m};
+        #format {file} {module/%s.tin} {$m};
         #class {$m} kill;
         #class {$m} read {$file};
         #echo {Module Reloaded : $m};
