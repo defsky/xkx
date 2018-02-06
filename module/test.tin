@@ -1,0 +1,49 @@
+#alias {hpbf}{
+    #class hpbf_inner open;
+    
+    #var hpbf_inner_buffer {};
+    #var hpbf_inner_buffer[line] 1;
+    #var hpbf_inner_buffer[start] 0;
+    
+    #event {RECEIVED LINE}
+    {
+        #var hpbf_inner_buffer[rcvd_line] {%%1};
+        #if {"$hpbf_inner_buffer[rcvd_line]" != ""}
+        {
+            #if {$hpbf_inner_buffer[line] == 3}
+            {
+                #regexp {$hpbf_inner_buffer[rcvd_line]}{^#%S,%S,%S,%S$}
+                {
+                    #showme line 3 : &1 &2 &3 &4;
+                    
+                    #line gag;
+                    #class hpbf_inner kill
+                };
+            }
+            {
+                #regexp {$hpbf_inner_buffer[rcvd_line]}{^#%S,%S,%S,%S,%S,%S$}
+                {
+                    #if {$hpbf_inner_buffer[line] == 1}
+                    {
+                        #var hpbf_inner_buffer[start] 1;
+                        #var hpbf_inner_buffer[line] 2;
+                        
+                        #showme line 1 : &1 &2 &3 &4 &5 &6;
+                    }
+                    {
+                        #var hpbf_inner_buffer[line] 3;
+                        
+                        #showme line 2 : &1 &2 &3 &4 &5 &6;
+                    };
+                    
+                };
+            };
+            
+        };
+        #if {$hpbf_inner_buffer[start]==1}{#line gag};
+    };
+    
+    #class hpbf_inner close;
+    
+    hpbrief
+}
