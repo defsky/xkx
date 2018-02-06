@@ -1,10 +1,26 @@
-#VAR status[hpbrief_line_no] 1;
-#VAR status[action] 空闲;
-#var status[flag][bar] 1;
-#var status[flag][refresh_hp] 0;
-#var status[flag][fighting] 0;
-#var screen[rows] 0;
-#var screen[cols] 0;
+#alias {status_load}{
+    #var status[action] 空闲;
+    #var status[flag][bar] 1;
+    #var status[flag][refresh_hp] 0;
+    #var status[flag][fighting] 0;
+    #var screen[rows] 0;
+    #var screen[cols] 0;
+
+    #split 2 2;
+    set hpbrief long;
+    #untic keep_alive
+    
+    refresh_sc;refresh_i;
+    #delay {1}{refresh_hp};
+    #delay {3}{hpbrief1}
+};
+
+#alias {status_unload}{
+    #class sched open;
+    #ticker {keep_alive} {look} {300};
+    #class sched close;
+    #split
+};
 
 #list color_table[hp]		create 	{<ADA>}{<ADA>}{<BDA>}{<CDA>}{<DDA>}{<EDA>}{<FDA>}{<FCA>}{<FAA>}{<FAA>};
 #list color_table[sp]		create 	{<AEC>}{<ADF>}{<BDF>}{<CDF>}{<DDF>}{<EDF>}{<FDF>}{<FCF>}{<FCF>}{<FBF>};
@@ -12,7 +28,7 @@
 #list color_table[energy]	create	{<BFF>}{<AEE>}{<BEE>}{<CEE>}{<DEE>}{<EEE>}{<FEE>}{<FDE>}{<FDE>}{<FCE>};
 #list color_table[food]		create	{<AFC>}{<AEC>}{<BEC>}{<CEC>}{<DEC>}{<EEC>}{<FEC>}{<FDC>}{<FDC>}{<FCC>};
 #list color_table[water]	create	{<AFC>}{<AEC>}{<BEC>}{<CEC>}{<DEC>}{<EEC>}{<FEC>}{<FDC>}{<FDC>}{<FCC>};
-
+    
 #function {fn_get_status_color}
 {
 	#var status_tmp @eval{%1*100/%2};
@@ -127,7 +143,10 @@
 #alias {refresh_hp} {
     #if {$status[flag][refresh_hp] == 0}
     {
+        #var status[flag][refresh_hp] 1;
+        
         #class hp1_inner open;
+        
         
         #act {≡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━≡}
         {
@@ -169,7 +188,7 @@
         #class hp1_inner close;
         
         #send hp;
-        #var status[flag][refresh_hp] 1;
+        
         #delay {5}{#var status[flag][refresh_hp] 0}
     }
 }
@@ -265,60 +284,72 @@
     #send i
 };
 
-#ALIAS {hpbrief1}
-{
-    #class hpbrief1_inner open;
+#alias {hpbrief1}{
+    #nop #经验，潜能，最大内力，当前内力，最大精力，当前精力;
+    #nop #最大气血，有效气血，当前气血，最大精神，有效精神，当前精神;
+    #nop set hpbrief long情况下可另显示一行 #真气，真元，食物，饮水;
     
-    #ACTION {^#%%1,%%2,%%3,%%4,%%5,%%6$}
+    #class hpbf_inner open;
+    
+    #var hpbf_inner_buffer {};
+    #var hpbf_inner_buffer[line] 1;
+    #var hpbf_inner_buffer[start] 0;
+    
+    #event {RECEIVED LINE}
     {
-	    #if {$status[hpbrief_line_no] == 1}
-	    {
-		    #var tmp_exp %%1;
-		    #var tmp_pot %%2;
-		    #var tmp_force_max %%3;
-		    #var tmp_force %%4;
-		    #var tmp_energy_max %%5;
-		    #var tmp_energy %%6;
-
-		    #var status[hpbrief_line_no] 2;
-	    };
-	    #elseif {$status[hpbrief_line_no] == 2}
-	    {
-		    #var status[hp_max] %%1;
-		    #var status[hp_valid] %%2;
-		    #var status[hp] %%3;
-		    #var status[sp_max] %%4;
-		    #var status[sp_valid] %%5;
-		    #var status[sp] %%6;
-
-		    #var status[exp] $tmp_exp;
-		    #var status[pot] $tmp_pot;
-		    #var status[force_max] $tmp_force_max;
-		    #var status[force] $tmp_force;
-		    #var status[energy_max] $tmp_energy_max;
-		    #var status[energy] $tmp_energy;
-		    
-		    update_status_bar;
-	        #var status[hpbrief_line_no] 1;
-	        
-	        #unvar tmp_exp;
-		    #unvar tmp_pot;
-		    #unvar tmp_force_max;
-		    #unvar tmp_force;
-		    #unvar tmp_energy_max;
-		    #unvar tmp_energy;
-		    
-		    #class hpbrief1_inner kill;
-	    };
-	    
-	    #line {gag}
-    }{5};
+        #var hpbf_inner_buffer[rcvd_line] {%%1};
+        #if {"$hpbf_inner_buffer[rcvd_line]" != ""}
+        {
+            #if {$hpbf_inner_buffer[line]==3}
+            {
+                #regexp {$hpbf_inner_buffer[rcvd_line]}{^#%S,%S,%S,%S$}
+                {
+                    #var status[zhenqi] &1;
+                    #var status[zhenyuan] &2;
+                    #var status[food] &3;
+                    #var status[water] &4;
+                    
+                    
+                    update_status_bar top;
+                    update_status_bar;
+                    
+                    #line gag;
+                    #class hpbf_inner kill;
+                };
+            }
+            {
+                #regexp {$hpbf_inner_buffer[rcvd_line]}{^#%S,%S,%S,%S,%S,%S$}
+                {
+                    #if {$hpbf_inner_buffer[line]==1}
+                    {
+                        #var hpbf_inner_buffer[start] 1;
+                        
+                        #var status[exp] &1;
+		                #var status[pot] &2;
+		                #var status[force_max] &3;
+		                #var status[force] &4;
+		                #var status[energy_max] &5;
+		                #var status[energy] &6;
+                    }
+                    {
+                        #var status[hp_max] &1;
+		                #var status[hp_valid] &2;
+		                #var status[hp] &3;
+		                #var status[sp_max] &4;
+		                #var status[sp_valid] &5;
+		                #var status[sp] &6;
+                    };
+                    #math hpbf_inner_buffer[line] $hpbf_inner_buffer[line] + 1;
+                };
+            }; 
+        };
+        #if {$hpbf_inner_buffer[start] == 1 } {#line gag};
+    };
     
-    #class hpbrief1_inner close;
+    #class hpbf_inner close;
     
-	#send hpbrief
-}
-{4};
+    hpbrief
+};
 
 #alias {status.set_action}
 {
@@ -356,8 +387,8 @@
 };
 
 #TICKER {status_refresh}{hpbrief1}{15};
-#TICKER {status_refresh2}{refresh_i;refresh_hp}{300};
-#TICKER {status_refresh3}{refresh_sc}{600};
+#TICKER {status_refresh2}{refresh_i;refresh_hp}{600};
+#TICKER {status_refresh3}{refresh_sc}{1500};
 
 #act {你在攻击中不断积蓄攻势。(气势：%1%%)}{#var status[mo] %1;#var status[flag][fighting] 1;status.set_action 气势$status[mo]%};
 #act {你逐步从之前战斗的紧张气氛中平缓下来。(气势：%1%%)}{#var status[mo] %1;status.set_action 气势$status[mo]%};
@@ -385,9 +416,15 @@
 #act {^你深深吸了几口气，脸色看起来好多了。} {hpbrief1};
 #act {^你领悟出一些基本轻功方面的窍门。} {hpbrief1};
 #act {^你身子发虚}{hpbrief1};
-#act {你拿起干粮咬了几口}{refresh_hp};
-#act {你%*喝了几口米酒}{refresh_hp};
+#act {你拿起干粮咬了几口}{hpbrief1};
+#act {你%*喝了%*}{hpbrief1};
 
-#split 2 2;
-hpbrief1;refresh_sc;refresh_i;refresh_hp;
+#act {你坐下来运气}{
+    #class status_yunqi_inner open;
+    #tic {tk_yunqi}{#send hpbrief1 \}{1};
+    #class status_yunqi_inner close;
+};
+#act {你运功完毕}{
+    #class status_yunqi_inner kill
+};
 

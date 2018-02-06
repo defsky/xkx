@@ -15,8 +15,10 @@
     #format {file} {module/%s.tin} {%1};
     #if {"%2" == "load"} {
         #class {%1} read {$file};
+        %1_load
     };
     #elseif {"%2" == "unload"} {
+        %1_unload;
         #class {%1} kill;
     };
     #elseif {"%2" == "reload"} {
