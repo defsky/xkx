@@ -8,7 +8,7 @@
 
     #split 2 2;
     set hpbrief long;
-    #untic keep_alive
+    #untic keep_alive;
     
     refresh_sc;refresh_i;
     #delay {1}{refresh_hp};
@@ -421,7 +421,7 @@
 
 #act {你坐下来运气}{
     #class status_yunqi_inner open;
-    #tic {tk_yunqi}{#send hpbrief1 \}{1};
+    #tic {tk_yunqi}{hpbrief1}{1};
     #class status_yunqi_inner close;
 };
 #act {你运功完毕}{
