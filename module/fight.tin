@@ -1,0 +1,46 @@
+#class $mod_name open;
+
+#alias {${mod_name}_load} {
+    #showme Module $mod_name loaded;
+    #unalias ${mod_name}_load;
+};
+
+#alias {${mod_name}_unload}{
+    #showme Module $mod_name unloaded;
+    #class $mod_name kill;
+};
+
+#alias {lw}{
+    perform zui-quan.lingwu;
+};
+
+#alias {zd}{
+    wield staff;
+    perform zui-gun.zuida;
+};
+
+#alias {san}{
+    unwield staff;
+    perform banruo-zhang.san;
+};
+
+#alias {jm}{
+    unwield staff;
+    perform yizhi-chan.jingmo;
+};
+
+#alias {yr}{
+    yun recover;
+};
+
+#alias {jg}{
+    yun jingang;
+};
+
+#alias {pu}{
+    yun powerup;
+};
+
+#class $mod_name close;
+
+${mod_name}_load;

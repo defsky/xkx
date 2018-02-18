@@ -1,12 +1,33 @@
+#class $mod_name open;
+
+#alias {${mod_name}_load} {
+    #showme module $mod_name loaded.;
+    #unalias ${mod_name}_load;
+};
+
+#alias {${mod_name}_unload} {
+    #showme module $mod_name unloaded.;
+    #class $mod_name kill;
+};
+
+#function {rnd}         {#math {result} {1 d (%2 - %1 + 1) + %1 - 1}};
 #function {eval}		{#math result {%1}};
 #function {trim}		{#format result {%p}{%1}};
-#function {lower} 	{#format result {%l} {%1}};
-#function {upper} 	{#format result {%u} {%1}};
+#function {lower} 	    {#format result {%l} {%1}};
+#function {upper} 	    {#format result {%u} {%1}};
 #function {len} 		{#format result {%L} {%1}};
 #function {screenw} 	{#format result {%C}};
 #function {screenh} 	{#format result {%R}};
 #function {replace} 	{#var result %1;#replace result {%2} {%3}};
 #function {ctd} 		{#math result {@replace{@replace{{0+@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{%1;{零};{*0+}};{十};{*10+}};{百};{*100+}};{千};{*1000+}};{万};{*10000+}};{六};{6}};{一};{1}};{二};{2}};{三};{3}};{四};{4}};{五};{5}};{七};{7}};{八};{8}};{九};{9}}+0};{++};{+}};{+*};{+}}}};
+
+#alias {getall} {
+    get all from corpse;
+    get all from corpse 2;
+    get all from corpse 2;
+    get all from corpse 2;
+};
+
 #alias {colorpad}
 {
     #var count 0;
@@ -33,3 +54,8 @@
 	#unvar c3;
 	#unvar count;
 }
+
+#class $mod_name close;
+
+${mod_name}_load;
+

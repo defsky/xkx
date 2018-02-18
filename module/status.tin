@@ -1,25 +1,46 @@
-#alias {status_load}{
+#class $mod_name open;
+
+#var result {};
+#var status {};
+
+#alias {${mod_name}_load}{
     #var status[action] 空闲;
     #var status[flag][bar] 1;
     #var status[flag][refresh_hp] 0;
     #var status[flag][fighting] 0;
-    #var screen[rows] 0;
-    #var screen[cols] 0;
+    #format screen[rows] {%R};
+    #format screen[cols] {%C};
 
     #split 2 2;
     set hpbrief long;
     #untic keep_alive;
     
-    refresh_sc;refresh_i;
-    #delay {1}{refresh_hp};
-    #delay {3}{hpbrief1}
+    refresh_sc;
+    refresh_i;
+    refresh_hp;
+    statusme;
+    hpbrief1;
+    #nop #delay {init1}{refresh_hp}{1};
+    #nop #delay {init2}{hpbrief1}{2};
+    
+    #if {$screen[cols] < 120}{
+        #showme {screen width need 120 cols at least.};
+        mod status unload;
+    };
+    #unalias status_load;
 };
 
-#alias {status_unload}{
+#alias {${mod_name}_unload}{
+    #undelay init1;
+    #undelay init2;
+    
     #class sched open;
     #ticker {keep_alive} {look} {300};
     #class sched close;
-    #split
+    #split;
+        
+    #showme module $mod_name unloaded;
+    #class $mod_name kill;
 };
 
 #list color_table[hp]		create 	{<ADA>}{<ADA>}{<BDA>}{<CDA>}{<DDA>}{<EDA>}{<FDA>}{<FCA>}{<FAA>}{<FAA>};
@@ -77,8 +98,8 @@
 
 	#var result $bar[code];
 
-	#nop #unvar bar;
-	#nop #unvar cnt;
+	#unvar bar;
+	#unvar cnt;
 }
 
 #alias {update_status_bar}
@@ -193,7 +214,118 @@
     }
 }
 
+#alias {hnd_statusme}{
+    #regexp {%1} {≡──◎个人状态◎───────────────────────────────────≡}
+    {
+        #var hnd_statusme[start] 1;
+    };
+    
+    #regexp {%1} {　姓名：　%S%s　ＩＤ：　%S%s　级别：　%S%s　战斗力：　%d%s　}
+    {
+        #var status[name] &1;
+        #var status[id] &3;
+        #var status[ce] &7;
+    };
+                                  　
+    #regexp {%1} {≡─────────────────────────────────◎ 北大侠客行 ◎──≡}
+    {
+        #line gag;
+        #unvar hnd_statusme;
+    };
+    
+    #if {$hnd_statusme[start] == 1} {#line gag};
+};
+
+#alias {statusme}{
+    #class statusme_inner open;
+    
+    #act {≡──◎个人状态◎───────────────────────────────────≡}
+    {
+        #line gag;
+    };
+    #act {　姓名：　%S%s　ＩＤ：　%S%s　级别：　%S%s　战斗力：　%d%s　}
+    {
+        #line gag;
+        #var status[name] %%1;
+        #var status[id] %%3;
+        #var status[ce] %%7;
+        
+    };
+    #act {≡───────────────────────────────────────────≡}
+    {
+        #line gag;
+        #class statusme_inner kill;
+    };
+
+    #class statusme_inner close;
+    
+    status_me -g;
+};
+
+#alias {hnd_sc} {
+    #if {"%1" != ""}
+    {
+        #regexp {%1}{≡━◎个人档案◎━━━━━━━━━━━━━━━━━━━━━━━━≡}
+        {
+            #var hnd_sc[start] 1;
+        };
+        #regexp {$%1}{≡━━━━━━━━━━━━━━━━━━━━━━◎北大侠客行◎━━≡}
+        {
+            #line gag;
+            
+            #unvar hnd_sc;
+            update_status_bar top;
+        };
+        #regexp {%1}{^【%s%S%s%S%s】%S{ |」}%S(%w)$}
+        {
+            #nop #var status[name] &8;
+            #nop #var status[id] &9;
+        };
+        #regexp {%1}{^%s你是一位%S岁的%*婚%S性人类%*}
+        {
+            #var status[age] @ctd{&2};
+            #var status[gender] &4;
+        };
+        #regexp {%1} {^%s银行存款：%s%S$}
+        {
+            #var status[money] &3;
+        };
+        #regexp {%1} {^%s实战经验：%s%S年功力%*}
+        {
+            #var status[ability] @ctd{&3};
+        };
+        #regexp {%1} {^%s等%s级：%s%S%s职%s业：%s%S%*}
+        {
+            #var status[level] &4;
+            #var status[class] &8;
+        };
+        #regexp {%1} {^%s道%s德：%s%S%s潜%s能%*}
+        {
+            #var status[moral] &4;
+        };
+        #regexp {%1} {^%s师门忠诚：%s%S%s江湖声望：%s%S$}
+        {
+            #var status[loyal] &3;
+            #var status[reputation] &6;
+        };
+        #regexp {%1} {你是%*第%*代弟子}
+        {
+            #var status[guild] &1;
+        };
+    };
+    
+    #if {$hnd_sc[start] == 1}{#line gag};
+};
+
 #alias {refresh_sc}
+{
+    #undelay refresh_sc_watchdog;
+    event_handler_add {hnd_sc}{RECEIVED LINE};
+	#send sc;
+	#delay {refresh_sc_watchdog} {event_handler_del {hnd_sc}{RECEIVED LINE}} {3};
+}
+
+#alias {refresh_sc_old}
 {
 	#class refresh_sc_inner open;
 	
@@ -216,8 +348,8 @@
             };
             #regexp {$tmp_get_limit[rcvd_line]}{^【%s%S%s%S%s】%S{ |」}%S(%w)$}
             {
-                #var status[name] &8;
-                #var status[id] &9;
+                #nop #var status[name] &8;
+                #nop #var status[id] &9;
             };
             #regexp {$tmp_get_limit[rcvd_line]}{^%s你是一位%S岁的%*婚%S性人类%*}
             {
@@ -284,7 +416,66 @@
     #send i
 };
 
-#alias {hpbrief1}{
+#alias {hnd_hb}{
+    #if {"%1" != ""}
+    {
+        #if {$hnd_hb[line] == 3}
+        {
+            #regexp {%1}{^#%S,%S,%S,%S$}
+            {
+                #var status[zhenqi] &1;
+                #var status[zhenyuan] &2;
+                #var status[food] &3;
+                #var status[water] &4;
+
+                #unvar hnd_hb;
+                
+                #line gag;
+                
+                update_status_bar top;
+                update_status_bar;
+            };
+        }
+        {
+            #regexp {%1}{^#%S,%S,%S,%S,%S,%S$}
+            {
+                #if {$hnd_hb[line] != 2} {
+                    #var hnd_hb {};
+                    #var hnd_hb[line] 2;
+
+                    #var status[exp] &1;
+	                #var status[pot] &2;
+	                #var status[force_max] &3;
+	                #var status[force] &4;
+	                #var status[energy_max] &5;
+	                #var status[energy] &6;
+                } {
+                    #var status[hp_max] &1;
+	                #var status[hp_valid] &2;
+	                #var status[hp] &3;
+	                #var status[sp_max] &4;
+	                #var status[sp_valid] &5;
+	                #var status[sp] &6;
+	                
+	                #var hnd_hb[line] 3;
+                };
+                #line gag;
+            };
+        }; 
+    };
+};
+
+#alias {hpbrief1}
+{
+    #undelay {hpbrief1_watchdog};
+    event_handler_add {hnd_hb}{RECEIVED LINE};
+
+	#send hpbrief;
+	
+	#delay {hpbrief1_watchdog} {event_handler_del {hnd_hb}{RECEIVED LINE}} {3};
+};
+
+#alias {hpbrief1_old}{
     #nop #经验，潜能，最大内力，当前内力，最大精力，当前精力;
     #nop #最大气血，有效气血，当前气血，最大精神，有效精神，当前精神;
     #nop set hpbrief long情况下可另显示一行 #真气，真元，食物，饮水;
@@ -372,23 +563,20 @@
 
 #event {SCREEN RESIZE}
 {
-    update_status_bar top;
-    update_status_bar;
-    
     #var screen[rows] %1;
     #var screen[cols] %0;
-};
-
-#event {VARIABLE UPDATE}
-{
-    #if {$status[flag][fighting] == 1}
-    {#showme Fighting start...}
-    {#showme Fighting over...}
+    
+    #if {$screen[cols] < 120}{
+        #showme {screen width need 120 cols at least.};
+        mod status unload;
+    };
+    update_status_bar top;
+    update_status_bar;
 };
 
 #TICKER {status_refresh}{hpbrief1}{15};
 #TICKER {status_refresh2}{refresh_i;refresh_hp}{600};
-#TICKER {status_refresh3}{refresh_sc}{1500};
+#TICKER {status_refresh3}{refresh_sc;statusme}{1500};
 
 #act {你在攻击中不断积蓄攻势。(气势：%1%%)}{#var status[mo] %1;#var status[flag][fighting] 1;status.set_action 气势$status[mo]%};
 #act {你逐步从之前战斗的紧张气氛中平缓下来。(气势：%1%%)}{#var status[mo] %1;status.set_action 气势$status[mo]%};
@@ -418,6 +606,7 @@
 #act {^你身子发虚}{hpbrief1};
 #act {你拿起干粮咬了几口}{hpbrief1};
 #act {你%*喝了%*}{hpbrief1};
+#act {你全身放松，坐下来开始运功疗伤}{hpbrief1};
 
 #act {你坐下来运气}{
     #class status_yunqi_inner open;
@@ -428,3 +617,6 @@
     #class status_yunqi_inner kill
 };
 
+#class $mod_name close;
+
+${mod_name}_load;

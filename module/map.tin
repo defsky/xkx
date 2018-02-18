@@ -1,0 +1,293 @@
+#class $mod_name open;
+
+#alias {${mod_name}_load} {
+    #showme Module $mod_name loaded;
+    #unalias ${mod_name}_load;
+};
+
+#alias {${mod_name}_unload}{
+    #showme Module $mod_name unloaded;
+    #class $mod_name kill;
+};
+
+#nop 红花老祖本姓朱 为救苍生下凡来;
+
+#act {^%s这里%*{方向|出口}{是|有}%*。$} {
+    #class tmp_inner open;
+    
+	#var tmp_room_data[exit] %5;
+
+	#replace {tmp_room_data[exit]}{ }{};
+	#replace {tmp_room_data[exit]}{和}{ };
+	#replace {tmp_room_data[exit]}{、}{ };
+	
+	#replace {tmp_room_data[exit]}{northeast}{ne};
+	#replace {tmp_room_data[exit]}{northwest}{nw};
+	#replace {tmp_room_data[exit]}{southeast}{se};
+	#replace {tmp_room_data[exit]}{southwest}{sw};
+    #replace {tmp_room_data[exit]}{northdown}{nd};
+    #replace {tmp_room_data[exit]}{southdown}{sd};
+    #replace {tmp_room_data[exit]}{eastdown}{ed};
+    #replace {tmp_room_data[exit]}{westdown}{wd};
+    #replace {tmp_room_data[exit]}{southup}{su};
+    #replace {tmp_room_data[exit]}{northup}{nu};
+	#replace {tmp_room_data[exit]}{eastup}{eu};
+    #replace {tmp_room_data[exit]}{westup}{wu};
+	#replace {tmp_room_data[exit]}{south}{s};
+	#replace {tmp_room_data[exit]}{north}{n};
+	#replace {tmp_room_data[exit]}{east}{e};
+	#replace {tmp_room_data[exit]}{west}{w};
+    
+    #list tmp_room_data[exit] create $tmp_room_data[exit];
+    
+    #map get roomexits tmp_room_data[knownexit];
+    #list tmp_room_data[knownexit] create $tmp_room_data[knownexit][];
+    
+    #foreach {$tmp_room_data[exit][%*]} {eett} {
+        #list tmp_room_data[knownexit] find {$eett} idx;
+        #if {$idx == 0} {
+            #list tmp_room_data[unknownexit] add $eett;
+        }; 
+    };
+    
+    #act {^>%s} {
+        #showme ->;
+        #showme <139>->房间出口:$tmp_room_data[exit]<079>;
+        #showme <129>->已知出口:$tmp_room_data[knownexit]<079>;
+        #showme <119>->未知出口:$tmp_room_data[unknownexit]<079>;
+        #showme ->;
+        
+        #class tmp_inner kill;
+    };
+    
+    #class tmp_inner close;
+};
+
+#alias {map} {
+    #if {"%1" == "load"} {
+        #map read data/pku.map;
+        #map return;
+    };
+    #if {"%1" == "save"} {
+        #map write data/pku.map;
+    };
+    #if {"%1" == "reload"} {
+        #map destroy;
+        map load;
+    };
+};
+
+#alias {ad} {
+    #undelay ad_inner_watchdog;
+    
+    #class ad_inner open;
+    
+    #var chukou %1;
+    #var timeout 1;
+    
+    #var tmp_room_data {};
+    
+    #act {^%S%s-%s$} {
+        #map dig {$chukou} {new};
+        #map move $chukou;
+        #map name %%1;
+        
+        #var timeout 0;
+        #class ad_inner kill
+    };
+    
+    #delay {ad_inner_watchdog} {
+        #if {$timeout == 1} {
+            #class ad_inner kill;
+            #showme <139>->ad timeout<079>;
+        };
+    } {3};
+    
+    #class ad_inner close;
+    
+    %1;    
+};
+
+#alias {carto} {
+    #if {"%2" == ""} {
+        #map dig to%1;
+    } {
+        #map link to%1 %2;
+    };
+    #map exit to%1 COMMAND {qu %1};
+};
+        
+#alias {gt} {
+    #if {"%1" == "stop"} {
+        set brief 0;
+        #class gt_inner kill;
+    };
+    #elseif {"%1" != ""} {
+        
+        #class gt_inner open;
+        
+        #var gt_start 0;
+        #var gt_car 0;
+        #var gt_boat 0;
+        #var gt_walkend 0;
+        
+        #act {#SHORTEST PATH: NO PATH FOUND TO} {
+            #var gt_start 0;
+            set brief 0;
+            
+            #showme <119>找不到目的地：%1<079>
+            #class gt_inner kill;
+        };
+
+        #act {你登上了一辆马车} {
+            #var gt_car 1;
+        };
+
+        #act {马车缓缓开动} {
+            #var gt_start 0;
+        };
+        
+        #act {你从马车上走了下来} {
+            #var gt_car 0;
+            #var gt_start 1;
+        };
+        
+        #act {你可以下车(xia)了} {
+            xia;
+            #var gt_car 0;
+            
+            #if {$gt_walkend == 1} {
+                #class gt_inner kill;
+            } {
+                #var gt_start 1;
+            };
+        };
+        
+        #act {你从踏板上走上了船} {
+            #var gt_start 0;
+            #var gt_boat 1;
+        };
+        
+        #act {船夫把踏脚板收起来，说了一声“坐稳喽”，船桨一点，小船向东海驶去} {
+
+        };
+        
+        #act {船夫对你说道：“到了，上岸吧。”，随即把一块踏脚板搭上堤岸} {
+            #var gt_start 1;
+            #var gt_boat 0;
+        };
+        
+        #act {你沿着踏板走了上去} {
+            #var gt_start 1;
+            #var gt_boat 0;
+        };
+        
+        #act {你吸了口气，一声“船家”，声音中正平和地远远传了出去} {
+            #var gt_start 0;
+            #var gt_boat 1;
+        };
+        
+        #act {艄公把踏脚板收起来，说了一声“坐稳喽”} {
+
+        };
+        
+        #act {船夫把踏脚板收起来，说了一声“坐稳喽”，船桨一点，小船向湖心驶去} {
+
+        };
+        
+        #nop 艄公要继续做生意了，所有人被赶下了渡船;
+        #nop 艄公说“到啦，上岸吧”，随即把一块踏脚板搭上堤岸。;
+        
+        #act {船夫对你说道：“到了，上岸吧。”，随即把一块踏脚板搭上堤岸} {
+            #var gt_start 1;
+            #var gt_boat 0;
+            #showme <139>->下船了<079>;
+        };
+        
+        #act {艄公说“到啦，上岸吧”，随即把一块踏脚板搭上堤岸} {
+            out;
+            #var gt_boat 0;
+            
+            #if {$gt_walkend == 1} {
+                #class gt_inner kill;
+            } {
+                #var gt_start 1;
+            };
+        };
+        
+        #act {绿衣少女将小船系在树枝之上，你跨上岸去} {
+            #var gt_start 1;
+        };
+        
+        #act {你跃上小舟，船就划了起来} {
+            #var gt_start 0;
+        };
+        
+        #act {小舟终于划到近岸，你从船上走了出来} {
+            #var gt_start 1;
+        };
+        
+        #act {你拿起船桨用力划了起来} {
+            #var gt_start 0;
+        };
+        #act {不知过了多久，船终于靠岸了，你累得满头大汗} {
+            #var gt_start 1;
+            #var gt_boat 0;
+        };
+        
+        #ticker {walk_path} {
+            #if {$gt_start == 1} {
+                #path walk;
+            };
+            #if {$gt_walkend == 1 && $gt_car == 0 && $gt_boat == 0} {
+                #showme <129>到达目的地：%1<079>;
+                #buffer lock;
+                #class gt_inner kill;
+            };
+        } {0.5};
+        
+        #event {END OF PATH} {
+            #var gt_walkend 1;
+            #var gt_start 0;
+            set brief 0;
+        };
+        
+        #class gt_inner close;
+        
+        #map find %1;
+        set brief 1;
+        #var gt_start 1;
+    };
+    #else {
+        #showme Usage : gt <目的地名>;
+    };
+};
+
+#alias {driveto} {
+    #class driveto_inner open;
+    
+    #act {你可以下车(xia)了} {
+        xia;
+        #class driveto_inner kill;
+    };
+    
+    #class driveto_inner close;
+    gu;qu %1;
+};
+
+#alias {${mod_name}_guojiang} {
+    #class guojiang_inner open;
+    
+    #act {艄公说“到啦，上岸吧”，随即把一块踏脚板搭上堤岸} {
+        out;
+        #class guojiang_inner kill;
+    };
+    
+    #class guojiang_inner close;
+    
+    yell boat;enter;
+};
+
+#class $mod_name close;
+
+${mod_name}_load;

@@ -1,44 +1,52 @@
 #config {mccp} {on}
 #config {packet patch} {0.8}
 
-#list {modules} {create} {common;path;sched}
+#PATHDIR          {n}  {s}  {1}
+#PATHDIR          {s}  {n}  {2}
+#PATHDIR          {e}  {w}  {4}
+#PATHDIR          {w}  {e}  {8}
+#PATHDIR          {u}  {d}  {16}
+#PATHDIR          {d}  {u}  {32}
+#PATHDIR          {ne}  {sw}  {5}
+#PATHDIR          {se}  {nw}  {6}
+#PATHDIR          {nw}  {se}  {9}
+#PATHDIR          {sw}  {ne}  {10}
+#PATHDIR          {nu}  {sd}  {17}
+#PATHDIR          {nd}  {su}  {33}
+#PATHDIR          {su}  {nd}  {18}
+#PATHDIR          {sd}  {nu}  {34}
+#PATHDIR          {wu}  {ed}  {24}
+#PATHDIR          {wd}  {eu}  {40}
+#PATHDIR          {eu}  {wd}  {20}
+#PATHDIR          {ed}  {wu}  {36}
+#PATHDIR          {out}  {enter}  {62}
+#PATHDIR          {enter}  {out}  {63}
 
-#var screen[rows] 0;
-#var screen[cols] 0;
+#nop #MACRO {\e[A}{#send n};
+#nop #MACRO {\e[B}{#send s};
+#nop #MACRO {\e[C}{#send e};
+#nop #MACRO {\e[D}{#send w};
+#nop #MACRO {\e[1;5A}{#send nu};
+#nop #MACRO {\e[1;5B}{#send su};
+#nop #MACRO {\e[1;5C}{#send eu};
+#nop #MACRO {\e[1;5D}{#send wu};
+#nop #MACRO {\e[1;3A}{#send nd};
+#nop #MACRO {\e[1;3B}{#send sd};
+#nop #MACRO {\e[1;3C}{#send ed};
+#nop #MACRO {\e[1;3D}{#send wd};
 
 #event {PROGRAM START}
 {
     #showme %0 %1 %2 %3 %4;
-}
+};
 
-#alias {mod} {
-    #format {file} {module/%s.tin} {%1};
-    #if {"%2" == "load"} {
-        #class {%1} read {$file};
-        %1_load
-    };
-    #elseif {"%2" == "unload"} {
-        %1_unload;
-        #class {%1} kill;
-    };
-    #elseif {"%2" == "reload"} {
-        mod %1 unload;
-        mod %1 load;
-    };
-}
+#read framework/module.tin;
 
-#alias {reload} {
-    #foreach {$modules[%*]} {m} {
-        #format {file} {module/%s.tin} {$m};
-        #class {$m} kill;
-        #class {$m} read {$file};
-        #echo {Module Reloaded : $m};
-    };
-    #unvar m;#unvar file;
-}
+#format screen[rows] {%R};
+#format screen[cols] {%C};
 
-#alias {login} {#ses %1 mud.pkuxkx.net 8080}
+#list {startup_modules} {create} {event;common;path;login};
 
-#split
+startup_mod_init;
 
-reload
+#split;

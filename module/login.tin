@@ -1,0 +1,28 @@
+#class $mod_name open;
+
+#alias {${mod_name}_load} {
+    #showme Module $mod_name loaded;
+    #unalias ${mod_name}_load;
+};
+
+#alias {${mod_name}_unload}{
+    #showme Module $mod_name unloaded;
+    #class $mod_name kill;
+};
+
+#alias {login} {
+    #class login_inner open;
+    
+    #event {SESSION CONNECTED}{
+        #send %%0;
+        #class login_inner kill;
+    };
+    
+    #class login_inner close;
+    
+    #ses %1 mud.pkuxkx.net 8080;
+};
+
+#class $mod_name close;
+
+${mod_name}_load;

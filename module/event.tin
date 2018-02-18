@@ -1,0 +1,42 @@
+#class $mod_name open;
+
+#alias {${mod_name}_load} {
+    #showme Module $mod_name loaded;
+    #unalias ${mod_name}_load;
+};
+
+#alias {${mod_name}_unload}{
+    #showme Module $mod_name unloaded;
+    #class $mod_name kill;
+};
+
+#var event_handlers {};
+
+#alias {event_handler_add} {
+    #if { &event_handlers[%2][%1] == 0 } {
+        #var event_handlers[%2][%1] 0;
+    };
+};
+
+#alias {event_handler_del} {
+    #if {&event_handlers[%2][%1] != 0} {
+        #if {$event_handlers[%2][%1] == 1} {
+            #delay {1}{event_handler_del {%1}{%2}};
+        } {
+            #unvar event_handlers[%2][%1];
+        };
+    }
+};
+
+#event {RECEIVED LINE} {
+    #foreach {$event_handlers[RECEIVED LINE][]} {hnd} {
+        #var event_handlers[RECEIVED LINE][$hnd] 1;
+        $hnd {%1};
+        #var event_handlers[RECEIVED LINE][$hnd] 0;
+    };
+    #unvar hnd;
+};
+
+#class $mod_name close;
+
+${mod_name}_load;
