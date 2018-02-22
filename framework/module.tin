@@ -17,23 +17,27 @@
         mod %1 unload;
         mod %1 load;
     };
+    #else {
+        #if {"%1" == "list"} {
+            #format {out_str}{%-14s%+6s}{Module Name}{Loaded};
+            #showme -----------------------------;
+            #showme $out_str;
+            
+            #foreach {$modules[]} {m} {
+                #format {out_str}{%-14s%+6s}{$m}{$modules[$m]};
+                #showme $out_str;
+            };
+            
+            #unvar out_str;#unvar m;
+            #buffer lock;
+        };
+        #else {
+            #showme <129> Usage : mod [<list | mod name <load | unload | reload>>]
+        };
+    };
 
     #unvar file;#unvar mod_name;
 }
-
-#alias {modlist} {
-    #format {out_str}{%-14s%+6s}{Module Name}{Loaded};
-    #showme -----------------------------;
-    #showme $out_str;
-    
-    #foreach {$modules[]} {m} {
-        #format {out_str}{%-14s%+6s}{$m}{$modules[$m]};
-        #showme $out_str;
-    };
-    
-    #unvar out_str;#unvar m;
-    #buffer lock;
-};
 
 #alias {startup_mod_init} {
     #foreach {$startup_modules[%*]} {m} {

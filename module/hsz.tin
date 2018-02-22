@@ -17,7 +17,6 @@
 #alias {leave} {
     #send leave;
     #map return;
-    #map get;
 };
 
 #nop 你向韩世忠打听有关『job』的消息。
@@ -28,11 +27,14 @@
     #if {"%1" == "job"} {
         ask han about job;
     };
-    #if {"%1" == "fin"} {
+    #elseif {"%1" == "fin"} {
         ask han about finish;
     };
-    #if {"%1" == "fai"} {
+    #elseif {"%1" == "fai"} {
         ask han about fail;
+    };
+    #else {
+        gt {大厅}{}{这里是韩王府的大厅}{};
     };
 };
 

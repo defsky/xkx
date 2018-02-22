@@ -35,7 +35,7 @@
     #undelay init2;
     
     #class sched open;
-    #ticker {keep_alive} {look} {300};
+    #ticker {keep_alive} {#cr} {300};
     #class sched close;
     #split;
         
@@ -608,13 +608,17 @@
 #act {你%*喝了%*}{hpbrief1};
 #act {你全身放松，坐下来开始运功疗伤}{hpbrief1};
 
-#act {你坐下来运气}{
-    #class status_yunqi_inner open;
+#act {你五心向天，排除一切杂念，内息顺经脉缓缓流动} {
     #tic {tk_yunqi}{hpbrief1}{1};
-    #class status_yunqi_inner close;
+};
+#act {你将内息走了个小周天，流回丹田，收功站了起来} {
+    #untic tk_yunqi;
+};
+#act {你坐下来运气}{
+    #tic {tk_yunqi}{hpbrief1}{1};
 };
 #act {你运功完毕}{
-    #class status_yunqi_inner kill
+    #untic tk_yunqi;
 };
 
 #class $mod_name close;

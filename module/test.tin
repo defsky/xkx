@@ -12,16 +12,9 @@
 
 #ACTION {http://pkuxkx.net/antirobot/robot.php?filename=%1}
 {
-	@fn_log{开始下载验证码:%1;true};
-	#script cmdout {script/getpic.sh %1 $status[id]};
-	#showme $cmdout;
-	
-	#if {&cmdout[2]}
-	{
-        #system {display data/tmp/$cmdout[2] &};
-	} {
-	    #showme get image failed
-	};
+    #buffer up;
+    #buffer down;
+    #buffer lock;
 };
     
 #class $mod_name close;

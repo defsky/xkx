@@ -10,7 +10,7 @@
     #class $mod_name kill;
 };
 
-#ticker {keep_alive} {look} {300}
+#ticker {keep_alive} {#cr} {300}
 #ticker {save} {save} {660}
 #ticker {backup} {backup} {3660}
 

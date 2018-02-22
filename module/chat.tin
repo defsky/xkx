@@ -1,0 +1,25 @@
+#class $mod_name open;
+
+#alias {${mod_name}_load} {
+    #showme Module $mod_name loaded;
+    #unalias ${mod_name}_load;
+};
+
+#alias {${mod_name}_unload}{
+    #showme Module $mod_name unloaded;
+    #class $mod_name kill;
+};
+
+#alias {chatlist} {
+    #if {"%1" == "qq"} {
+        #grep ¡¾±±ÏÀQQÈº¡¿
+    };
+    #if {"%1" == "chat"} {
+        #grep ¡¾ÏÐÁÄ¡¿
+    };
+    #buffer lock;
+};
+
+#class $mod_name close;
+
+${mod_name}_load;

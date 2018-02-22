@@ -19,6 +19,10 @@
     perform zui-gun.zuida;
 };
 
+#alias {sj} {
+    perform damo-jian.sanjue;
+};
+
 #alias {san}{
     unwield staff;
     perform banruo-zhang.san;
@@ -39,6 +43,11 @@
 
 #alias {pu}{
     yun powerup;
+};
+
+#act {看起来%*想杀死你！} {
+    kill %1;
+    lw;
 };
 
 #class $mod_name close;
