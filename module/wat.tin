@@ -1,0 +1,59 @@
+#class $mod_name open;
+
+#alias {${mod_name}_load} {
+    #showme Module $mod_name loaded;
+    #unalias ${mod_name}_load;
+};
+
+#alias {${mod_name}_unload}{
+    #showme Module $mod_name unloaded;
+    #class $mod_name kill;
+};
+
+#macro {\eOR} {
+    eat yao;
+};
+
+#act {看起来番邦武士想杀死你} {
+    killall wushi;
+    #tic {tk_rc} {
+        #if {$status[hp] < @eval{$status[hp_valid] * 0.9}} {
+            yun recover;
+        };
+    } {0.5};
+};
+#act {如果你现在离开，可获厚礼} {
+    #untic tk_rc;
+    #if {$status[hp_valid] < $status[hp_max]} {
+        yun heal;
+    };
+};
+#act {你全身放松，坐下来开始运功疗伤} {
+    hpbrief1;
+    #delay {1} {
+        #if {$status[hp_valid] < $status[hp_max]} {
+            yun heal;
+        } {
+            #if {$status[hp] < $status[hp_valid]} {
+                yun recover;
+            };
+        };
+    };
+};
+
+
+#alias {jt} {
+    ask luzhang ke about 进塔
+};
+#alias {kw} {
+    kill wushi;
+};
+#alias {ka} {
+    killall wushi;
+};
+#alias {cy} {
+    eat yao;
+};
+#class $mod_name close;
+
+${mod_name}_load;

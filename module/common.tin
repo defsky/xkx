@@ -21,16 +21,55 @@
 #function {replace} 	{#var result %1;#replace result {%2} {%3}};
 #function {ctd} 		{#math result {@replace{@replace{{0+@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{%1;{零};{*0+}};{十};{*10+}};{百};{*100+}};{千};{*1000+}};{万};{*10000+}};{六};{6}};{一};{1}};{二};{2}};{三};{3}};{四};{4}};{五};{5}};{七};{7}};{八};{8}};{九};{9}}+0};{++};{+}};{+*};{+}}}};
 
+#function {reverse} {
+    #switch {"%1"} {
+        #case {"e"} { #var result w };
+        #case {"s"} { #var result n };
+        #case {"w"} { #var result e };
+        #case {"n"} { #var result s };
+        #case {"ne"} { #var result sw };
+        #case {"nw"} { #var result se };
+        #case {"se"} { #var result nw };
+        #case {"sw"} { #var result ne };
+        #case {"nu"} { #var result sd };
+        #case {"nd"} { #var result su };
+        #case {"su"} { #var result nd };
+        #case {"sd"} { #var result nu };
+        #case {"eu"} { #var result wd };
+        #case {"ed"} { #var result wu };
+        #case {"wu"} { #var result ed };
+        #case {"wd"} { #var result eu };
+        #case {"up"} { #var result down };
+        #case {"down"} { #var result up };
+        #case {"enter"} { #var result out };
+        #case {"out"} { #var result enter };
+        #default { 
+            #var result {};
+        };
+    };    
+};
+#function {isListMember} {
+    #var result 0;
+    
+    #foreach {${%1}[%*]} {m} {
+        #if {"$m" == "%2"} {
+            #var result 1;
+        };
+    };
+    #unvar m;
+};
 #alias {dbg} {
     #showme <139>->%0<079>;
+    #showme <139>-><079>;
 };
-
 #alias {gc} {
     #if {"%1" == ""} {
         get all from corpse;    
     } {
         get all from corpse %1;
     };
+    drop jin hua;
+    drop ling;
 };
 
 #alias {colorpad}
@@ -59,6 +98,14 @@
 	#unvar c3;
 	#unvar count;
 }
+
+#alias {mkgem} {
+    #if {"%1" != ""} {
+        do 3 pickgem %1 ;combine gem;pack gem;
+    } {
+        #showme <129> Usage : mkgem <gem id><079>;
+    };
+};
 
 #class $mod_name close;
 

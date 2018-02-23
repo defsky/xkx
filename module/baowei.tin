@@ -10,17 +10,14 @@
     #class $mod_name kill;
 };
 
-#macro {\eOQ} {chatlist chat};
-#macro {\eOR} {chatlist qq};
-
-#alias {chatlist} {
-    #if {"%1" == "qq"} {
-        #grep 【北侠QQ群】;
-    };
-    #if {"%1" == "chat"} {       
-        #grep 【闲聊】;
-    };
-    #buffer lock;
+#alias {bw} {
+    ask guo about 襄阳保卫;
+};
+#alias {gs} {
+    ask huang about 工事;
+};
+#alias {bwok} {
+    ask guo about 脱离保卫;
 };
 
 #class $mod_name close;

@@ -22,6 +22,10 @@
 #var map[room][desc] {};
 #var map[room][area] {};
 #var map[room][unit] {};
+#var map[room][item] {};
+#var map[room][indoor] 0;
+#var map[room][season] {};
+#var map[room][weather] {};
 
 #var map[gt][status] noaction;
 #var map[gt][path] {};
@@ -65,6 +69,10 @@
         #var hnd_addesc_inner[desc_start] 1;
         #var hnd_addesc_inner[desc] {};
         #var map[room][unit] {};
+        #var map[room][indoor] 1;
+        #var map[room][season] {};
+		#var map[room][weather] {};
+		#var map[room][item] {};
         #var map[room][name] &1;
     } {
         #if {&hnd_addesc_inner[desc_start] != 0} {
@@ -74,8 +82,17 @@
             };
             #regexp {%1} {^%s「%*」: %*。$} {
                 #var hnd_addesc_inner[desc_start] 0;
+                #var map[room][indoor] 0;
+				#var map[room][season] &2;
+				#var map[room][weather] &3;
             };
+            #regexp {%1}{^%s你可以看看(look):%*$}
+			{
+				#nop #var hnd_addesc_inner[desc_start] 0;
+				#var map[room][item] {&2};
 
+				#replace {map[room][item]}{,}{;};
+			};
             #if {$hnd_addesc_inner[desc_start] == 1} {
                 #var hnd_addesc_inner[desc] @trim{$hnd_addesc_inner[desc]%1};
                 #unvar result;
@@ -116,126 +133,26 @@
     };
 };
 
-#alias {_roomdesc}
-{
-	#class mapper.get_room.inner open;
-
-	#var tmp_room_data {};
-	#var tmp_room_data[flag_room_data_line] 0;
-	
-	#if {"%1" == ""}
-	{
-		#alias tmp_callback #nop;
-	}{
-		#alias tmp_callback {%1};
-	};
-
-	#alias {tmp_work_done}
-	{
-		tmp_callback;
-
-		#class mapper.get_room.inner  kill;
-		#unact {^>%s};
-	};
-	#act {^%S%s-%s$}
-	{
-		#var tmp_room_data[name] %%1;
-		#var tmp_room_data[desc] {};
-		#var tmp_room_data[exit] {};
-		#var tmp_room_data[npc] {};
-		#var tmp_room_data[season] {};
-		#var tmp_room_data[weather] {};
-		#var tmp_room_data[is_indoor] 1;
-
-		logmsg 开始扫描房间数据:${tmp_room_data[name]};
-		#var tmp_room_data[flag_desc_line] 1;
-		#var tmp_room_data[flag_room_data_line] 1;
-
-		#act {^>%s}{tmp_work_done;};
-	};
-
-	#event {RECEIVED LINE}
-	{
-		#var tmp_room_data[rcvd_line] {%%1};
-
-		#if {$tmp_room_data[flag_room_data_line] == 1 && "$tmp_room_data[rcvd_line]" != ""}
-		{
-			#nop dbg RCV_LINE==>$tmp_room_data[rcvd_line];
-
-			#regexp {$tmp_room_data[rcvd_line]}{^%s这里%*出口是%*。$}
-			{
-				#var tmp_room_data[flag_desc_line] 0;
-				#var tmp_room_data[exit] &3;
-
-				#replace {tmp_room_data[exit]}{ }{};
-				#replace {tmp_room_data[exit]}{和}{\;};
-				#replace {tmp_room_data[exit]}{、}{\;};
-			};
-
-			#regexp {$tmp_room_data[rcvd_line]}{^%s你可以看看(look):%*$}
-			{
-				#var tmp_room_data[flag_desc_line] 0;
-				#var tmp_room_data[lookable_item] {&2};
-
-				#replace {tmp_room_data[lookable_item]}{,}{\;};
-			};
-
-			#regexp {$tmp_room_data[rcvd_line]}{^%s「%*」: %*。$}
-			{
-				#var tmp_room_data[flag_desc_line] 0;
-				#var tmp_room_data[is_indoor] 0;
-				#var tmp_room_data[season] &2;
-				#var tmp_room_data[weather] &3;
-			};
-
-			#regexp {$tmp_room_data[rcvd_line]}{^%s%S「%S」%S(%w %w)%*}
-			{
-				#var tmp_room_data[npc][&5 &6] &4;
-			}{
-				#regexp {$tmp_room_data[rcvd_line]}{^%s%S(%w %w)%*}
-				{
-					#var tmp_room_data[npc][&3 &4] &2;
-				}{
-					#regexp {$tmp_room_data[rcvd_line]}{^%s%S%s%S(%w %w)%*}
-					{
-						#var tmp_room_data[npc][&5 &6] &4;
-					}{
-						#regexp {$tmp_room_data[rcvd_line]}{^%s%S%s%S%s%S(%w %w)%*}
-						{
-							#var tmp_room_data[npc][&7 &8] &6;
-						};
-					};
-				};
-			};
-
-			#regexp {$tmp_room_data[rcvd_line]}{">%*"}
-			{
-				#var tmp_room_data[flag_room_data_line] 0;
-				tmp_work_done;
-			};
-
-			#if {$tmp_room_data[flag_desc_line] == 1}
-			{
-				#var tmp_room_data[desc] {$tmp_room_data[desc]$tmp_room_data[rcvd_line]};
-			};
-		};
-	};
-
-	#class mapper.get_room.inner close;
-
-	look;
-};
-
-#act {你的动作还没有完成，不能移动} {
-    #map undo;
-};
 #nop ============ Module alias start ==========================================;
+
+#alias {on_exit_blocked} {
+    #alias cb_on_exit_blocked #cr;
+    #alias cb_on_exit_blocked %0;
+    
+    #act {你的动作还没有完成，不能移动} {
+        cb_on_exit_blocked;
+    };
+    #act {官兵们拦住了你的去路} {
+        cb_on_exit_blocked;
+    };
+};
 
 #alias {map} {
     #switch {"%1"} {
         #case {"load"} {
             #map read data/pku.map;
             #map return;
+            map pad;
             dbg map data loaded from data/pku.map;
         };
         #case {"save"} {
@@ -249,11 +166,13 @@
             dbg map data reloaded from data/pku.map;
         };
         #case {"stop"} {
-            #var map[status][mapping] 0;
-            
             event_handler_del {_hnd_roomdesc} {RECEIVED LINE};
-            
-            #class map_start_inner kill;
+            #if {$map[status][mapping] == 1} {
+                #var map[status][mapping] 0;
+                ades stop;
+                
+                #class map_start_inner kill;
+            };
             #class ad_inner kill;
             dbg mapping stopped;
         };
@@ -274,7 +193,11 @@
             
         };
         #case {"start"} {
+            
+            
+            get_area;
             dbg start mapping;
+            
             #var map[status][mapping] 1;
             
             event_handler_add {_hnd_roomdesc} {RECEIVED LINE};
@@ -306,8 +229,12 @@
                 show_room_data;
             };
             #alias {ada} {
-                #var map[room][area] %%1;
-                #showme <139>->room area been set to : %%1<079>;
+                #if {"%%1" != ""} {
+                    #var map[room][area] %%1;
+                    #showme <139>->room area been changed to : %%1<079>;
+                } {
+                    #showme <139>->current area : $map[room][area]<079>;
+                };
             };
             #alias {ades} {
                 #if {"%%1" == "start"} {
@@ -326,6 +253,50 @@
                     
                     #nop #map get;
                     dbg room data updated : area $map[room][area];
+                };
+            };
+            #alias {pre} {
+                #if {"%%1" != ""} {
+                    
+                    
+                    #var pre[exit] %%1;
+                    #map flag nofollow;
+                    #send $pre[exit];
+                    
+                    #delay {2} {
+                        #map find {$map[room][name]}{}{$map[room][desc]};
+                        #path save f pre[path];
+                        #if {&pre[path] != 0} {
+                            #replace pre[path] {\;} { };
+                            #list pre[path] create $pre[path];
+                            
+                            #map get roomvnum pre[lastvnum];
+                            
+                            #list pre[path] size pre[pathlen];
+                            #loop 1 $pre[pathlen] i {
+                                #map move $pre[path][$i];
+                            };
+                            #unvar i;
+                            #map get roomvnum pre[targetvnum];
+                            #map get roomexits pre[targetexits];
+                            #list pre[targetexits] create $pre[targetexits][];
+                            #map goto $pre[lastvnum];
+                            
+                            #if {0 == @isListMember{pre[targetexits];@reverse{$pre[exit]}}} {
+                                dbg 出口 $pre[exit] 存在房间记录 $pre[targetvnum];
+                            };
+                        } {
+                            
+                            dbg 出口 $pre[exit] 还没有房间记录; 
+                        };
+                        #send @reverse{$pre[exit]};
+                        #map flag nofollow;
+                        #unvar pre;
+                    };
+                    
+                    
+                } {
+                    #showme <129> Usage : pre <direction><079>;
                 };
             };
             #alias {ad} {
@@ -381,23 +352,43 @@
     #send look;
 };
 #alias {get_area} {
-    #class get_area_inner open;
+    #class get_area_inner1 open;
     
+    #alias {get_area_end} {
+        #class get_area_inner1 kill;
+        #delay {dl_get_area} {
+            get_area_map_end;
+        } {2};    
+    };
+    #act {这里暂时没有地图} {
+        #class get_area_inner1 kill;
+        #class get_area_inner2 kill;
+        dbg 当前房间没有地图信息，请走几步再试
+    };
     #act {^【%*地图】} {
         #var map[room][area] %%1;
-        
+        get_area_end;
     };
     #act {^【%*地图－%*】} {
         #var map[room][area] %%1%%2;
-        
+        get_area_end;
+    };
+    #class get_area_inner1 close;
+    
+    #class get_area_inner2 open;
+    #alias {get_area_map_end} {
+        #class get_area_inner2 kill;
+        dbg area changed to : $map[room][area];
+    };
+    #act {== 未完继续} {
+        #send q;
     };
     #act {[临时存储讯息]} {
-        #class get_area_inner kill;
-        dbg area got : $map[room][area];
+        #undelay {dl_get_area};
+        get_area_map_end;
     };
-    #class get_area_inner close;
+    #class get_area_inner2 close;
     #send localmaps;
-    #send q;
 };
 #alias {show_room_data} {
     #map get roomexits tmp_room_data[knownexit];
@@ -414,10 +405,10 @@
     #showme <139>->房间出口:$map[room][exit]<079>;
     #showme <119>->未知出口:$tmp_room_data[unknownexit]<079>;
     #showme <129>->已知出口:$tmp_room_data[knownexit]<079>;
-    #map get roomarea tmpdesc[area];
-    #map get roomname tmpdesc[name];
-    #map get roomdesc tmpdesc[desc];
-    #showme <129>->已知描述:$tmpdesc[area] => $tmpdesc[name] => $tmpdesc[desc]<079>;
+    #map get roomarea tmp_room_data[area];
+    #map get roomname tmp_room_data[name];
+    #map get roomdesc tmp_room_data[desc];
+    #showme <129>->已知描述:$tmp_room_data[area] => $tmp_room_data[name] => $tmp_room_data[desc]<079>;
     #nop #showme ->$map[room][area] => ${map[room][name]} => ${map[room][desc]};
     #showme ->;
     
@@ -470,6 +461,35 @@
             #showme <119>找不到目的地：%1<079>
             #class gt_inner kill;
         };
+        #act {接过你递给的船资} {
+            #var gt_start 0;
+        };
+
+        #act {童百熊说道：「你不是我日月神教弟子，来我教干什么？速速离开！」} {
+            #var gt_start 0;
+            hit tong;
+        };
+        
+        #act {童百熊脚下一个不稳，跌在地上一动也不动了} {
+            #var gt_start 1;
+        };
+        
+        #act {童百熊死了} {
+            #var gt_start 1;
+        };
+        
+        #act {陆大有喝道：你不是华山弟子，不得入内} {
+            #var gt_start 0;
+            hit lu;
+        };
+        
+        #act {陆大有脚下一个不稳，跌在地上一动也不动了} {
+            #var gt_start 1;
+        };
+        
+        #act {陆大有死了} {
+            #var gt_start 1;
+        };
 
         #act {你登上了一辆马车} {
             #var gt_car 1;
@@ -478,7 +498,9 @@
         #act {在出发前，你结清了车资} {
             #var gt_start 0;
         };
-        
+        #act {你身上没有车资%*，车夫拒绝开车} {
+            gt stop;
+        };
         #act {马车缓缓开动} {
             #var gt_start 0;
         };
@@ -531,9 +553,9 @@
 
         };
         
-        #nop 艄公要继续做生意了，所有人被赶下了渡船;
-        #nop 艄公说“到啦，上岸吧”，随即把一块踏脚板搭上堤岸。;
-        
+        #act {艄公要继续做生意了，所有人被赶下了渡船} {
+            #var gt_start 1;
+        };
         #act {船夫对你说道：“到了，上岸吧。”，随即把一块踏脚板搭上堤岸} {
             #var gt_start 1;
             #var gt_boat 0;
@@ -593,7 +615,7 @@
         
         #class gt_inner close;
         
-        #map find {%1} {%2} {%3} {%4};
+        #map find {%1} {%2} {%3} {%4} {%5};
         set brief 1;
         #var gt_start 1;
     };

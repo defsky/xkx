@@ -10,6 +10,16 @@
     #class $mod_name kill;
 };
 
+#macro {\eOS} {
+    jm;
+};
+#macro {\e[15~} {
+    san;
+};
+#macro {\e[17~} {
+    yr;
+};
+
 #alias {lw}{
     perform zui-quan.lingwu;
 };
@@ -44,10 +54,39 @@
 #alias {pu}{
     yun powerup;
 };
+#var cooldown 1;
+
+#act {你双手合十，散去了凝聚于全身上下的「金刚不坏体神功」} {
+    #nop jg;
+};
+#act {你的易筋经神功运行完毕，将内力收回丹田} {
+    #nop pu;
+};
 
 #act {看起来%*想杀死你！} {
-    kill %1;
-    lw;
+    #if {$cooldown == 1} {
+        #var cooldown 0;
+        #var lwfail 0;
+        #class tmp_fight open;
+        #act {未有对手或者你和对方未处于战斗中，不能使用「领悟醉拳」} {
+            #var lwfail @eval{$lwfail+1};
+            #if {$lwfail >= 5} {
+                #class tmp_fight kill;
+            } {
+                #delay {1} {lw};
+            };
+        };
+        #act {你开始在战斗中用心领悟醉拳的拳法} {
+            #class tmp_fight kill;
+        };
+        #act {你战胜了%*} {
+            #var lwfail 5;
+            #class tmp_fight kill;
+        };
+        #class tmp_fight close;
+        lw;
+        #delay {3} {#var cooldown 1};
+    }
 };
 
 #class $mod_name close;

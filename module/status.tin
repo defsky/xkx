@@ -27,7 +27,7 @@
         #showme {screen width need 120 cols at least.};
         mod status unload;
     };
-    #unalias status_load;
+    #unalias ${mod_name}_load;
 };
 
 #alias {${mod_name}_unload}{
@@ -417,10 +417,8 @@
 };
 
 #alias {hnd_hb}{
-    #if {"%1" != ""}
-    {
-        #if {$hnd_hb[line] == 3}
-        {
+    #if {"%1" != ""} {
+        #if {$hnd_hb[line] == 3} {
             #regexp {%1}{^#%S,%S,%S,%S$}
             {
                 #var status[zhenqi] &1;
@@ -435,8 +433,7 @@
                 update_status_bar top;
                 update_status_bar;
             };
-        }
-        {
+        } {
             #regexp {%1}{^#%S,%S,%S,%S,%S,%S$}
             {
                 #if {$hnd_hb[line] != 2} {
@@ -607,12 +604,14 @@
 #act {你拿起干粮咬了几口}{hpbrief1};
 #act {你%*喝了%*}{hpbrief1};
 #act {你全身放松，坐下来开始运功疗伤}{hpbrief1};
+#act {你吃下一包金创药} {hpbrief1};
 
 #act {你五心向天，排除一切杂念，内息顺经脉缓缓流动} {
-    #tic {tk_yunqi}{hpbrief1}{1};
+    #nop #tic {tk_yunqi}{hpbrief1}{1};
 };
 #act {你将内息走了个小周天，流回丹田，收功站了起来} {
-    #untic tk_yunqi;
+    #nop #untic tk_yunqi;
+    hpbrief1;
 };
 #act {你坐下来运气}{
     #tic {tk_yunqi}{hpbrief1}{1};

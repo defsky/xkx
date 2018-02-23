@@ -25,7 +25,37 @@
 
 #alias {hsz} {
     #if {"%1" == "job"} {
+        #class hsz_job_inner open;
+        #var hszjob {};
+        #var hszjob[flag] 0;
+        #act {你向韩世忠打听有关『job』的消息} {
+            #var hszjob[flag] 1;
+            #var hszjob[area] {};
+            #var hszjob[room] {};
+        };        
+        #act {韩世忠(han shizhong)告诉你：你去江湖中历练一番吧} {
+            #class hsz_job_inner kill;
+        };
+        #act {韩世忠说道：「刚刚已经有人前去了，多谢大师好意。」} {
+            #if {$hszjob[flag] == 1} {
+                #class hsz_job_inner kill;
+            };
+        };
+        #act {韩世忠说道：「我听说有一群异族奸细在%*的%*附近出没，你去打探(datan)一下，必须要留下一两个奸细，给他们一个教训。」} {
+            #if {$hszjob[flag] == 1} {
+                dbg %%1 %%2;
+                #var hszjob[area] %%1;
+                #var hszjob[room] %%2;
+                #class hsz_job_inner kill;
+            };
+        };
+                
+        #class hsz_job_inner close;
         ask han about job;
+    };
+    #elseif {"%1" == "go"} {
+        gt {$hszjob[room]}{}{}{%*$hszjob[area]%*};
+        #unvar hsz_targetroom;
     };
     #elseif {"%1" == "fin"} {
         ask han about finish;

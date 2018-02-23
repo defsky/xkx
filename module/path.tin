@@ -10,6 +10,7 @@
     #class $mod_name kill;
 };
 
+#alias {hzout}      {s;e;n;w;s;s;w;out};
 #alias {meizhuang}  {knock gate 4;knock gate 2;knock gate 5;knock gate 3}
 #alias {tyhzout}    {s;e;n;w;s;s;w;out}
 #alias {mhzout}     {e;n;w;s;w;e;e;e;n;break men;s}
