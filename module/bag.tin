@@ -81,7 +81,7 @@
 
 #alias {sellall} {
     event_handler_add {_hnd_i2} {RECEIVED LINE};
-    #unvar bag;
+    #unvar bag[items];
     #send i2;
     
     #delay {3}{event_handler_del {_hnd_i2} {RECEIVED LINE};};
