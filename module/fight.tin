@@ -46,11 +46,15 @@
 #alias {yr}{
     yun recover;
 };
-
+#alias {yh}{
+    yun heal;
+};
 #alias {jg}{
     yun jingang;
 };
-
+#alias {djg}{
+    perform jingang-quan.jingang;
+};
 #alias {pu}{
     yun powerup;
 };

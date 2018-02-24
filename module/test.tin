@@ -10,13 +10,11 @@
     #class $mod_name kill;
 };
 
-#ACTION {http://pkuxkx.net/antirobot/robot.php?filename=%1}
+#ACTION {http://pkuxkx.net/antirobot/robot.php?filename=%*}
 {
-    #buffer up;
-    #buffer down;
-    #buffer lock;
+    #system {firefox http://pkuxkx.net/antirobot/robot.php?filename=%1};
 };
-    
+
 #class $mod_name close;
 
 ${mod_name}_load;

@@ -14,6 +14,9 @@
     eat yao;
 };
 
+#alias {ql} {
+    qiao luo;
+};
 #act {看起来番邦武士想杀死你} {
     killall wushi;
     #tic {tk_rc} {

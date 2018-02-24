@@ -99,7 +99,18 @@
 	#unvar count;
 }
 
-#alias {mkgem} {
+#alias {pgem} {
+    #class pgem_inner open;
+    #act {你要把什么东西放进宝石袋} {
+        #class pgem_inner kill;
+    };
+    #act {你将手中%*放进了宝石袋} {
+        pack gem;
+    };
+    #class pgem_inner close;
+    pack gem;
+};
+#alias {mgem} {
     #if {"%1" != ""} {
         do 3 pickgem %1 ;combine gem;pack gem;
     } {
@@ -107,6 +118,37 @@
     };
 };
 
+#alias {_hnd_i2} {
+    #list sell_list create {Heise pifeng}{Changjian}{Tie bishou}{Chang bian};
+    
+    #regexp {%1} {你身上带著下列这些东西(负重%s%d\%)} {
+        #var _hnd_i2_start 1;
+        #var bag[weight] &2;
+    };
+    #regexp {%1} {%*{件|柄|把}%*(%*)} {
+        #if {$_hnd_i2_start == 1} {
+            #var bag[items][&4] @ctd{&1};
+        };
+    };
+    #regexp {%1} {^>%s} {
+        #unvar _hnd_i2_start;
+        #if {&bag[items] != 0} {
+            #foreach $bag[items][] m {
+                #if { 1 == @isListMember{sell_list;$m}} {
+                    #send {sell @lower{$m} for $bag[items][$m]};
+                };
+            };
+            #unvar m;
+        };
+    };
+};
+#alias {sellall} {
+    event_handler_add {_hnd_i2} {RECEIVED LINE};
+    
+    #send i2;
+    
+    #delay {3}{event_handler_del {_hnd_i2} {RECEIVED LINE};};
+};
 #class $mod_name close;
 
 ${mod_name}_load;

@@ -179,6 +179,7 @@
         #case {"pad"} {
             #alias {mappad} {
                 #map goto $map[room][name];
+                show_room_data;
                 #unalias mappad;
                 dbg map padding complete;
             };
@@ -461,10 +462,22 @@
             #showme <119>找不到目的地：%1<079>
             #class gt_inner kill;
         };
+
         #act {接过你递给的船资} {
             #var gt_start 0;
         };
 
+        #act {王兴隆说道：“后面是我家，没事别瞎转悠} {
+            #var gt_start 0;
+            hit wang;
+        };
+        #act {王兴隆脚下一个不稳，跌在地上一动也不动了} {
+            #var gt_start 1;
+            
+        };
+        #act {王兴隆死了} {
+            #var gt_start 1;
+        };
         #act {童百熊说道：「你不是我日月神教弟子，来我教干什么？速速离开！」} {
             #var gt_start 0;
             hit tong;
