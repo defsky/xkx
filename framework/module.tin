@@ -19,6 +19,7 @@
     };
     #else {
         #if {"%1" == "list"} {
+            _update_mods;
             #format {out_str}{%-14s%+6s}{Module Name}{Loaded};
             #showme -----------------------------;
             #showme $out_str;
@@ -46,11 +47,16 @@
     #unvar m;#unvar startup_modules;
 };
 
+#alias {_update_mods} {
+    #script {mods}{ls module/ | cut -d'.' -f1};
+    #foreach {$mods[%*]}{m} {
+        #if {&modules[$m] == 0} {
+            #var modules[$m] 0;
+        };
+    };
+};
 #class frm_mod close;
 
-#script {mods}{ls module/ | cut -d'.' -f1};
-#foreach {$mods[%*]}{m} {
-    #var modules[$m] 0;
-};
+_update_mods;
 
 #unvar m;#unvar mods;

@@ -45,7 +45,7 @@
 #format screen[rows] {%R};
 #format screen[cols] {%C};
 
-#list {startup_modules} {create} {event;common;path;login};
+#list {startup_modules} {create} {event;common;path;login;bag};
 
 startup_mod_init;
 
