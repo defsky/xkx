@@ -16,7 +16,7 @@
     #untic keep_alive;
     
     refresh_sc;
-    refresh_i;
+    #nop refresh_i;
     refresh_hp;
     statusme;
     hpbrief1;
@@ -572,7 +572,7 @@
 };
 
 #TICKER {status_refresh}{hpbrief1}{15};
-#TICKER {status_refresh2}{refresh_i;refresh_hp}{600};
+#TICKER {status_refresh2}{refresh_hp}{600};
 #TICKER {status_refresh3}{refresh_sc;statusme}{1500};
 
 #act {你在攻击中不断积蓄攻势。(气势：%1%%)}{#var status[mo] %1;#var status[flag][fighting] 1;status.set_action 气势$status[mo]%};

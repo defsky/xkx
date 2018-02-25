@@ -54,8 +54,10 @@
     #replace {format_exits_inner[estr]} {westup}{wu};
 	#replace {format_exits_inner[estr]} {south}{s};
 	#replace {format_exits_inner[estr]} {north}{n};
+    #replace {format_exits_inner[estr]} {down}{d};
 	#replace {format_exits_inner[estr]} {east}{e};
 	#replace {format_exits_inner[estr]} {west}{w};
+    #replace {format_exits_inner[estr]} {up}{u};
     
     #list result create $format_exits_inner[estr];
     #unvar format_exits_inner;
@@ -178,18 +180,20 @@
         };
         #case {"pad"} {
             #alias {mappad} {
-                #map goto $map[room][name];
+                #map goto {$map[room][name]}{}{}{$map[room][area]};
                 show_room_data;
                 #unalias mappad;
                 dbg map padding complete;
             };
             #if {$map[status][mapping] == 0} {
-                on_get_room {
-                    mappad;
+                get_area {
+                    on_get_room {
+                        mappad;
+                    };
                 };
             };
             #elseif {$map[status][mapping] == 1} {
-                mappad;
+                    mappad;  
             };
             
         };
@@ -355,6 +359,7 @@
 #alias {get_area} {
     #class get_area_inner1 open;
     
+    
     #alias {get_area_end} {
         #class get_area_inner1 kill;
         #delay {dl_get_area} {
@@ -377,7 +382,10 @@
     #class get_area_inner1 close;
     
     #class get_area_inner2 open;
+    #alias cb_get_area #cr;
+    #alias cb_get_area %0;
     #alias {get_area_map_end} {
+        cb_get_area;
         #class get_area_inner2 kill;
         dbg area changed to : $map[room][area];
     };

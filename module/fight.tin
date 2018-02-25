@@ -10,6 +10,9 @@
     #class $mod_name kill;
 };
 
+#macro {\eOR} {
+    eat yao;
+};
 #macro {\eOS} {
     jm;
 };
@@ -20,12 +23,17 @@
     yr;
 };
 
+#alias {wi} {
+    wield staff;
+};
+#alias {uwi} {
+    unwield staff;
+};
 #alias {lw}{
     perform zui-quan.lingwu;
 };
 
 #alias {zd}{
-    wield staff;
     perform zui-gun.zuida;
 };
 
@@ -34,12 +42,10 @@
 };
 
 #alias {san}{
-    unwield staff;
     perform banruo-zhang.san;
 };
 
 #alias {jm}{
-    unwield staff;
     perform yizhi-chan.jingmo;
 };
 

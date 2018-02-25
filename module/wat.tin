@@ -10,10 +10,6 @@
     #class $mod_name kill;
 };
 
-#macro {\eOR} {
-    eat yao;
-};
-
 #alias {ql} {
     qiao luo;
 };

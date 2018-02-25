@@ -1,6 +1,7 @@
 #class $mod_name open;
 
 #alias {${mod_name}_load} {
+    _update_bag;
     #showme Module $mod_name loaded;
     #unalias ${mod_name}_load;
 };
@@ -11,16 +12,20 @@
 };
 
 #var bag {};
-#list bag[sell_list] add {Heise pifeng;Changjian;Tie bishou;Chang bian};
+#list bag[sell_list] add {Heise pifeng;Changjian;Tie bishou;Chang bian;Gangzhang};
 
 #alias {_count} {
-    #regexp {%2} {%*{两|文|粒|块|件|柄|把}%*} {
+    #regexp {%2} {^%S{两|文|粒|支|根|个|块|件|柄|把}%*} {
         #var bag[items][%1] @ctd{&1};
     };
 };            
 #alias {_hnd_i2} {
     
-    #if {$_hnd_i2_start == 1} {
+    #regexp {%1} {-------------------------------------------} {
+        #var _hnd_i2[bag_start] 0;
+        #var _hnd_i2[equip_start] 1;
+    };
+    #if {$_hnd_i2[bag_start] == 1} {
         #regexp {%1} {%*(%*)} {
             #var bag[items][&2] {1};
             _count {&2} {&1};
@@ -30,23 +35,31 @@
         };
     };
     #regexp {%1} {你身上带著下列这些东西(负重%s%d\%)} {
-        #var _hnd_i2_start 1;
+        #var _hnd_i2[start] 1;
+        #var _hnd_i2[bag_start] 1;
         #var bag[weight] &2;
+        #var status[weight_pct] &2;
     };
     #regexp {%1} {^>%s} {
-        #unvar _hnd_i2_start;
-        #tic {tk_sell} {
-            #list bag[forsell] size _len;
-            #if {$_len !=0 } {
-                #list bag[forsell] get {1} {_name};
-                #list bag[forsell] delete 1;
-                #send {sell @lower{$_name} for $bag[items][$_name]};
-            } {
-                #untic tk_sell;
-            };
-        } {1};
+        #unvar _hnd_i2;
+
+    };
+    #if {$_hnd_i2[start] == 1} {
+        #line gag;
     };
 };
+
+#alias {_update_bag} {
+    #undelay {dl_update_bag};
+    event_handler_add {_hnd_i2} {RECEIVED LINE};
+    #unvar bag[items];
+    #unvar bag[forsell];
+    #send i2;
+    
+    #delay {dl_update_bag}{event_handler_del {_hnd_i2} {RECEIVED LINE};}{3};
+};
+
+#tic {tk_upd_bag} {_update_bag;}{66};
 
 #nop =========================================================================;
 
@@ -80,11 +93,20 @@
 };
 
 #alias {sellall} {
-    event_handler_add {_hnd_i2} {RECEIVED LINE};
-    #unvar bag[items];
-    #send i2;
-    
-    #delay {3}{event_handler_del {_hnd_i2} {RECEIVED LINE};};
+    _update_bag;
+    #delay {1} {
+        #tic {tk_sell} {
+            #list bag[forsell] size _len;
+            #if {$_len !=0 } {
+                #list bag[forsell] get {1} {_name};
+                #list bag[forsell] delete 1;
+                #send {sell @lower{$_name} for $bag[items][$_name]};
+            } {
+                #untic tk_sell;
+                #unvar _len;
+            };
+        } {1};
+    };
 };
 
 #class $mod_name close;
