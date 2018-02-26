@@ -77,6 +77,7 @@
 		#var map[room][item] {};
         #var map[room][name] &1;
     } {
+    #nop dbg $hnd_addesc_inner[desc_start];
         #if {&hnd_addesc_inner[desc_start] != 0} {
             #regexp {%1} {^%s这里%*{方向|出口}{是|有}%*} {
                 #var hnd_addesc_inner[desc_start] 0;
@@ -118,6 +119,7 @@
 					};
 				};
 			};
+			
 			#nop exclude items in units;
 			#unvar map[room][unit][Huo tong];
 			#unvar map[room][unit][Yun tie];

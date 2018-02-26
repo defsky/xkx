@@ -15,7 +15,7 @@
 #list bag[sell_list] add {Heise pifeng;Changjian;Tie bishou;Chang bian;Gangzhang};
 
 #alias {_count} {
-    #regexp {%2} {^%S{两|文|粒|支|根|个|块|件|柄|把}%*} {
+    #regexp {%2} {^%S{两|文|粒|支|根|张|个|块|件|柄|把}%*} {
         #var bag[items][%1] @ctd{&1};
     };
 };            
