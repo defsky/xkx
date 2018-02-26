@@ -32,7 +32,10 @@
             #var hszjob[flag] 1;
             #var hszjob[area] {};
             #var hszjob[room] {};
-        };        
+        };
+        #act {韩世忠(han shizhong)告诉你：你去休息休息，过段时间再来吧} {
+            class hsz_job_inner kill;
+        };
         #act {韩世忠(han shizhong)告诉你：你去江湖中历练一番吧} {
             #class hsz_job_inner kill;
         };

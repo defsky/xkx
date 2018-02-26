@@ -48,12 +48,13 @@
 };
 
 #alias {_update_mods} {
-    #script {mods}{ls module/ | cut -d'.' -f1};
+    #script {mods}{ls module/*.tin | cut -d'/' -f2 | cut -d'.' -f1};
     #foreach {$mods[%*]}{m} {
         #if {&modules[$m] == 0} {
             #var modules[$m] 0;
         };
     };
+    #unvar mods;
 };
 #class frm_mod close;
 

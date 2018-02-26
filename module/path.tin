@@ -10,6 +10,9 @@
     #class $mod_name kill;
 };
 
+#alias {chlin}      {w;n;w;s;s;e;e;w;w};
+#alias {chlout}     {e;s;n;w;n;n;e;s;e};
+#alias {chlxl2hxg}  {e;s;w};
 #alias {hzout}      {s;e;n;w;s;s;w;out};
 #alias {meizhuang}  {knock gate 4;knock gate 2;knock gate 5;knock gate 3}
 #alias {tyhzout}    {s;e;n;w;s;s;w;out}

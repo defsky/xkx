@@ -180,7 +180,7 @@
         };
         #case {"pad"} {
             #alias {mappad} {
-                #map goto {$map[room][name]}{}{}{$map[room][area]};
+                #map goto {$map[room][name]}{}{$map[room][desc]}{$map[room][area]};
                 show_room_data;
                 #unalias mappad;
                 dbg map padding complete;
