@@ -447,7 +447,7 @@
     #path walk;
 };
 
-#nop 
+#nop 你一进戒律院，...只听几声大喝，如同炸雷般在大殿里回响  #map goto 1466;
 
 #alias {gt} {
     #if {"%1" == "stop"} {
