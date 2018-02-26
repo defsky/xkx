@@ -78,6 +78,10 @@
     #act {你要把什么东西放进宝石袋} {
         #class pgem_inner kill;
     };
+    #act {以你目前的级别，你放不了更多宝石} {
+        #class pgem_inner kill;
+        dbg 宝石袋子满了！！！;
+    };
     #act {你将手中%*放进了宝石袋} {
         pack gem;
     };

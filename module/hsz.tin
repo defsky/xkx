@@ -54,6 +54,15 @@
         ask han about job;
     };
     #elseif {"%1" == "go"} {
+        #switch {"$hszjob[area]"} {
+            #case {"福州"} { #var hszjob[area] 闽南};
+            #case {"杭州"} { #var hszjob[area] 临安府};
+            #case {"杭州提督府"} { #var hszjob[area] 临安提督府};
+            #case {"建康府南城"} { #var hszjob[area] 建康府南};
+            #case {"建康府北城"} { #var hszjob[area] 建康府北};
+            #case {"姑苏慕容"} { #var hszjob[area] 慕容};
+            
+        }; 
         gt {%*$hszjob[room]%*}{}{}{%*$hszjob[area]%*};
         
     };

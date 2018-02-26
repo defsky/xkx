@@ -470,7 +470,11 @@
             #showme <119>找不到目的地：%1<079>
             #class gt_inner kill;
         };
-
+        #act {这个方向没有出路} {
+            dbg 行走出错;
+            gt stop;
+            #buffer lock;
+        };
         #act {接过你递给的船资} {
             #var gt_start 0;
         };
