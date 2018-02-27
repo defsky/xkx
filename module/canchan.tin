@@ -1,0 +1,71 @@
+#class $mod_name open;
+
+#alias {${mod_name}_load} {
+    #showme Module $mod_name loaded;
+    #unalias ${mod_name}_load;
+};
+
+#alias {${mod_name}_unload}{
+    #showme Module $mod_name unloaded;
+    #class $mod_name kill;
+};
+
+#alias {${mod_name}_help}{
+    #showme <129>Module Help : ${mod_name}<079>;
+    #showme <129>   canchan <start | stop><079>;
+};
+#var canchan {};
+
+#nop status for canchan : free working
+#var canchan[status] free;
+
+#alias {on_canchan_start} {
+    #alias cb_on_canchan_start #cr;
+    #alias cb_on_canchan_start %0;
+    
+    #act {你面对墙壁慢慢盘膝坐下|渐渐的你心如止水} {
+        cb_on_canchan_start;
+    };
+};
+#alias {on_canchan_complete} {
+    #alias cb_on_canchan_complete #cr;
+    #alias cb_on_canchan_complete %0;
+    
+    #act {你修行完毕，收心定神，满心释然的站了起来} {
+        cb_on_canchan_complete;
+    };
+};
+
+#alias {cc} {
+
+    #switch {"%1"} {
+        #case {"start"} {
+            #class canchan_start_inner open;
+            #var canchan {};
+            
+            on_canchan_start {
+                #var canchan[status] 1;
+            };
+            on_canchan_complete {
+                #var canchan[status] 0;
+                #send {eat liang};
+                #send {drink jiudai};
+                #send canchan;
+            };
+            #class canchan_start_inner close;
+            
+            #send canchan;
+        };
+        #case {"stop"} {
+            #class canchan_start_inner kill;
+        };
+        #default {
+            canchan_help;
+        };
+    };
+
+};
+
+#class $mod_name close;
+
+${mod_name}_load;
