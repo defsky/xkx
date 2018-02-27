@@ -369,6 +369,7 @@
         } {2};    
     };
     #act {这里暂时没有地图} {
+        #var map[room][area] {};
         #class get_area_inner1 kill;
         #class get_area_inner2 kill;
         dbg 当前房间没有地图信息，请走几步再试
