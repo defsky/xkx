@@ -22,30 +22,12 @@
 #PATHDIR          {out}  {enter}  {62}
 #PATHDIR          {enter}  {out}  {63}
 
-#nop #MACRO {\e[A}{#send n};
-#nop #MACRO {\e[B}{#send s};
-#nop #MACRO {\e[C}{#send e};
-#nop #MACRO {\e[D}{#send w};
-#nop #MACRO {\e[1;5A}{#send nu};
-#nop #MACRO {\e[1;5B}{#send su};
-#nop #MACRO {\e[1;5C}{#send eu};
-#nop #MACRO {\e[1;5D}{#send wu};
-#nop #MACRO {\e[1;3A}{#send nd};
-#nop #MACRO {\e[1;3B}{#send sd};
-#nop #MACRO {\e[1;3C}{#send ed};
-#nop #MACRO {\e[1;3D}{#send wd};
-
-#event {PROGRAM START}
-{
-    #showme %0 %1 %2 %3 %4;
-};
-
 #read framework/module.tin;
 
 #format screen[rows] {%R};
 #format screen[cols] {%C};
 
-#list {startup_modules} {create} {event;common;path;login;bag};
+#list {startup_modules} {create} {event;common;path;login;sched;bag};
 
 startup_mod_init;
 

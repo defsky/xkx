@@ -15,6 +15,26 @@
     #system {firefox http://pkuxkx.net/antirobot/robot.php?filename=%1};
 };
 
+#act {岳不群对你道：「我这里正好有封密函，麻烦你跑一趟，交给%*的%*。」} {
+    #var task[target] %2;
+    #var task[pos] %1;
+    #send {look mi han};
+};
+#act {你伸手向怀中一摸，发现密函已经不翼而飞} {
+    gt stop;
+    dbg 密函被偷了！！！;
+};
+#act {你，把密函给我乖乖交出来吧} {
+    gt stop;
+    dbg 抢信的来了！！！;
+};
+#act {收信人：%S(%w %w)} {
+    #var task[id] @lower{%2 %3};
+};
+
+#alias {sx} {
+    songxin $task[id];
+};
 
 #class $mod_name close;
 
