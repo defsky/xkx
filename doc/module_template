@@ -10,6 +10,11 @@
     #class $mod_name kill;
 };
 
+#alias {${mod_name}_help}{
+    #showme <129>Module Help : ${mod_name}<079>;
+    /* TODO: place your HELP doc here */
+};
+
 /* TODO: place your code here */
 
 #class $mod_name close;

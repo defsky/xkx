@@ -31,7 +31,7 @@
 #event {RECEIVED LINE} {
     #foreach {$event_handlers[RECEIVED LINE][]} {hnd} {
         #var event_handlers[RECEIVED LINE][$hnd] 1;
-        $hnd {%1};
+        $hnd {%1}{%0};
         #var event_handlers[RECEIVED LINE][$hnd] 0;
         #unvar hnd;
     };
