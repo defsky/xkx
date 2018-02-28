@@ -51,7 +51,7 @@
             on_canchan_complete {
                 #var canchan[status] 0;
                 #send {eat liang};
-                #nop #send {drink jiudai};
+                #send {drink jiudai};
                 #send canchan;
                 #delay {anti_free} {#send canchan;}{3};
             };
