@@ -15,6 +15,15 @@
     #system {firefox http://pkuxkx.net/antirobot/robot.php?filename=%1};
 };
 
+#alias {job} {ask yue about job};
+#alias {fin} {ask yue about finish};
+#alias {fai} {ask yue about fail};
+
+#nop 你从怀中掏出信交给荆猛波，道：「这是岳不群先生托在下送给您的信，请收好。」;
+#nop 荆猛波拆开信浏览了一遍，对你笑道：「多谢多谢，辛苦你了。」;
+#nop 你的任务完成，快回去复命吧。;
+
+#nop 岳不群道：「多谢小兄弟，你赶紧把它送到丐帮堤坝下附近的黎生手中。」;
 #act {岳不群对你道：「我这里正好有封密函，麻烦你跑一趟，交给%*的%*。」} {
     #var task[target] %2;
     #var task[pos] %1;
@@ -28,10 +37,16 @@
     gt stop;
     dbg 抢信的来了！！！;
 };
-#act {收信人：%S(%w %w)} {
+#act {^           收信人：%S(%w %w)} {
     #var task[id] @lower{%2 %3};
 };
-
+#act {^    %S(%w %w)$} {
+    #var npc_name {%2 %3};
+    dbg 发现NPC:$npc_name;
+    #if {"@lower{$npc_name}" == "$task[id]"} {
+        sx;
+    };
+};
 #alias {sx} {
     songxin $task[id];
 };

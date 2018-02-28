@@ -178,6 +178,7 @@
                 #class map_start_inner kill;
             };
             #class ad_inner kill;
+            #nop mod bag load;
             dbg mapping stopped;
         };
         #case {"pad"} {
@@ -201,7 +202,7 @@
         };
         #case {"start"} {
             
-            
+            #nop mod bag unload;
             get_area;
             dbg start mapping;
             
@@ -370,9 +371,9 @@
     };
     #act {这里暂时没有地图} {
         #var map[room][area] {};
-        #class get_area_inner1 kill;
-        #class get_area_inner2 kill;
-        dbg 当前房间没有地图信息，请走几步再试
+        get_area_end;        
+        
+        dbg 当前房间没有地图信息
     };
     #act {^【%*地图】} {
         #var map[room][area] %%1;
