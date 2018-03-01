@@ -31,6 +31,13 @@
         mod %1 unload;
         mod %1 load;
     };
+    #elseif {"%2" == "help"} {
+        #if {$modules[%1] == 1} {
+            %1_help;
+        } {
+            dbg module %1 has not be loaded;
+        };
+    };
     #else {
         #if {"%1" == "list"} {
             _update_mods;
@@ -39,11 +46,16 @@
             #showme $out_str;
             
             #foreach {$modules[]} {m} {
-                #format {out_str}{%-14s%+6s}{$m}{$modules[$m]};
+                #if {$modules[$m] == 1} {
+                    #var clrstr <029>;
+                } {
+                    #var clrstr <079>;
+                };
+                #format {out_str}{%c%-14s%+6s%c}{$clrstr}{$m}{$modules[$m]}{<079>};
                 #showme $out_str;
             };
             
-            #unvar out_str;#unvar m;
+            #unvar out_str;#unvar m;#unvar clrstr;
             #buffer lock;
         };
         #else {

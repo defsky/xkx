@@ -3,11 +3,13 @@
 #alias {${mod_name}_load} {
     #showme Module $mod_name loaded;
     #unalias ${mod_name}_load;
+    tune fb;
 };
 
 #alias {${mod_name}_unload}{
     #showme Module $mod_name unloaded;
     #class $mod_name kill;
+    tune fb;
 };
 
 #alias {bw} {
@@ -15,6 +17,9 @@
 };
 #alias {gs} {
     ask huang about ¹¤ÊÂ;
+};
+#alias {jl} {
+    ask guo about ½±Àø;
 };
 #alias {bwok} {
     ask guo about ÍÑÀë±£ÎÀ;
