@@ -23,6 +23,8 @@
 #nop 荆猛波拆开信浏览了一遍，对你笑道：「多谢多谢，辛苦你了。」;
 #nop 你的任务完成，快回去复命吧。;
 
+#var task {{target}{}{pos}{}{ok}{0}{fight}{0}{rob}{}{robcount}{0}{id}{}};
+
 #alias {parse_task} {
     #class temp_inner kill;
     
@@ -32,7 +34,45 @@
     #var task[fight] 0;
     #var task[robcount] 0;
     #var task[rob] {};
+    
+    #act {^           收信人：%S(%w %w)} {
+        #var task[id] @lower{%%2 %%3};
+    };
+    
     #send {look mi han};
+    
+    #act {你伸手向怀中一摸，发现密函已经不翼而飞} {
+        gt stop;
+        #send look;
+        #var task[fight] 1;
+        dbg 密函被偷了！！！;
+    };
+    #act {你，把密函给我乖乖交出来吧} {
+        gt stop;
+        #send look;
+        #var task[fight] 1;
+        dbg 抢信的来了！！！;
+    };
+    #act {你的任务完成，快回去复命吧} {
+        #var task[ok] 1;
+        #delay {0.5} {#buffer lock;};
+    };
+    #act {%*死了。} {
+        #delay {1} {get all from corpse;};
+        
+        #if {1 == @isListMember{task[rob];%%1}} {
+            #math task[robcount] {$task[robcount] + 1};
+        };
+        #list task[rob] find %%1 idx;
+        #if {$idx != 0 } {
+            #list task[rob] delete $idx;
+        };
+        #list task[rob] size len;
+        #if {$len == 0} {
+            #var task[fight] 2;
+        };
+        #unvar idx;#unvar len;
+    };
 };
 #act {你向岳不群打听有关『job』的消息。} {
     #class temp_inner open;
@@ -45,47 +85,12 @@
     };
     #class temp_inner close;
 };
-#act {你伸手向怀中一摸，发现密函已经不翼而飞} {
-    gt stop;
-    #send look;
-    #var task[fight] 1;
-    dbg 密函被偷了！！！;
-};
-#act {你，把密函给我乖乖交出来吧} {
-    gt stop;
-    #send look;
-    #var task[fight] 1;
-    dbg 抢信的来了！！！;
-};
-#act {^           收信人：%S(%w %w)} {
-    #var task[id] @lower{%2 %3};
-};
-#act {你的任务完成，快回去复命吧} {
-    #var task[ok] 1;
-    #delay {0.5} {#buffer lock;};
-};
 #nop    「六合连环红」戴小八(Dai xiaoba);
 #nop    「南海迅雷棒」冯捷梅(Feng jiemei) <战斗中>;
 
 #act {看起来%*想杀死你} {
     dbg %1;
     
-};
-#act {%*死了。} {
-    #delay {1} {get all from corpse;};
-    
-    #if {1 == @isListMember{task[rob];%1}} {
-        #math task[robcount] {$task[robcount] + 1};
-    };
-    #list task[rob] find %1 idx;
-    #if {$idx != 0 } {
-        #list task[rob] delete $idx;
-    };
-    #list task[rob] size len;
-    #if {$len == 0} {
-        #var task[fight] 2;
-    };
-    #unvar idx;#unvar len;
 };
 #act {^    %S%s%S(%w %w)$} {
     #var npc_name {%4 %5};
