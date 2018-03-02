@@ -124,21 +124,30 @@
 	    #format status[str_pot]		{%+6s%-8s}{潜能：}{$status[pot]};
 	    #format status[str_exp]		{%+6s%-8s}{经验：}{$status[exp]};
 	    #format status[str_level]	{%+6s%-7s}{等级：}{$status[level]};
-	    #format status[str_id]		{%+4s%-6s}{ID：}{$status[id]};
+	    #format status[str_weight]	{%+6s%-7s}{负重：}{$status[weight_pct]};
+	    #nop #format status[str_weight]	{%+6s%-4s}{负重：}{$status[weight_pct]};
+	    #nop #format status[str_id]		{%+4s%-6s}{ID：}{$status[id]};
+	    #format status[str_id]		{%+6s%-8s}{ID：}{$status[id]};
 	    #format status[str_name]	{%+6s%-8s}{姓名：}{$status[name]};
 	    #format status[str_age]		{%+6s%-5s}{年龄：}{$status[age]岁};
 	    #format status[str_ability]	{%+6s%-5s}{功力：}{$status[ability]年};
-	    #format status[str_moral]	{%+6s%-8s}{道德：}{$status[moral]};
-	    #format status[str_weight]	{%+6s%-4s}{负重：}{$status[weight_pct]};
 	    #format status[str_guild]	{%+6s%-8s}{门派：}{$status[guild]};
-	    #format status[str_loyal]	{%+6s%-5s}{门忠：}{$status[loyal]};
-	    #format status[str_reputation] {%+6s%-6s}{声望：}{$status[reputation]};
+	    #format status[str_loyal]	{%+6s%-8s}{门忠：}{$status[loyal]};
+	    #nop #format status[str_loyal]	{%+6s%-5s}{门忠：}{$status[loyal]};
+	    #format status[str_moral]	{%+6s%-8s}{道德：}{$status[moral]};
+	    #format status[str_reputation] {%+6s%-8s}{声望：}{$status[reputation]};
+	    #nop #format status[str_reputation] {%+6s%-6s}{声望：}{$status[reputation]};
 	    #format status[str_money]	{%+6s%-8s}{存款：}{$status[money]};
 	    
-	    #echo {{<EEE><aaa>%-120s<078>}{-2}}
+	    #nop #echo {{<EEE><aaa>%-120s<078>}{-2}}
 		    {$status[str_food]<EEE><aaa> $status[str_water]<EEE><aaa>  $status[str_pot] $status[str_exp] $status[str_level] $status[str_overall]};
-	    #echo {{<DDD><aaa>%-120s<078>}{-1}}
+	    #nop #echo {{<DDD><aaa>%-120s<078>}{-1}}
 		    {$status[str_id] $status[str_name] $status[str_age] $status[str_ability] $status[str_guild] $status[str_loyal] $status[str_moral] $status[str_reputation] $status[str_weight]};
+		    
+		#echo {{<DDD><aaa>%-120s<078>}{-1}}
+		    {$status[str_id] $status[str_age] $status[str_guild] $status[str_moral] $status[str_pot] $status[str_level] $status[str_food]<DDD><aaa>};
+	    #echo {{<EEE><aaa>%-120s<078>}{-2}}
+		    {$status[str_name] $status[str_ability] $status[str_loyal] $status[str_reputation] $status[str_exp] $status[str_weight] $status[str_water]<EEE><aaa>};
     }
     {
         #math status[valid_hp_pct] ($status[hp_valid] * 100 / $status[hp_max]);
