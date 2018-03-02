@@ -36,7 +36,15 @@
         cb_on_canchan_complete;
     };
 };
-
+#alias {on_canchan_limit} {
+    #alias cb_on_canchan_limit #cr;
+    #alias cb_on_canchan_limit %0;
+    
+    #act {你受到自身经验和悟性的影响，无法继续参禅了} {
+        #unact {你受到自身经验和悟性的影响，无法继续参禅了};
+        cb_on_canchan_limit;
+    };
+};
 #alias {cc} {
 
     #switch {"%1"} {
@@ -55,6 +63,7 @@
                 #send canchan;
                 #delay {anti_free} {#send canchan;}{3};
             };
+            #tic {tk_cc} {canchan} {300};
             #class canchan_start_inner close;
             
             #send canchan;
