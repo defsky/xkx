@@ -15,6 +15,7 @@
     #system {firefox http://pkuxkx.net/antirobot/robot.php?filename=%1};
 };
 
+#var ppp {n;n;w;e;e;e;e;e;e;w;w;w;s;s;s};
 
 #class $mod_name close;
 
