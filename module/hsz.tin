@@ -75,7 +75,7 @@
     #elseif {"%1" == "fin"} {
         hsz;
         on_there {
-            #delay {1} {ask han about finish};
+            #delay {1} {ask han about finish;#cr};
         };
     };
     #elseif {"%1" == "fai"} {
