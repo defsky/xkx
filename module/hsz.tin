@@ -34,7 +34,7 @@
             #var hszjob[room] {};
         };
         #act {韩世忠(han shizhong)告诉你：你去休息休息，过段时间再来吧} {
-            class hsz_job_inner kill;
+            #class hsz_job_inner kill;
         };
         #act {韩世忠(han shizhong)告诉你：你去江湖中历练一番吧} {
             #class hsz_job_inner kill;
@@ -66,11 +66,17 @@
             #case {"姑苏慕容"} { #var hszjob[area] 慕容};
             
         }; 
+        on_there {
+            #delay {1} {datan};
+        };
         gt {%*$hszjob[room]%*}{}{}{%*$hszjob[area]%*};
         
     };
     #elseif {"%1" == "fin"} {
-        ask han about finish;
+        hsz;
+        on_there {
+            #delay {1} {ask han about finish};
+        };
     };
     #elseif {"%1" == "fai"} {
         ask han about fail;

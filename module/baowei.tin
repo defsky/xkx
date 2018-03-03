@@ -12,6 +12,10 @@
     tune fb;
 };
 
+#list baowei[path] add {n;n;w;e;e;e;n;n;n;s;s;s;e;e;e;w;w;w;s;s;s;n;n;n;w;w;s;s};
+#list baowei[path] size baowei[pathlen];
+#var baowei[pathidx] 1;
+
 #alias {bw} {
     ask guo about 襄阳保卫;
 };
@@ -24,6 +28,93 @@
 #alias {bwok} {
     ask guo about 脱离保卫;
 };
+
+#alias {_bwmsg} {
+    #showme <139>保卫 : %0<079>;
+};
+#alias {_go_for_jl} {
+    #if {$baowei[jlgo] == 0} {
+        #var baowei[jlgo] 1;
+        on_there {
+            jl;
+        };
+        gt 帅府大厅;
+    };
+};
+#alias {_next_pos} {
+    #send $baowei[path][$baowei[pathidx]];
+    
+    #math baowei[pathidx] {$baowei[pathidx] + 1};
+    #if {$baowei[pathidx] > $baowei[pathlen]} {
+        #var baowei[pathidx] 1;
+    };
+};
+#act {郭靖吩咐下面兵士将你带到襄阳保卫战的前线} {
+    #var baowei[status] 1;
+    #var baowei[jlgo] 0;
+    
+    _bwmsg 进入<保卫襄阳>副本地图;
+
+};
+#act {你向黄蓉打听有关『工事』的消息} {
+    #var baowei[digging] 0;
+    #delay {1} {
+        #send look;
+    };
+};
+#act {位置：室外  性质：普通  防御值：%d/%d} {
+    #var baowei[shield] %1;
+    #var baowei[shield_max] %2;
+    
+    #if {$baowei[status] == 1} {
+        #if {$baowei[digging] == 0} {
+            #if {$baowei[shield] < $baowei[shield_max]} {  
+                dig;
+            } {
+                _bwmsg 工事修筑完毕,换个地方;
+                _next_pos;
+            };
+        } {
+            _bwmsg 正在修筑工事;
+        };
+    } {
+        _go_for_jl;
+    };
+};
+#act {你抡起铁锹，修筑起工事来} {
+    #var baowei[digging] 1;
+};
+#act {你直起身来，看看已具规模的工事，擦了擦汗，停下来歇一歇} {
+    #var baowei[digging] 0;
+    
+    #if {$baowei[status] == 1} {
+        #send look;
+    } {
+        _go_for_jl;
+    };
+};
+
+#act {{各位可以到郭靖处领奖|襄阳保卫战已经全部结束|襄阳保卫战取得胜利}} {
+    #var baowei[status] 0;    
+    _bwmsg 守卫成功，赶快去找郭靖领奖;    
+};
+#act {襄阳保卫战已经全部结束} {
+
+};
+#act {来犯蒙古兵全军覆没，襄阳保卫战取得胜利} {
+
+};
+
+#nop 你向郭靖打听有关『奖励』的消息。;
+#act {郭靖双手抱拳，讨好地对你说道：「在下对大师的景仰之情，有如滔滔江水连绵不绝！」} {
+    _bwmsg 奖励领取成功，将自动传出副本。;
+    
+    #unvar baowei;
+};
+
+#nop 【副本】【三号副本】渡化在保卫襄阳的战斗中杀死敌军将士零人，修筑防御工事二十一次，获得战绩二十一，排名十四名，特此嘉奖!;
+#nop 你共得到三万三千七百五十点经验，和三千三百七十五点潜能的奖励!;
+#nop 由于你在战斗中的突出表现，你的江湖声望上升了三万三千七百五十点!;
 
 #class $mod_name close;
 

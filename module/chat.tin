@@ -10,9 +10,6 @@
     #class $mod_name kill;
 };
 
-#macro {\eOQ} {chatlist chat};
-#macro {\eOR} {chatlist qq};
-
 #alias {chatlist} {
     #if {"%1" == "qq"} {
         #grep °æ±±œ¿QQ»∫°ø;

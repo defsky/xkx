@@ -15,6 +15,7 @@
     /* TODO: place your HELP doc here */
 };
 
+/*
 你往床上一躺，开始睡觉。
 不一会儿，你就进入了梦乡。
 你刚在三分钟内睡过一觉, 多睡对身体有害无益
@@ -29,7 +30,15 @@ dazuo max
 
 你的「罗汉拳」进步了！
 你的内力不够练罗汉拳。
-
+*/
+#act {牛皮酒袋已经被喝得一滴也不剩了} {
+    get jiudai from bao;
+};
+#act {你听了达摩老祖的指导，似乎有些心得} {
+    #delay {0.5} {
+        xue laozu for yijin-jing 2;
+    };
+};
 #act {你必须空手才能练习}
 {
     unwield all;

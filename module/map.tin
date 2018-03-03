@@ -682,6 +682,16 @@
     };
 };
 
+#alias {on_there} {
+    #alias cb_on_there #cr;
+    #alias cb_on_there %0;
+    
+    #act {到达目的地} {
+        #unact {到达目的地};
+        cb_on_there;
+        #unalias cb_on_there;
+    };
+};
 #alias {mess} {
     #message  ACTIONS               %1;
     #message  ALIASES               %1;
