@@ -11,8 +11,13 @@
 };
 
 #alias {${mod_name}_help}{
-    #showme <129>Module Help : ${mod_name}<079>;
-    #showme <129>   dushu <start <bookid> <times> | stop><079>;
+    #showme <139>模块帮助文档 : ${mod_name}<079>;
+    
+    #showme <139> 描述 : 自动读书<079>;
+    #showme <139> dushu <start <bookid> <times> | stop><079>;
+    #showme  ;
+    #showme <139> -> 按任意键继续...<079>;
+    #buffer lock;
 };
 
 #alias {on_drink_ok} {
@@ -51,11 +56,14 @@
 #act {你减缓真气运行，让自身恢复正常} {
     #delay {1} {yun jing};
 };
-
-#tic {dushu} {du wuji for 5}{1};
+#act {牛皮酒袋已经被喝得一滴也不剩了} {
+    get jiudai from bao;
+};
+#tic {dushu} {du book for 1}{1};
 
 on_dushu_tired {
     yun regenerate;
+    eat liang ;he jiudai;
 };
 
 #class $mod_name close;

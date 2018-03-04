@@ -1,0 +1,124 @@
+#class $mod_name open;
+
+#alias {${mod_name}_load} {
+    #showme Module $mod_name loaded;
+    #unalias ${mod_name}_load;
+};
+
+#alias {${mod_name}_unload}{
+    #if {$dazuo[status] == 1} {
+        daz stop;
+    };
+    #showme Module $mod_name unloaded;
+    #class $mod_name kill;
+};
+
+#alias {${mod_name}_help}{
+    #showme <139>模块帮助文档 : ${mod_name}<079>;
+    
+    #showme <139> 描述 : 自动打坐到内力上限<079>;
+    #showme <139> daz <start | stop><079>;
+    
+    #showme  ;
+    #showme <139> -> 按任意键继续...<079>;
+    #buffer lock;
+};
+
+#var dazuo {};
+#var dazuo[status] 0;
+
+#alias {_dzmsg} {
+    #showme <139> dazuo : %0<079>;
+};
+#alias {_do_dazuo} {
+    hpbrief1;
+    #delay {dl_dazuo_do} {
+        #if {$status[force_max] < $dazuo[limit]} {
+            #if {$status[hp] > @eval{$status[hp_max] * 0.2}} {
+                #var dazuo_value @eval{$status[force_max] * 2 - $status[force] + 1};
+                
+                #if {$dazuo_value < 10} {
+                    #var dazuo_value 10;
+                };
+                #if {$dazuo_value > @eval{$status[hp] * 0.9}} {
+                    #var dazuo_value max;
+                };
+
+                _dzmsg $dazuo_value;
+                #send {dazuo $dazuo_value};
+                #unvar dazuo_value;
+            } {
+                sleep;
+            };
+        } {
+            _dzmsg 达到上限，打坐完成;
+            daz stop;
+        };
+    } {2};
+};
+
+#alias {daz} {
+    #switch {"%1"} {
+        #case {"start"} {
+            #class dz_start_inner open;
+            
+            #act {^%s内功 (force)%*有效等级%*%d$}
+            {
+	            #var dazuo[limit] @eval{%%4 * 10};
+                _do_dazuo;
+            };
+            #act {你五心向天，排除一切杂念，内息顺经脉缓缓流动} {
+                #var dazuo[status] 1;
+            };
+            #act {你将内息走了个小周天，流回丹田，收功站了起来} {
+                #var dazuo[status] 0;
+                eat liang;he jiudai;
+                _do_dazuo;
+            };
+
+            #act {你现在的气太少了，无法产生内息运行全身经脉} {
+                yun recover;
+            };
+            #act {你的内力不够} {
+                sleep;
+            };
+            #act {你的内功还没有达到那个境界！你至少需要十点的气来打坐} {
+                dazuo max;
+            };
+            #act {你刚在三分钟内睡过一觉} {
+                _dzmsg 5秒后再尝试睡觉;
+                #delay {dl_dazuo_sleep} {
+                    sleep;
+                } {5};
+            };
+            #act {你一觉醒来，精神抖擞地活动了几下手脚} {
+                _do_dazuo;
+            };
+            #act {你深深吸了几口气} {
+                _do_dazuo;
+            };
+            #act {牛皮酒袋已经被喝得一滴也不剩了} {
+                get jiudai from bao;
+            };
+            
+            #class dz_start_inner close;
+            jifa;
+        };
+        #case {"stop"} {
+            #class dz_start_inner kill;
+            #undelay {dl_dazuo_do};
+            #undelay {dl_dazuo_sleep};
+            _dzmsg 打坐停止;
+        };
+        #case {"setpath"} {
+            #var dazuo[path] %2;
+        };
+        #default {
+            _dzmsg tn <start | stop>;
+        };
+    };
+};
+
+#class $mod_name close;
+
+${mod_name}_load;

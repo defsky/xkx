@@ -610,7 +610,7 @@
 #act {^你深深吸了几口气，脸色看起来好多了。} {hpbrief1};
 #act {^你领悟出一些基本轻功方面的窍门。} {hpbrief1};
 #act {^你身子发虚}{hpbrief1};
-#act {你拿起干粮咬了几口}{hpbrief1};
+#act {你拿起%*咬了几口}{hpbrief1};
 #act {你%*喝了%*}{hpbrief1};
 #act {你全身放松，坐下来开始运功疗伤}{hpbrief1};
 #act {你吃下一包金创药} {hpbrief1};

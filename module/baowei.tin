@@ -30,7 +30,7 @@
 };
 
 #alias {_bwmsg} {
-    #showme <139>保卫 : %0<079>;
+    #showme <139>baowei : %0<079>;
 };
 #alias {_go_for_jl} {
     #if {$baowei[jlgo] == 0} {
@@ -51,6 +51,7 @@
 };
 #act {郭靖吩咐下面兵士将你带到襄阳保卫战的前线} {
     #var baowei[status] 1;
+    #var baowei[digging] 0;
     #var baowei[jlgo] 0;
     
     _bwmsg 进入<保卫襄阳>副本地图;
@@ -62,14 +63,16 @@
         #send look;
     };
 };
-#act {位置：室外  性质：普通  防御值：%d/%d} {
-    #var baowei[shield] %1;
-    #var baowei[shield_max] %2;
+
+#act {位置：%S  性质：%S  防御值：%d/%d} {
+    #var baowei[shield] %3;
+    #var baowei[shield_max] %4;
     
     #if {$baowei[status] == 1} {
         #if {$baowei[digging] == 0} {
             #if {$baowei[shield] < $baowei[shield_max]} {  
                 dig;
+                _bwmsg 这里需要加固;
             } {
                 _bwmsg 工事修筑完毕,换个地方;
                 _next_pos;
@@ -81,7 +84,8 @@
         _go_for_jl;
     };
 };
-#act {你抡起铁锹，修筑起工事来} {
+
+#act {{你抡起铁锹，修筑起工事来|你正在搬运沙袋加固城门的防御}} {
     #var baowei[digging] 1;
 };
 #act {你直起身来，看看已具规模的工事，擦了擦汗，停下来歇一歇} {
@@ -91,6 +95,7 @@
         #send look;
     } {
         _go_for_jl;
+        _bwmsg 可以领奖了;
     };
 };
 

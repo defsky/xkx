@@ -1,0 +1,116 @@
+#class $mod_name open;
+
+#alias {${mod_name}_load} {
+    #showme Module $mod_name loaded;
+    #unalias ${mod_name}_load;
+};
+
+#alias {${mod_name}_unload}{
+    #if {$tuna[status] == 1} {
+        tn stop;
+    };
+    #showme Module $mod_name unloaded;
+    #class $mod_name kill;
+};
+
+#alias {${mod_name}_help}{
+    #showme <139>模块帮助文档 : ${mod_name}<079>;
+    
+    #showme <139> 描述 : 自动吐纳到精力上限<079>;
+    #showme <139> tn <start | stop><079>;
+    #showme <139> tn setpath <{path list split by ';'}><079>;
+    
+    #showme  ;
+    #showme <139> -> 按任意键继续...<079>;
+    #buffer lock;
+};
+
+#var tuna {};
+#var tuna[status] 0;
+
+#alias {_tnmsg} {
+    #showme <139> tuna : %0<079>;
+};
+#alias {_do_tuna} {
+    hpbrief1;
+    #delay {dl_tuna_do} {
+        #if {$status[energy_max] < $tuna[limit]} {
+            #var tuna_value @eval{$status[energy_max] * 2 - $status[energy] + 1};
+            
+            #if {$tuna_value > @eval{$status[sp_max] * 0.9} || $tuna_value < 10} {
+                #var tuna_value max;
+            };
+            
+            _tnmsg $tuna_value;
+            #send {tuna $tuna_value};
+            #unvar tuna_value;
+        } {
+            _tnmsg 达到上限，吐纳完成;
+            tn stop;
+        };
+    } {2};
+};
+#alias {tn} {
+    #switch {"%1"} {
+        #case {"start"} {
+            #class tn_start_inner open;
+            
+            #act {^%s内功 (force)%*有效等级%*%d$}
+            {
+	            #var tuna[limit] @eval{%%4 * 10};
+                _do_tuna;
+            };
+            #act {你盘膝坐下，开始吐纳炼精} {
+                #var tuna[status] 1;
+            };
+            #act {你吐纳完毕，睁开双眼，站了起来} {
+                #var tuna[status] 0;
+                eat liang;he jiudai;
+                _do_tuna;
+            };
+            #act {你的精力上限增加了} {
+                
+            };
+            #act {你现在精不足，无法修行精力} {
+                yun regenerate;
+            };
+            #act {你的内力不够} {
+                sleep;
+            };
+            #act {你刚在三分钟内睡过一觉} {
+                _tnmsg 5秒后再尝试睡觉;
+                #delay {dl_tuna_sleep} {
+                    sleep;
+                } {5};
+            };
+            #act {你一觉醒来，精神抖擞地活动了几下手脚} {
+                _do_tuna;
+            };
+            #act {你略一凝神，精神看起来好多了} {
+                _do_tuna;
+            };
+            #act {牛皮酒袋已经被喝得一滴也不剩了} {
+                get jiudai from bao;
+            };
+            
+            #class tn_start_inner close;
+            jifa;
+        };
+        #case {"stop"} {
+            #class tn_start_inner kill;
+            #undelay {dl_tuna_do};
+            #undelay {dl_tuna_sleep};
+            _tnmsg 吐纳停止;
+        };
+        #case {"setpath"} {
+            #var tuna[path] %2;
+        };
+        #default {
+            _tnmsg tn <start | stop>;
+        };
+    };
+};
+
+#class $mod_name close;
+
+${mod_name}_load;

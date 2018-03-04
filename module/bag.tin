@@ -11,6 +11,19 @@
     #class $mod_name kill;
 };
 
+#alias {${mod_name}_help}{
+    #showme <139>模块帮助文档 : ${mod_name}<079>;
+    #showme <139> sellall       : 自动出售bag[sell_list]包含的物品<079>;
+    #showme <139> gc <corpse id>: 拾取指定corpse id的全部物品<079>;
+    #showme <139> pgem          : 自动将所有宝石放入锦囊<079>;
+    #showme <139> mgem <id>     : 自动从锦囊取出3个指定id的宝石combine后再放回<079>;
+    #showme <139> filljd <count>: 自动将指定count的酒袋装满再放入bao中<079>;
+    
+    #showme  ;
+    #showme <139> -> 按任意键继续...<079>;
+    #buffer lock;
+};
+
 #var bag {};
 #list bag[sell_list] add {Heise pifeng;Changjian;Tie bishou;Chang bian;Gangzhang};
 
@@ -96,6 +109,25 @@
     };
 };
 
+#alias {filljd} {
+    #class filljd_inner open;
+    
+    #var need_count %1;
+    #var filled_count 0;
+    
+    #act {你将牛皮酒袋装满清水} {
+        #math filled_count {$filled_count + 1};
+        #if {$filled_count >= $need_count} {
+            #showme <139>bag : ${filled_count} 个酒袋装填完毕。<079>;
+            #class filljd_inner kill;
+        } {
+            put jiudai in bao;
+            #delay {0.5} {fill jiudai};
+        };
+    };
+    #class filljd_inner close;
+    fill jiudai;
+};
 #alias {sellall} {
     _update_bag;
     #delay {1} {
