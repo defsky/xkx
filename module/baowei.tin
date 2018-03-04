@@ -53,12 +53,15 @@
     #var baowei[status] 1;
     #var baowei[digging] 0;
     #var baowei[jlgo] 0;
+    #var baowei[enterflag] 1;
     
     _bwmsg 进入<保卫襄阳>副本地图;
 
 };
 #act {你向黄蓉打听有关『工事』的消息} {
     #var baowei[digging] 0;
+    #var baowei[enterflag] 2;
+    
     #delay {1} {
         #send look;
     };
@@ -68,7 +71,10 @@
     #var baowei[shield] %3;
     #var baowei[shield_max] %4;
     
-    #if {$baowei[status] == 1} {
+    #if {$baowei[enterflag] == 1} {
+        gs;
+    };
+    #elseif {$baowei[status] == 1} {
         #if {$baowei[digging] == 0} {
             #if {$baowei[shield] < $baowei[shield_max]} {  
                 dig;
@@ -80,7 +86,8 @@
         } {
             _bwmsg 正在修筑工事;
         };
-    } {
+    };
+    #else {
         _go_for_jl;
     };
 };

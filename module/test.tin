@@ -15,7 +15,21 @@
     #system {firefox http://pkuxkx.net/antirobot/robot.php?filename=%1};
 };
 
-#var ppp {n;n;w;e;e;e;e;e;e;w;w;w;s;s;s};
+#nop 你向达摩老祖请教五十次有关「易筋神功」的疑问。;
+
+#act {你今天太累了，结果什么也没有学到} {
+    yun regenerate;
+    eat liang ;he jiudai;
+};
+#act {你的内力不够} {
+
+};
+#act {你略一凝神，精神看起来好多了} {
+
+};
+#act {你听了达摩老祖的指导，似乎有些心得} {
+    xue laozu for yijin-jing 50;
+};
 
 #class $mod_name close;
 

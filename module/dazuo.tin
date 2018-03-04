@@ -85,6 +85,12 @@
             #act {你的内功还没有达到那个境界！你至少需要十点的气来打坐} {
                 dazuo max;
             };
+            #act {这里不是你能睡的地方} {
+                _dzmsg 不能睡，10秒后继续打坐;
+                #delay {dl_dazuo_cantsleep} {
+                    _do_dazuo;
+                } {10};
+            };
             #act {你刚在三分钟内睡过一觉} {
                 _dzmsg 5秒后再尝试睡觉;
                 #delay {dl_dazuo_sleep} {
@@ -107,6 +113,7 @@
         #case {"stop"} {
             #class dz_start_inner kill;
             #undelay {dl_dazuo_do};
+            #undelay {dl_dazuo_cantsleep};
             #undelay {dl_dazuo_sleep};
             _dzmsg 打坐停止;
         };

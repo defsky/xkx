@@ -12,6 +12,9 @@
 
 #act {你心中暗道：就是这里了，于是紧跟着几个形迹可疑的人走去} {
     #map leave;
+    #act {你已经陷入半昏迷状态，随时都可能摔倒晕去} {
+        #send $hszjob[esc];
+    };
 };
 
 #alias {leave} {
@@ -44,7 +47,7 @@
                 #class hsz_job_inner kill;
             };
         };
-        #act {韩世忠说道：「我听说有一群异族奸细在%*的%*附近出没，你去打探(datan)一下，必须要留下一两个奸细，给他们一个教训。」} {
+        #act {韩世忠说道：「我听说有一群异族奸细在%*的%*附近出没，你%*去打探(datan)一下，必须要留下一两个奸细，给他们一个教训。」} {
             #if {$hszjob[flag] == 1} {
                 dbg %%1 %%2;
                 #var hszjob[area] %%1;
@@ -73,6 +76,7 @@
         
     };
     #elseif {"%1" == "fin"} {
+        #unact {你已经陷入半昏迷状态，随时都可能摔倒晕去};
         hsz;
         on_there {
             #delay {1} {ask han about finish;#cr};
