@@ -7,6 +7,7 @@
 };
 
 #alias {${mod_name}_unload}{
+    #undelay {dl_go_for_jl};
     #showme Module $mod_name unloaded;
     #class $mod_name kill;
     tune fb;
@@ -32,13 +33,14 @@
 #alias {_bwmsg} {
     #showme <139>baowei : %0<079>;
 };
-#alias {_go_for_jl} {
-    #if {$baowei[jlgo] == 0} {
-        #var baowei[jlgo] 1;
-        on_there {
-            jl;
-        };
-        gt 帅府大厅;
+#alias {_go_for_jl} {  
+    #if {$baowei[pathidx] == 1} {
+        jl;
+    } {
+        _next_pos;
+        #delay {dl_go_for_jl} {
+            _go_for_jl;
+        }{0.5};
     };
 };
 #alias {_next_pos} {
@@ -86,9 +88,6 @@
         } {
             _bwmsg 正在修筑工事;
         };
-    };
-    #else {
-        _go_for_jl;
     };
 };
 
