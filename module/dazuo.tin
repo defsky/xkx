@@ -26,6 +26,7 @@
 
 #var dazuo {};
 #var dazuo[status] 0;
+#var dazuo[path] {};
 
 #alias {_dzmsg} {
     #showme <139> dazuo : %0<079>;

@@ -1,0 +1,135 @@
+#class $mod_name open;
+
+#alias {${mod_name}_load} {
+    #showme Module $mod_name loaded;
+    #unalias ${mod_name}_load;
+};
+
+#alias {${mod_name}_unload}{
+    #showme Module $mod_name unloaded;
+    #class $mod_name kill;
+};
+
+#alias {${mod_name}_help}{
+    #showme <139>模块帮助文档 : ${mod_name}<079>;
+    
+    #showme <139> 描述 : 领悟skills到上限<079>;
+    #showme  ;
+    #showme <139> lingw <start | stop>              启动、停止领悟<079>;
+    #showme <139> lingw setpath <{path list}>       设置到达练习位置的路径<079>;
+    #showme <139> lingw setwp <sk_id> <wp_id>       设置指定功夫用的武器<079>;
+    #showme <139> lingw ban <special_skill_id>      屏蔽指定功夫不领悟<079>;
+    #showme <139> lingw unban <special_skill_id>    解除被屏蔽的功夫<079>;
+    #showme <139> lingw banlist                     显示屏蔽的功夫<079>;
+    
+    #showme  ;
+    #showme <139> -> 按任意键继续...<079>;
+    #buffer lock;
+};
+
+#var    lingw           {};
+
+#var    lingw[wp]       {};
+#var    lingw[banlist]  {};
+#var    lingw[skills]   {};
+#var    lingw[status]   0;
+#var    lingw[flag]     {};
+
+#alias {_lwmsg} {
+    #showme <139>lingwu : %0<079>;
+};
+#alias {_do_lingwu} {
+    #foreach {$lingw[skills][]} {sk} {
+        #if {$lingw[limit] > $lingw[skills][sk]} {
+            
+        };
+    };
+};
+#alias {on_lingwu_prepared} {
+    你已经激发了该技能，不需要重新激发了
+    你决定使用基本的轻功
+    你决定使用基本的拳法
+    你决定用罗汉拳作为你的拳法
+    
+    #class on_lingwu_prepared_inner open;
+    
+    #
+    
+    #class on_lingwu_prepared_inner close;
+};
+#alias {on_get_skills} {
+    #var lingw[flag][getsk] 0;
+    
+    #class _get_skills_do_inner open;
+    
+    #alias cb_get_skills_do #cr;
+    #alias cb_get_skills_do %0;
+    
+    #act {你目前所学过的技能：（共%*项技能，你的技能等级最多能达到%*级）} {
+        #var lingw[limit] @ctd{%%2};
+    };
+    #act {├──%*特殊功夫────┼─────────────┼────┼───┼──┤} {
+        #var lingw[flag][getsk] 1;
+    };
+    #act {^│{□|  }%S%s│%S%s│%S│%s%d.%d│%S%s│$} {
+        #if {$lingw[flag][getsk] == 1} {
+            #var lingw[skills][%%4] %%8;
+        };
+    };
+    #act {└─────────────┴─────────────┴─◎ 北大侠客行 ◎──┘} {
+        #var lingw[flag][getsk] 0;
+        cb_get_skills_do;
+        #class _get_skills_do_inner kill;
+    };
+    #class _get_skills_do_inner close;
+    skills;
+};
+
+#alias {lingw} {
+    #switch {"%1"} {
+        #case {"start"} {
+            #list lingw[banlist] size banlen;
+            #if {$banlen == 0} {
+                _lwmsg 请先屏蔽不需要领悟的功夫;
+            } {
+                #class lingw_start_open;
+                
+                on_get_skills {
+                    _do_lingwu;
+                };
+                
+                #class lingw_start_close;
+            };
+        };
+        #case {"stop"} {
+        
+        };
+        #case {"ban"} {
+            #list lingw[banlist] add %2;
+            _lwmsg %2 已加入屏蔽列表;
+        };
+        #case {"unban"} {
+            #list lingw[banlist] find %2 idx;
+            #if {$idx == 0} {
+                _lwmsg %2 不在屏蔽列表;
+            } {
+                #list lingw[banlist] delete $idx;
+                _lwmsg %2 已从屏蔽列表移除;
+            };
+            #unvar idx;
+        };
+        #case {"banlist"} {
+            _lwmsg 当前屏蔽的功夫有 {$lingw[banlist][%*]};
+        };
+        #case {"setpath"} {
+        
+        };
+        #default {
+            mod lingwu help
+        };
+    };
+};
+
+#class $mod_name close;
+
+${mod_name}_load;

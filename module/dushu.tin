@@ -6,6 +6,7 @@
 };
 
 #alias {${mod_name}_unload}{
+    #undelay {dl_sleep}
     #showme Module $mod_name unloaded;
     #class $mod_name kill;
 };
@@ -52,7 +53,15 @@
         cb_on_dushu_tired
     };
 };
-
+#act {你的内力不够} {
+    sleep;
+};
+#act {你刚在三分钟内睡过一觉} {
+    #showme 5秒后再尝试睡觉;
+    #delay {dl_sleep} {
+        sleep;
+    } {5};
+};
 #act {你减缓真气运行，让自身恢复正常} {
     #delay {1} {yun jing};
 };

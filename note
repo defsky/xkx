@@ -10,3 +10,73 @@
 你终于来到了对面，心里的石头终于落地。
 
 你江湖历练不足，请再闯荡闯荡江湖以后再来参加襄阳保卫战吧
+
+
+/* lingwu.tin
+
+你往床上一躺，开始睡觉。
+不一会儿，你就进入了梦乡。
+你刚在三分钟内睡过一觉, 多睡对身体有害无益
+
+dazuo max
+你五心向天，排除一切杂念，内息顺经脉缓缓流动。
+你将内息走了个小周天，流回丹田，收功站了起来
+
+你反复练习罗汉拳中「三入地狱」这一招，获得了不少进步
+你试着练习罗汉拳中「三入地狱」这一招，获得了少许进步
+你的体力太低了
+
+你的「罗汉拳」进步了！
+你的内力不够练罗汉拳。
+
+
+#act {牛皮酒袋已经被喝得一滴也不剩了} {
+    get jiudai from bao;
+};
+
+#act {你必须空手才能练习}
+{
+    unwield all;
+};
+#act {{你需要提高基本功|不能通过练习来提高}}
+{
+
+};
+#act {{你的体力太低|你的体力太差|你的体力不够|你现在气血虚浮|你太累了}}
+{        
+    exert recover;
+};
+
+#act {你的基本功夫比你的高级功夫还高！}
+{   
+
+};
+
+#act {{你现在过于疲倦,无法静下心来领悟功夫！|你领悟了一次}}
+{
+    exert regenerate;
+};
+
+#alias {_get_skill} {
+    #regexp {$tmp_get_limit[rcvd_line]}{^{┌|├}{[─]*}%S{[─]*}{┬|┼}{[─]*}{┬|┼}{[─]*}{┬|┼}{[─]*}{┬|┼}{[─]*}{┐|┤}$}
+    {
+        #line {gag};
+    };
+    #regexp {$tmp_get_limit[rcvd_line]}{└─────────────┴─────────────┴─◎ 北大侠客行 ◎──┘}
+    {
+        #line {gag};
+        #class fullskill.get_skill_info.inner kill;
+    };
+    #regexp {$tmp_get_limit[rcvd_line]}{^│{□|  }%S%s│%S%s│%S│%s%S│%S%s│$}
+    {
+        #line {gag};
+        #list skills[learned][&4] create {&8}{&9}{&6}{&2};
+    };
+    #regexp {$tmp_get_limit[rcvd_line]}{^你目前所学过的技能：（共%*项技能，你的技能等级最多能达到%*级）$}
+    {
+        #line {gag};
+        #var skills[count] @ctd{&1};
+        #var skills[limit] @ctd{&2};
+    };
+};
+*/

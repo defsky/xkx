@@ -28,7 +28,7 @@
 
 };
 #act {你听了达摩老祖的指导，似乎有些心得} {
-    xue laozu for yijin-jing 50;
+    #delay {1} {xue laozu for yijin-jing 50};
 };
 
 #class $mod_name close;

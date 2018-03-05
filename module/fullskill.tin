@@ -62,7 +62,7 @@ dazuo max
     exert regenerate;
 };
 
-
+#alias {_get_skill} {
     #regexp {$tmp_get_limit[rcvd_line]}{^{©°|©À}{[©¤]*}%S{[©¤]*}{©Ð|©à}{[©¤]*}{©Ð|©à}{[©¤]*}{©Ð|©à}{[©¤]*}{©Ð|©à}{[©¤]*}{©´|©È}$}
     {
         #line {gag};
@@ -83,7 +83,7 @@ dazuo max
         #var skills[count] @ctd{&1};
         #var skills[limit] @ctd{&2};
     };
-
+};
 
 #class $mod_name close;
 
