@@ -61,20 +61,22 @@
         #delay {0.5} {#buffer lock;};
     };
     #act {%*死了。} {
-        #delay {1} {get all from corpse;};
-        
-        #if {1 == @isListMember{task[rob];%%1}} {
-            #math task[robcount] {$task[robcount] + 1};
+        #if {$task[fight] == 1} {
+            #delay {1} {get all from corpse;};
+            
+            #if {1 == @isListMember{task[rob];%%1}} {
+                #math task[robcount] {$task[robcount] + 1};
+            };
+            #list task[rob] find %%1 idx;
+            #if {$idx != 0 } {
+                #list task[rob] delete $idx;
+            };
+            #list task[rob] size len;
+            #if {$len == 0} {
+                #var task[fight] 2;
+            };
+            #unvar idx;#unvar len;
         };
-        #list task[rob] find %%1 idx;
-        #if {$idx != 0 } {
-            #list task[rob] delete $idx;
-        };
-        #list task[rob] size len;
-        #if {$len == 0} {
-            #var task[fight] 2;
-        };
-        #unvar idx;#unvar len;
     };
 };
 #act {你向岳不群打听有关『job』的消息。} {

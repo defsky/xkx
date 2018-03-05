@@ -68,7 +68,9 @@
         #send look;
     };
 };
-
+#act {    郭夫人「桃花仙子」黄蓉(Huang rong)} {
+    _bwmsg 发现黄蓉;
+};
 #act {位置：%S  性质：%S  防御值：%d/%d} {
     #var baowei[shield] %3;
     #var baowei[shield_max] %4;
@@ -104,7 +106,25 @@
         _bwmsg 可以领奖了;
     };
 };
-
+#act {襄阳保卫战正在进行中，现在是蒙古兵第%*轮发兵} {
+    
+};
+#act {蒙古发兵攻打襄阳%*门} {
+    #switch {"%1"} {
+        #case {"北"} {
+        
+        };
+        #case {"南"} {
+        
+        };
+        #case {"西"} {
+        
+        };
+        #case {"东"} {
+        
+        };
+    };
+};
 #act {{各位可以到郭靖处领奖|襄阳保卫战已经全部结束|襄阳保卫战取得胜利}} {
     #var baowei[status] 0;    
     _bwmsg 守卫成功，赶快去找郭靖领奖;    
