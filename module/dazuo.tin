@@ -16,7 +16,8 @@
 #alias {${mod_name}_help}{
     #showme <139>模块帮助文档 : ${mod_name}<079>;
     
-    #showme <139> 描述 : 自动打坐到内力上限<079>;
+    #showme <139> 描述：自动打坐到内力上限<079>;
+    #showme <139>       身上需要带好jiudai和gan liang<079>;
     #showme <139> daz <start | stop><079>;
     
     #showme  ;
@@ -49,10 +50,15 @@
                 #send {dazuo $dazuo_value};
                 #unvar dazuo_value;
             } {
-                sleep;
+                #if {$status[hp_max] < 500} {
+                    sleep;
+                } {
+                    yun recover;
+                    #delay {1} {dazuo 10};
+                };
             };
         } {
-            _dzmsg 达到上限，打坐完成;
+            _dzmsg 内力达到上限;
             daz stop;
         };
     } {2};
@@ -99,6 +105,7 @@
                 } {5};
             };
             #act {你一觉醒来，精神抖擞地活动了几下手脚} {
+                #cr;
                 _do_dazuo;
             };
             #act {你深深吸了几口气} {
@@ -116,13 +123,13 @@
             #undelay {dl_dazuo_do};
             #undelay {dl_dazuo_cantsleep};
             #undelay {dl_dazuo_sleep};
-            _dzmsg 打坐停止;
+            _dzmsg 打坐结束;
         };
         #case {"setpath"} {
             #var dazuo[path] %2;
         };
         #default {
-            _dzmsg tn <start | stop>;
+            _dzmsg daz <start | stop>;
         };
     };
 };

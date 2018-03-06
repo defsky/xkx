@@ -68,9 +68,6 @@
         #send look;
     };
 };
-#act {    郭夫人「桃花仙子」黄蓉(Huang rong)} {
-    _bwmsg 发现黄蓉;
-};
 #act {位置：%S  性质：%S  防御值：%d/%d} {
     #var baowei[shield] %3;
     #var baowei[shield_max] %4;
@@ -92,7 +89,12 @@
         };
     };
 };
-
+#act {    郭夫人「桃花仙子」黄蓉(Huang rong)} {
+    _bwmsg 发现黄蓉;
+};
+#act {    %*位蒙古兵(Menggu bing)} {
+    _bwmsg 发现蒙古兵 @ctd{%1};
+};
 #act {{你抡起铁锹，修筑起工事来|你正在搬运沙袋加固城门的防御}} {
     #var baowei[digging] 1;
 };
