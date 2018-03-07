@@ -6,6 +6,7 @@
 };
 
 #alias {${mod_name}_unload}{
+    #undelay {wd_lian};
     #showme Module $mod_name unloaded;
     #class $mod_name kill;
 };
@@ -17,22 +18,8 @@
     
 };
 
-#var    fsk           {};
 
-#var    fsk[skills]   {};
-
-#var    fsk[config][limit]        0;
-
-#var    fsk[config][freq][lw]       0;
-#var    fsk[config][freq][lx]       0;
-
-#var    fsk[config][path]         {};
-
-#var    fsk[flag]     {};
-
-#var    fsk[flag][mode]           {};
-
-#alias {_lwmsg} {
+#alias {_fskmsg} {
     #showme <139>fullskill : %0<079>;
 };
 
@@ -48,32 +35,65 @@
     };
 };
 #alias {fskpath} {
-    #var fsk[config][path] %1;
-    #path load $fsk[config][path];
-    #path save b fsk[config[rpath];
+    #var fsk[config][path] {};
+    #var fsk[config][rpath] {};
+    
+    #var tmp_path %0;
+    #list fsk[config][path] add $tmp_path;
+    #path load $tmp_path;
+    #path save b $tmp_path;
+    #list fsk[config][rpath] add $tmp_path;
+    #unvar tmp_path;
 };
 #alias {fskskill} {
     #var fsk[skills][%1] %2;
 };
+#alias {on_end_path} {
+    #alias cb_on_end_path #cr;
+    #alias cb_on_end_path %0;
+    
+};
+#alias {on_path_arrived} {
+
+};
 #alias {_go_sleep} {
+    #undelay {wd_lian};
     #path load $fsk[config][path];
-    #path run 1;
+
+    #path run 0.5;
+    #event {END OF PATH} {
+        _fskmsg end_of_path;
+        #delay {1} {
+            sleep;
+            
+        };
+        #unevent {END OF PATH};
+    };
 };
 #alias {_go_fsk} {
     #path load $fsk[config][rpath];
-    #path run 1;
+   
+    #path run 0.5;
+    #event {END OF PATH} {
+        _fskmsg end_of_path;
+        #delay {1} {
+            _lian;
+            
+        };
+        #unevent {END OF PATH};
+    };
 };
 #alias {_lian} {
     #undelay {wd_lian};
     #delay {wd_lian} {_lian;} {5};
     
-    #send {lian $fsk[status][base] $fsk[config][freq][lian]};
+    #send {lian $fsk[status][base] $fsk[config][freq][lx]};
 };
 #alias {lianx} {
     #var fsk[status][base] %1;
     #var fsk[status][skill] %2;
     
-    #switch {$fsk[status][base]} {
+    #switch {"$fsk[status][base]"} {
         #case {"sword"} {
             wield sword;
         };
@@ -98,11 +118,20 @@
     #act {你试着练习%*获得了少许进步} {
         yun recover;
     };
-    #nop #act {你的体力太低了} {;
-    #act {你的体力太低|你的体力太差|你的体力不够|你现在气血虚浮|你太累了} {
+    #nop #act {你的体力太低了};
+    #act {{你的体力太低|你的体力太差|你的体力不够|你现在气血虚浮|你太累了}} {
         yun recover;
     };
-
+    #act {你刚在三分钟内睡过一觉} {
+        _dzmsg 5秒后再尝试睡觉;
+        #delay {dl_lian_sleep} {
+            sleep;
+        } {5};
+    };
+    #act {你一觉醒来，精神抖擞地活动了几下手脚} {
+        #cr;
+        _go_fsk;
+    };
     #act {你的内力不够练} {
         _go_sleep;
     };

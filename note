@@ -12,6 +12,21 @@
 你江湖历练不足，请再闯荡闯荡江湖以后再来参加襄阳保卫战吧
 
 
+#nop #var    fsk           {};
+
+#var    fsk[skills]   {};
+
+#var    fsk[config][limit]        0;
+
+#var    fsk[config][freq][lw]       0;
+#var    fsk[config][freq][lx]       0;
+
+#var    fsk[config][path]         {};
+
+#var    fsk[flag]     {};
+
+#var    fsk[flag][mode]           {};
+
 /* lingwu.tin
 
 你往床上一躺，开始睡觉。

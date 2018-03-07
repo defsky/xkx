@@ -46,6 +46,8 @@
     };
 };
 #alias {_next_pos} {
+    #var baowei[new_pos] 1;
+
     #send $baowei[path][$baowei[pathidx]];
     
     #math baowei[pathidx] {$baowei[pathidx] + 1};
@@ -53,11 +55,23 @@
         #var baowei[pathidx] 1;
     };
 };
+#alias {_go_start_pos} {
+    _next_pos;
+    #if {$baowei[pathidx] == 7} {
+        #var baowei[status] 1;
+        _next_pos;
+    } {
+        #delay {0.5} {
+            _go_start_pos;
+        };
+    };
+};
 #act {郭靖吩咐下面兵士将你带到襄阳保卫战的前线} {
-    #var baowei[status] 1;
+    #var baowei[status] 0;
     #var baowei[digging] 0;
     #var baowei[jlgo] 0;
     #var baowei[enterflag] 1;
+    #var baowei[new_pos] 1;
     
     _bwmsg 进入<保卫襄阳>副本地图;
 
@@ -67,12 +81,16 @@
     #var baowei[enterflag] 2;
     
     #delay {1} {
-        #send look;
+        #nop #send look;
+        _go_start_pos;
     };
 };
 #act {位置：%S  性质：%S  防御值：%d/%d} {
     #var baowei[shield] %3;
-    #var baowei[shield_max] %4;
+    #if {$baowei[new_pos] == 1} {
+        #var baowei[shield_max] %4;
+        #var baowei[new_pos] 0;
+    };
     
     #if {$baowei[enterflag] == 1} {
         gs;
@@ -84,6 +102,7 @@
                 _bwmsg 这里需要加固;
             } {
                 _bwmsg 工事修筑完毕,换个地方;
+                
                 _next_pos;
             };
         } {
@@ -98,10 +117,21 @@
     _bwmsg 发现蒙古兵;
 };
 #act {你正忙着呢，修不了工事} {
-    #delay {3} {dig};
+    #if {$baowei[digging] == 0} {
+        #delay {3} {dig};
+    };
 };
-#act {{你抡起铁锹，修筑起工事来|你正在搬运沙袋加固城门的防御}} {
+#act {^%*抡起铁锹，修筑起工事来} {
     #var baowei[digging] 1;
+    #if {"%1" != "你"} {
+        #math baowei[shield_max] {$baowei[shield_max] - 1};
+    };
+};
+#act {^%*正在搬运沙袋加固城门的防御} {
+    #var baowei[digging] 1;
+    #if {"%1" != "你"} {
+        #math baowei[shield_max] {$baowei[shield_max] - 1};
+    };
 };
 #act {你直起身来，看看已具规模的工事，擦了擦汗，停下来歇一歇} {
     #var baowei[digging] 0;
