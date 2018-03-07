@@ -11,77 +11,124 @@
 };
 
 #alias {${mod_name}_help}{
-    #showme <129>Module Help : ${mod_name}<079>;
-    /* TODO: place your HELP doc here */
+    #showme <139>模块帮助文档 : ${mod_name}<079>;
+    
+    #showme <139> 描述 : 领悟、练习指定skills到上限<079>;
+    
 };
 
-/*
-你往床上一躺，开始睡觉。
-不一会儿，你就进入了梦乡。
-你刚在三分钟内睡过一觉, 多睡对身体有害无益
+#var    fsk           {};
 
-dazuo max
-你五心向天，排除一切杂念，内息顺经脉缓缓流动。
-你将内息走了个小周天，流回丹田，收功站了起来
+#var    fsk[skills]   {};
 
-你反复练习罗汉拳中「三入地狱」这一招，获得了不少进步
-你试着练习罗汉拳中「三入地狱」这一招，获得了少许进步
-你的体力太低了
+#var    fsk[config][limit]        0;
 
-你的「罗汉拳」进步了！
-你的内力不够练罗汉拳。
-*/
-#act {牛皮酒袋已经被喝得一滴也不剩了} {
-    get jiudai from bao;
+#var    fsk[config][freq][lw]       0;
+#var    fsk[config][freq][lx]       0;
+
+#var    fsk[config][path]         {};
+
+#var    fsk[flag]     {};
+
+#var    fsk[flag][mode]           {};
+
+#alias {_lwmsg} {
+    #showme <139>fullskill : %0<079>;
 };
-#act {你听了达摩老祖的指导，似乎有些心得} {
-    #delay {0.5} {
-        xue laozu for yijin-jing 2;
+
+#alias {fsklimit} {
+    #var fsk[config][limit] %1;
+};
+#alias {fskfreq} {
+    #if {"%1" == "lw"} {
+        #var fsk[config][freq][lw] %2;
+    };
+    #elseif {"%1" == "lx"} {
+        #var fsk[config][freq][lx] %2;
     };
 };
-#act {你必须空手才能练习}
-{
-    unwield all;
+#alias {fskpath} {
+    #var fsk[config][path] %1;
+    #path load $fsk[config][path];
+    #path save b fsk[config[rpath];
 };
-#act {{你需要提高基本功|不能通过练习来提高}}
-{
-
+#alias {fskskill} {
+    #var fsk[skills][%1] %2;
 };
-#act {{你的体力太低|你的体力太差|你的体力不够|你现在气血虚浮|你太累了}}
-{        
-    exert recover;
+#alias {_go_sleep} {
+    #path load $fsk[config][path];
+    #path run 1;
 };
-
-#act {你的基本功夫比你的高级功夫还高！}
-{   
-
+#alias {_go_fsk} {
+    #path load $fsk[config][rpath];
+    #path run 1;
 };
-
-#act {{你现在过于疲倦,无法静下心来领悟功夫！|你领悟了一次}}
-{
-    exert regenerate;
+#alias {_lian} {
+    #undelay {wd_lian};
+    #delay {wd_lian} {_lian;} {5};
+    
+    #send {lian $fsk[status][base] $fsk[config][freq][lian]};
 };
-
-#alias {_get_skill} {
-    #regexp {$tmp_get_limit[rcvd_line]}{^{┌|├}{[─]*}%S{[─]*}{┬|┼}{[─]*}{┬|┼}{[─]*}{┬|┼}{[─]*}{┬|┼}{[─]*}{┐|┤}$}
-    {
-        #line {gag};
+#alias {lianx} {
+    #var fsk[status][base] %1;
+    #var fsk[status][skill] %2;
+    
+    #switch {$fsk[status][base]} {
+        #case {"sword"} {
+            wield sword;
+        };
+        #case {"blade"} {
+            wield blade;
+        };
+        #case {"whip"} {
+            wield whip;
+        };
     };
-    #regexp {$tmp_get_limit[rcvd_line]}{└─────────────┴─────────────┴─◎ 北大侠客行 ◎──┘}
-    {
-        #line {gag};
-        #class fullskill.get_skill_info.inner kill;
+    #class lianx_inner open;
+    
+    #act {你需要提高基本功} {
+        #class lianx_inner kill;
     };
-    #regexp {$tmp_get_limit[rcvd_line]}{^│{□|  }%S%s│%S%s│%S│%s%S│%S%s│$}
-    {
-        #line {gag};
-        #list skills[learned][&4] create {&8}{&9}{&6}{&2};
+    #act {你的基本%*的级别还没有%*的级别高，不能通过练习来提高了} {
+        #class lianx_inner kill;
     };
-    #regexp {$tmp_get_limit[rcvd_line]}{^你目前所学过的技能：（共%*项技能，你的技能等级最多能达到%*级）$}
-    {
-        #line {gag};
-        #var skills[count] @ctd{&1};
-        #var skills[limit] @ctd{&2};
+    #act {你反复练习%*获得了不少进步} {
+        #delay {1} {_lian};
+    };
+    #act {你试着练习%*获得了少许进步} {
+        yun recover;
+    };
+    #nop #act {你的体力太低了} {;
+    #act {你的体力太低|你的体力太差|你的体力不够|你现在气血虚浮|你太累了} {
+        yun recover;
+    };
+
+    #act {你的内力不够练} {
+        _go_sleep;
+    };
+    
+    #class lianx_inner close;
+    
+    #delay {1.5}{_lian};
+};
+#alias {fsk} {
+    #switch {"%1"} {
+        #case {"start"} {
+            #var fsk[flag][mode] %2;
+            
+            on_next_skill {
+                
+            };
+        };
+        #case {"stop"} {
+        
+        };
+        #case {""} {
+            mod fullskill help;
+        };
+        #default {
+        
+        };
     };
 };
 

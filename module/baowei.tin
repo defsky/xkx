@@ -14,8 +14,8 @@
     tune fb;
 };
 
-#nop #list baowei[path] add {n;n;w;e;e;e;n;n;n;s;s;s;e;e;e;w;w;w;s;s;s;n;n;n;w;w;s;s};
-#list baowei[path] add {n;n;n;s;w;e;e;n;s;s;n;e;n;e;w;n;w;e;e;w;n;w;e;e;w;s;s;s;e;n;s;e;n;s;e;s;n;w;w;w;s;e;w;w;e;s;w;e;s;e;w;w;e;n;n;n;w;w;s;s};
+#nop #list baowei[path] add {n;n;n;s;w;e;e;n;s;s;n;e;n;e;w;n;w;e;e;w;n;w;e;e;w;s;s;s;e;n;s;e;n;s;e;s;n;w;w;w;s;e;w;w;e;s;w;e;s;e;w;w;e;n;n;n;w;w;s;s};
+#list baowei[path] add {n;n;w;w;e;e;e;e;n;n;n;n;s;s;s;s;e;e;e;e;w;w;w;w;s;s;s;n;n;n;w;w;s;s};
 #list baowei[path] size baowei[pathlen];
 #var baowei[pathidx] 1;
 
@@ -35,7 +35,7 @@
 #alias {_bwmsg} {
     #showme <139>baowei : %0<079>;
 };
-#alias {_go_for_jl} {  
+#alias {_go_for_jl} {
     #if {$baowei[pathidx] == 1} {
         jl;
     } {
@@ -79,7 +79,7 @@
     };
     #elseif {$baowei[status] == 1} {
         #if {$baowei[digging] == 0} {
-            #if {$baowei[shield] < $baowei[shield_max]} {  
+            #if {$baowei[shield] < $baowei[shield_max]} {
                 dig;
                 _bwmsg 这里需要加固;
             } {
@@ -94,8 +94,11 @@
 #act {    郭夫人「桃花仙子」黄蓉(Huang rong)} {
     _bwmsg 发现黄蓉;
 };
-#act {    %*位蒙古兵(Menggu bing)} {
-    _bwmsg 发现蒙古兵 @ctd{%1};
+#act {    %*(Menggu bing)} {
+    _bwmsg 发现蒙古兵;
+};
+#act {你正忙着呢，修不了工事} {
+    #delay {3} {dig};
 };
 #act {{你抡起铁锹，修筑起工事来|你正在搬运沙袋加固城门的防御}} {
     #var baowei[digging] 1;

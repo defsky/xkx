@@ -37,7 +37,10 @@
         #if {$status[energy_max] < $tuna[limit]} {
             #var tuna_value @eval{$status[energy_max] * 2 - $status[energy] + 1};
             
-            #if {$tuna_value > @eval{$status[sp_max] * 0.9} || $tuna_value < 10} {
+            #if {$tuna_value < 10} {
+                #var tuna_value 10;
+            };
+            #if {$tuna_value > @eval{$status[sp_max] * 0.9}} {
                 #var tuna_value max;
             };
             
@@ -83,14 +86,26 @@
                     sleep;
                 } {5};
             };
+            #act {这里不是你能睡的地方} {
+                _tnmsg 不能睡，30秒后继续吐纳;
+                #delay {dl_tuna_cantsleep} {
+                    _do_dazuo;
+                } {30};
+            };
             #act {你一觉醒来，精神抖擞地活动了几下手脚} {
+                #cr;
                 _do_tuna;
             };
             #act {你略一凝神，精神看起来好多了} {
                 _do_tuna;
             };
             #act {牛皮酒袋已经被喝得一滴也不剩了} {
-                get jiudai from bao;
+                get jiudai 4 from bao;
+                put jiudai 2 in bao;
+                he jiudai;
+            };
+            #act {你附近没有这样东西} {
+                _tnmsg bao里没有jiudai了;
             };
             
             #class tn_start_inner close;
@@ -100,6 +115,7 @@
             #class tn_start_inner kill;
             #undelay {dl_tuna_do};
             #undelay {dl_tuna_sleep};
+            #undelay {dl_tuna_cantsleep}
             _tnmsg 吐纳停止;
         };
         #case {"setpath"} {

@@ -16,8 +16,8 @@
     #showme <139> 描述 : 领悟skills到上限<079>;
     #showme  ;
     #showme <139> lingw <start | stop>              启动、停止领悟<079>;
-    #showme <139> lingw setpath <{path list}>       设置到达练习位置的路径<079>;
-    #showme <139> lingw set <sk_id> <wp_id>       设置指定功夫用的武器<079>;
+    #showme <139> lingw setpath <{path list}>       设置到达睡觉位置的路径<079>;
+    #showme <139> lingw set <sk_id> <wp_id>         设置指定功夫用的武器<079>;
     #showme <139> lingw ban <special_skill_id>      屏蔽指定功夫不领悟<079>;
     #showme <139> lingw unban <special_skill_id>    解除被屏蔽的功夫<079>;
     #showme <139> lingw banlist                     显示屏蔽的功夫<079>;
@@ -44,10 +44,9 @@
     #class _do_lingwu_inner open;
     
     #act {你领悟了%*次} {
-        #send {lingwu $lingwu[status][base] $lingwu[status][times];
+        #send {lingwu $lingwu[status][base] $lingwu[status][times]};
     };
-    #act {{你现在过于疲倦,无法静下心来领悟功夫|你领悟了一次}}
-    {
+    #act {{你现在过于疲倦,无法静下心来领悟功夫|你领悟了一次}} {
         exert regenerate;
     };
     #act {你的基本功夫比你的高级功夫还高} {
@@ -65,13 +64,32 @@
 #alias {_do_lian} {
     #var lingw[status][action] 练习;
     
-    #act {{你需要提高基本功|不能通过练习来提高}}
-    {
+    #class _do_lian_inner open;
+    
+    #act {你需要提高基本功} {
 
     };
+    #act {你的基本%*的级别还没有%*的级别高，不能通过练习来提高了} {
     
-    你反复练习少林身法，获得了不少进步
-    你的基本指法的级别还没有一指禅的级别高，不能通过练习来提高了
+    };
+    #act {你反复练习%*获得了不少进步} {
+    
+    };
+    
+    #act {你试着练习%*获得了少许进步} {
+    
+    };
+    #act {你的体力太低了} {
+    
+    };
+
+    #act {你的内力不够练} {
+    
+    };
+    
+    #class _do_lian_inner close;
+    
+    #send {lian $lingw[status][base] $lingw[]};
 };
 #alias {_do_pre} {
     #send {jifa $lingw[status][base] $lingw[status][skill]};
@@ -86,6 +104,12 @@
     #nop │技能级别  　100         　技能等级  　初学乍练    　技能类别  　特殊功夫│;
     #act {│技能级别  　%d%s%*│} {
     
+    };
+    #act {│激发支持%*(%w)%*(%w)、招架(parry)%s│} {
+        #var lingw[status][base] %%2;
+        #var lingw[flag][can_parry] 1;
+        
+        _do_pre;
     };
     #act {│激发支持%*(%w)、招架(parry)%s│} {
         #var lingw[status][base] %%2;
@@ -141,10 +165,9 @@
     };
     #act {└─────────────┴─────────────┴─◎ 北大侠客行 ◎──┘} {
         #var lingw[flag][getsk] 0;
-        
         #list lingw[skill_list] add $lingw[skills][];
         #list lingw[skill_list] size $lingw[status][skill_list_len];
-        
+
         cb_get_skills_do;
         #class _get_skills_do_inner kill;
     };
@@ -152,24 +175,34 @@
     skills;
 };
 #alias {on_next_skill} {
+    #var lingw[flag][noskill] 0;
     #math lingw[status][skill_idx] {$lingw[status][skill_idx] + 1};
     
     #if {$lingw[status][skill_idx] > $lingw[status][skill_list_len]} {
-        _lwmsg 所有技能领悟完毕;
-        lingw stop;
+        #var lingw[flag][noskill] 1;
     } {
-        #alias cb_on_next_skill #cr;
-        #alias cb_on_next_skill %0;
-        
         #var lingw[status][skill] $lingw[skill_list][$lingw[status][skill_idx]];
         
         #while {1 == @isListMember{lingw[banlist];$lingw[status][skill]}} {
             _lwmsg $lingw[status][skill]在banlist中,忽略;
             
             #math lingw[status][skill_idx] {$lingw[status][skill_idx] + 1};
-            #var lingw[status][skill] $lingw[skill_list][$lingw[status][skill_idx]];
+            #if {$lingw[status][skill_idx] > $lingw[status][skill_list_len]} {
+                #var lingw[flag][noskill] 1;
+                #break;
+            } {
+                #var lingw[status][skill] $lingw[skill_list][$lingw[status][skill_idx]];
+            };
         };
+    };
     
+    #if {$lingw[flag][noskill] == 1} {
+        _lwmsg 所有技能领悟完毕;
+        lingw stop;
+    } {
+        #alias cb_on_next_skill #cr;
+        #alias cb_on_next_skill %0;
+        
         cb_on_next_skill;
         #unalias cb_on_next_skill;
     };
@@ -181,10 +214,9 @@
             #if {$banlen == 0} {
                 _lwmsg 请先屏蔽不需要领悟的功夫;
             } {
-                
                 on_get_skills {
                     #var lingw[status][skill_idx] 0;
-                    
+        
                     on_next_skill {
                         on_lingwu_prepared {
                             _do_lian;

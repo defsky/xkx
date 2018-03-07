@@ -17,7 +17,7 @@
     #showme <139>模块帮助文档 : ${mod_name}<079>;
     
     #showme <139> 描述：自动打坐到内力上限<079>;
-    #showme <139>       身上需要带好jiudai和gan liang<079>;
+    #showme <139>       身上需要带好4个jiudai和gan liang<079>;
     #showme <139> daz <start | stop><079>;
     
     #showme  ;
@@ -93,10 +93,10 @@
                 dazuo max;
             };
             #act {这里不是你能睡的地方} {
-                _dzmsg 不能睡，10秒后继续打坐;
+                _dzmsg 不能睡，30秒后继续打坐;
                 #delay {dl_dazuo_cantsleep} {
                     _do_dazuo;
-                } {10};
+                } {30};
             };
             #act {你刚在三分钟内睡过一觉} {
                 _dzmsg 5秒后再尝试睡觉;
@@ -112,7 +112,9 @@
                 _do_dazuo;
             };
             #act {牛皮酒袋已经被喝得一滴也不剩了} {
-                get jiudai from bao;
+                get jiudai 4 from bao;
+                put jiudai 2 in bao;
+                he jiudai;
             };
             
             #class dz_start_inner close;
