@@ -1,12 +1,13 @@
 #class $mod_name open;
 
 #alias {${mod_name}_load} {
+    _fskmsg 依赖map模块,请手动加载;
     #showme Module $mod_name loaded;
     #unalias ${mod_name}_load;
 };
 
 #alias {${mod_name}_unload}{
-    #undelay {wd_lian};
+    fsk stop;
     #showme Module $mod_name unloaded;
     #class $mod_name kill;
 };
@@ -18,6 +19,17 @@
     
 };
 
+#var jiudai_empty 1;
+
+#act {^牛皮酒袋已经被喝得一滴也不剩了} {
+    #if {$jiudai_empty == 1} {
+        #var jiudai_empty 0;
+        put jiudai in bao 2;
+        get jiudai from bao;
+        he jiudai;
+        #delay {5} {#var jiudai_empty 1;};
+    };
+};
 
 #alias {_fskmsg} {
     #showme <139>fullskill : %0<079>;
@@ -35,63 +47,131 @@
     };
 };
 #alias {fskpath} {
-    #var fsk[config][path] {};
-    #var fsk[config][rpath] {};
-    
-    #var tmp_path %0;
-    #list fsk[config][path] add $tmp_path;
-    #path load $tmp_path;
-    #path save b $tmp_path;
-    #list fsk[config][rpath] add $tmp_path;
-    #unvar tmp_path;
-};
-#alias {fskskill} {
-    #var fsk[skills][%1] %2;
-};
-#alias {on_end_path} {
-    #alias cb_on_end_path #cr;
-    #alias cb_on_end_path %0;
-    
-};
-#alias {on_path_arrived} {
-
-};
-#alias {_go_sleep} {
-    #undelay {wd_lian};
+    #var fsk[config][path] %0;
     #path load $fsk[config][path];
-
-    #path run 0.5;
-    #event {END OF PATH} {
-        _fskmsg end_of_path;
-        #delay {1} {
-            sleep;
-            
+    #path save backward fsk[config][rpath];
+};
+#alias {fskadd} {
+    #var tmp_sk[%1] %2;
+    #list fsk[skills] add {$tmp_sk};
+    #unvar tmp_sk;
+};
+#alias {fskdel} {
+    #list fsk[skills] delete %1;
+};
+#var _on_sleep_way 0;
+#alias {_go_sleep} {
+    #if {$_on_sleep_way == 0} {
+        #var _on_sleep_way 1;
+        
+        #undelay {wd_lian};
+        #undelay {wd_lingwu};
+        #event {END OF PATH} {
+            #untic {tk_walk};
+            set brief 0;
+            #delay {1} {_fskmsg 到达目的地};
+            #unevent {END OF PATH};
         };
-        #unevent {END OF PATH};
+        set brief 1;
+        #path load $fsk[config][path];
+        #tic {tk_walk}{#path walk}{0.5};
+        on_there {
+            #var _on_sleep_way 0;
+            sleep;
+        };
     };
 };
 #alias {_go_fsk} {
-    #path load $fsk[config][rpath];
-   
-    #path run 0.5;
+    #alias cb_go_fsk #cr;
+    #alias cb_go_fsk %0;
+    
     #event {END OF PATH} {
-        _fskmsg end_of_path;
-        #delay {1} {
-            _lian;
-            
-        };
+        #untic {tk_walk};
+        set brief 0;
+        #delay {1} {_fskmsg 到达目的地};
         #unevent {END OF PATH};
+    };
+    set brief 1;
+    #path load $fsk[config][rpath];
+    #tic {tk_walk}{#path walk}{0.5};
+    on_there {
+        cb_go_fsk;
+        #unalias cb_go_fsk
     };
 };
 #alias {_lian} {
-    #undelay {wd_lian};
-    #delay {wd_lian} {_lian;} {5};
+    #delay {wd_lian} {_lian} {5};
     
     #send {lian $fsk[status][base] $fsk[config][freq][lx]};
 };
+#alias {_lingwu} {
+    #delay {wd_lingwu} {_lingwu} {5};
+    
+    #send {lingwu $fsk[status][base] $fsk[config][freq][lw]};
+};
+#alias {lingw} {
+    unwield all;
+    
+    #class lingw_inner open;
+    
+    #act {你的基本功夫比你的高级功夫还高} {
+        _fskmsg 需要练习;
+        #class lingw_inner kill;
+        #undelay {wd_lingwu};
+        lianx;
+    };
+    #act {^你领悟了%*次} {
+        hpbrief1;
+        #delay {dl_next_lingw} {
+            #if {$status[sp] < 50} {
+                yun regenerate;
+            };
+            _lingwu;
+        }{1};        
+    };
+    #act {你现在过于疲倦,无法静下心来领悟功夫} {
+        hpbrief1;
+        he jiudai;eat liang;
+        #delay {1} {
+            #if {$status[force] > @eval{$status[force_max] * 0.2}} {
+                yun regenerate;
+            } {
+                _go_sleep;
+            };
+        };
+    };
+    #act {你刚在三分钟内睡过一觉} {
+        _fskmsg 5秒后再尝试睡觉;
+        #delay {dl_lingwu_sleep} {
+            sleep;
+        } {5};
+    };
+    #act {你一觉醒来，精神抖擞地活动了几下手脚} {
+        #cr;
+        _fskmsg 睡觉醒来去练功;
+        hpbrief1;
+        _go_fsk { _lingwu };
+    };
+    #act {你的内力不够} {
+        _fskmsg 内力不够去睡觉;
+        he jiudai;eat liang;
+        #delay {1} {_go_sleep};
+    };
+    
+    #class lingw_inner close;
+    
+    #delay {1.5}{_lingwu};
+};
+#alias {_check_skill_level} {
+    #act {^│技能级别%s　%d%s　技能等级%s　%S%s　技能类别%s　%S│} {
+        #var fsk[status][level] %%2;
+        #unact {^│技能级别%s　%d%s　技能等级%s　%S%s　技能类别%s　%S│};
+    };
+    #send {verify $fsk[status][special]};
+};
 #alias {lianx} {
-    #var fsk[status][base] %1;
-    #var fsk[status][skill] %2;
+    #alias cb_lianx #cr;
+    #alias cb_lianx %0;
     
     #switch {"$fsk[status][base]"} {
         #case {"sword"} {
@@ -107,33 +187,65 @@
     #class lianx_inner open;
     
     #act {你需要提高基本功} {
-        #class lianx_inner kill;
+        _check_skill_level;
+        #delay {1} {
+            #if {$fsk[status][level] < $fsk[config][limit]} {
+                _fskmsg 需要领悟;
+                #class lianx_inner kill;
+                #undelay {wd_lian};
+                yun recover;
+                cb_lianx;
+                #unalias cb_lianx;
+            } {
+                fsk stop;
+                _fskmsg 当前技能达到上限;
+            };
+        };
     };
     #act {你的基本%*的级别还没有%*的级别高，不能通过练习来提高了} {
+        _fskmsg 需要领悟;
         #class lianx_inner kill;
+        #undelay {wd_lian};
+        cb_lianx;
+        #unalias cb_lianx;
     };
-    #act {你反复练习%*获得了不少进步} {
-        #delay {1} {_lian};
-    };
-    #act {你试着练习%*获得了少许进步} {
-        yun recover;
+    #act {^你%*练习%*获得了%*进步} {
+        hpbrief1;
+        #delay {dl_next_lianx} {
+            #if {$status[hp] < 50} {
+                yun recover;
+            };
+            _lian;
+        }{1};        
     };
     #nop #act {你的体力太低了};
     #act {{你的体力太低|你的体力太差|你的体力不够|你现在气血虚浮|你太累了}} {
-        yun recover;
+        hpbrief1;
+        he jiudai;eat liang;
+        #delay {1} {
+            #if {$status[force] > @eval{$status[force_max] * 0.2}} {
+                yun recover
+            } {
+                _go_sleep;
+            };
+        };
     };
     #act {你刚在三分钟内睡过一觉} {
-        _dzmsg 5秒后再尝试睡觉;
+        _fskmsg 5秒后再尝试睡觉;
         #delay {dl_lian_sleep} {
             sleep;
         } {5};
     };
     #act {你一觉醒来，精神抖擞地活动了几下手脚} {
         #cr;
-        _go_fsk;
+        _fskmsg 睡觉醒来去练功;
+        hpbrief1;
+        _go_fsk { _lian };
     };
-    #act {你的内力不够练} {
-        _go_sleep;
+    #act {你的内力不够} {
+        _fskmsg 内力不够去睡觉;
+        he jiudai;eat liang;
+        #delay {1} {_go_sleep};
     };
     
     #class lianx_inner close;
@@ -150,7 +262,12 @@
             };
         };
         #case {"stop"} {
-        
+            #undelay {wd_lian};
+            #undelay {wd_lingwu};
+            #undelay {dl_next_lianx};
+            #undelay {dl_next_lingw};
+            #class lianx_inner kill;
+            #class lingw_inner kill;
         };
         #case {""} {
             mod fullskill help;

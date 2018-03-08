@@ -10,8 +10,16 @@
 你终于来到了对面，心里的石头终于落地。
 
 你江湖历练不足，请再闯荡闯荡江湖以后再来参加襄阳保卫战吧
+钱眼开说道：「哟，抱歉啊，我这儿正忙着呢……您请稍候。」
 
 
+    #var tmp_path %0;
+    #list fsk[config][path] add $tmp_path;
+    #path load tmp_path;
+    #path save b tmp_path;
+    #list fsk[config][rpath] add $tmp_path;
+    #unvar tmp_path;
+    
 #nop #var    fsk           {};
 
 #var    fsk[skills]   {};

@@ -56,12 +56,14 @@
     };
 };
 #alias {_go_start_pos} {
-    _next_pos;
-    #if {$baowei[pathidx] == 7} {
-        #var baowei[status] 1;
-        _next_pos;
+    #if {$baowei[pathidx] == 8} {
+        #delay {1} {
+            #var baowei[status] 1;
+            look;
+        };
     } {
-        #delay {0.5} {
+        _next_pos;
+        #delay {0.3} {
             _go_start_pos;
         };
     };
@@ -98,8 +100,8 @@
     #elseif {$baowei[status] == 1} {
         #if {$baowei[digging] == 0} {
             #if {$baowei[shield] < $baowei[shield_max]} {
-                dig;
                 _bwmsg 这里需要加固;
+                dig;
             } {
                 _bwmsg 工事修筑完毕,换个地方;
                 
@@ -122,14 +124,16 @@
     };
 };
 #act {^%*抡起铁锹，修筑起工事来} {
-    #var baowei[digging] 1;
-    #if {"%1" != "你"} {
+    #if {"%1" == "你"} {
+        #var baowei[digging] 1;
+    } {
         #math baowei[shield_max] {$baowei[shield_max] - 1};
     };
 };
 #act {^%*正在搬运沙袋加固城门的防御} {
-    #var baowei[digging] 1;
-    #if {"%1" != "你"} {
+    #if {"%1" == "你"} {
+        #var baowei[digging] 1;
+    } {
         #math baowei[shield_max] {$baowei[shield_max] - 1};
     };
 };
@@ -142,6 +146,9 @@
         _go_for_jl;
         _bwmsg 可以领奖了;
     };
+};
+#act {此地的官兵正在和蒙古兵鏖战，现在无法修筑工事} {
+    _next_pos;
 };
 #act {襄阳保卫战正在进行中，现在是蒙古兵第%*轮发兵} {
     

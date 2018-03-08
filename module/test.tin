@@ -14,17 +14,9 @@
 {
     #system {firefox http://pkuxkx.net/antirobot/robot.php?filename=%1};
 };
-
-#tic {tk_lian}{lian cuff 2}{2};
-#tic {tk_he} {eat liang;he jiudai}{30};
-#tic {tk_yunqi} {yun qi} {66};
-
-#act {牛皮酒袋已经被喝得一滴也不剩了} {
-    put jiudai in bao 2;
-    get jiudai from bao;
-    he jiudai;
+#act {^│技能级别%s　%d%s　技能等级%s　%S%s　技能类别%s　%S│} {
+    #showme %2;
 };
-yun qi;
 
 #class $mod_name close;
 

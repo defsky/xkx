@@ -592,8 +592,6 @@
 #act {你战胜了}{#var status[flag][fighting] 0};
 
 #act {^#SESSION%*ACTIVATED%*}{hpbrief1};
-#act {%*你%*请教%*疑问%*}{hpbrief1};
-#act {%*你%*练习%*}{hpbrief1};
 #act {^你突然感到精神一振，浑身似乎又充满了力量！} {hpbrief1};
 #act {^( 你似乎有些疲惫，但是仍然十分有活力。 )} {hpbrief1};
 #act {^( 你受了几处伤，不过似乎并不碍事。 )} {hpbrief1};
@@ -608,7 +606,6 @@
 #act {^( 你已经陷入半昏迷状态，随时都可能摔倒晕去。 )} {hpbrief1};
 #act {^( 你受伤过重，已经有如风中残烛，随时都可能断气。 )} {hpbrief1};
 #act {^你深深吸了几口气，脸色看起来好多了。} {hpbrief1};
-#act {^你领悟出一些基本轻功方面的窍门。} {hpbrief1};
 #act {^你身子发虚}{hpbrief1};
 #act {你拿起%*咬了几口}{hpbrief1};
 #act {你%*喝了%*}{hpbrief1};

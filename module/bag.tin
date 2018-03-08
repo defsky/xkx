@@ -72,7 +72,7 @@
     #delay {dl_update_bag}{event_handler_del {_hnd_i2} {RECEIVED LINE};}{3};
 };
 
-#tic {tk_upd_bag} {_update_bag;}{66};
+#nop #tic {tk_upd_bag} {_update_bag;}{66};
 
 #nop =========================================================================;
 
