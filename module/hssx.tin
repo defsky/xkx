@@ -41,7 +41,9 @@
     #act {^           收信人：%S(%w %w)} {
         #var task[id] @lower{%%2 %%3};
     };
-    
+    #act {^           收信人：%S(%w)} {
+        #var task[id] @lower{%%2};
+    };
     #send {look mi han};
     
     #act {你伸手向怀中一摸，发现密函已经不翼而飞} {

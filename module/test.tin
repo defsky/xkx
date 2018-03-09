@@ -14,8 +14,29 @@
 {
     #system {firefox http://pkuxkx.net/antirobot/robot.php?filename=%1};
 };
-#act {^│技能级别%s　%d%s　技能等级%s　%S%s　技能类别%s　%S│} {
-    #showme %2;
+
+#alias {xue.start} {
+    #class xue.start.inner open;
+    
+    #var testfreq 1;
+    #tic {tk_xue}{xue shu sheng for literate $testfreq}{1};
+    #tic {tk_chihe} {eat liang;he jiudai}{60};
+    #tic {tk_yunjing} {yun jing}{66};
+    
+    #nop 书生说道：您太客气了，这怎么敢当;
+    #act {{看上去书生并不想教你|书生像是受宠若惊一样|书生说道：您太客气了}} {
+        #untic {tk_xue};
+        #show <139>test : 该给钱了<079>;
+        give 1 gold to shu sheng;
+        #delay {dl_restart_xue} {#tic {tk_xue}{xue shu sheng for literate $testfreq}{1};}{2};
+    };
+    #class xue.start.inner close;
+    yun jing;
+};
+#alias {xue.stop} {
+    #class xue.start.inner kill;
+    #undelay {dl_restart_xue};
+    #untic {tk_xue};
 };
 
 #class $mod_name close;

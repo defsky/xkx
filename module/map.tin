@@ -481,6 +481,7 @@
 
 #nop 你级别不够，不能进入达摩院
 #nop 你的动作还没有完成，不能移动;
+#nop 你不小心被什么东西绊了一下，差点摔个大跟头;
 
 #alias {gt} {
     #if {"%1" == "stop"} {
@@ -506,7 +507,6 @@
         #act {这个方向没有出路} {
             dbg 行走出错;
             gt stop;
-            #buffer lock;
         };
         #act {接过你递给的船资} {
             #var gt_start 0;
@@ -665,7 +665,6 @@
             };
             #if {$gt_walkend == 1 && $gt_car == 0 && $gt_boat == 0} {
                 #showme <129>到达目的地：%1<079>;
-                #buffer lock;
                 #class gt_inner kill;
             };
         } {0.5};

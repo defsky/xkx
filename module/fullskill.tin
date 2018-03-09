@@ -45,6 +45,10 @@
     #elseif {"%1" == "lx"} {
         #var fsk[config][freq][lx] %2;
     };
+    #else {
+        #var fsk[config][freq][lw] %1;
+        #var fsk[config][freq][lx] %1;
+    };
 };
 #alias {fskpath} {
     #var fsk[config][path] %0;
@@ -52,13 +56,39 @@
     #path save backward fsk[config][rpath];
 };
 #alias {fskadd} {
-    #var tmp_sk[%1] %2;
-    #list fsk[skills] add {$tmp_sk};
+    #var tmp_sk[base] %1;
+    #var tmp_sk[special] %2;
+    #list fsk[skills] add {{$tmp_sk}};
+    #list fsk[skills] size fsk[config][skill_count];
     #unvar tmp_sk;
 };
 #alias {fskdel} {
     #list fsk[skills] delete %1;
+    #list fsk[skills] size fsk[config][skill_count];
 };
+
+#alias on_next_skill {
+    #alias cb_on_next_skill #cr;
+    #alias cb_on_next_skill %0;
+    
+    #math fsk[status][skill_idx] {$fsk[status][skill_idx] + 1};
+    
+    #if {$fsk[status][skill_idx] > $fsk[config][skill_count]} {
+        _fskmsg 所有技能升级完成;
+        
+    } {
+        _fskmsg 准备下一个技能;
+        #var fsk[status][base] $fsk[skills][$fsk[status][skill_idx]][base];
+        #var fsk[status][special] $fsk[skills][$fsk[status][skill_idx]][special];
+        
+        #if {"$fsk[status][base]" != "force"} {
+            jifa $fsk[status][base] $fsk[status][special];
+        };
+        
+        cb_on_next_skill;
+    };
+};
+
 #var _on_sleep_way 0;
 #alias {_go_sleep} {
     #if {$_on_sleep_way == 0} {
@@ -74,7 +104,7 @@
         };
         set brief 1;
         #path load $fsk[config][path];
-        #tic {tk_walk}{#path walk}{0.5};
+        #tic {tk_walk}{#path walk}{1};
         on_there {
             #var _on_sleep_way 0;
             sleep;
@@ -114,20 +144,35 @@
     
     #class lingw_inner open;
     
-    #act {你的基本功夫比你的高级功夫还高} {
+    #act {{你的基本功夫比你的高级功夫还高|你已经达到你的技能等级极限}} {
         _fskmsg 需要练习;
         #class lingw_inner kill;
         #undelay {wd_lingwu};
-        lianx;
+        #if {"$fsk[status][base]" == "force"} {
+            fsk stop;
+            _fskmsg 基本内功达到上限;
+            on_next_skill {
+                lianx;
+            };
+        } {
+            lianx;
+        };
     };
     #act {^你领悟了%*次} {
         hpbrief1;
         #delay {dl_next_lingw} {
             #if {$status[sp] < 50} {
                 yun regenerate;
+                #if {$status[water] < @eval{$status[water_max] * 0.9}} {
+                    do 3 he jiudai;
+                };
+            } {
+                _lingwu;
             };
-            _lingwu;
         }{1};        
+    };
+    #act {^你略一凝神} {
+        _lingwu;
     };
     #act {你现在过于疲倦,无法静下心来领悟功夫} {
         hpbrief1;
@@ -146,13 +191,21 @@
             sleep;
         } {5};
     };
+    #act {不一会儿，你就进入了梦乡} {
+        #delay {wd_wakeup} {
+            _go_fsk { _lingwu };
+        }{100};
+    };
     #act {你一觉醒来，精神抖擞地活动了几下手脚} {
         #cr;
-        _fskmsg 睡觉醒来去练功;
-        hpbrief1;
-        _go_fsk { _lingwu };
+        #undelay {wd_wakeup};
+        _fskmsg 睡觉醒来去领悟;
+        #delay {1} {
+            _go_fsk { _lingwu };
+        };
     };
     #act {你的内力不够} {
+        #undelay {dl_next_lingw};
         _fskmsg 内力不够去睡觉;
         he jiudai;eat liang;
         #delay {1} {_go_sleep};
@@ -170,20 +223,7 @@
     #send {verify $fsk[status][special]};
 };
 #alias {lianx} {
-    #alias cb_lianx #cr;
-    #alias cb_lianx %0;
     
-    #switch {"$fsk[status][base]"} {
-        #case {"sword"} {
-            wield sword;
-        };
-        #case {"blade"} {
-            wield blade;
-        };
-        #case {"whip"} {
-            wield whip;
-        };
-    };
     #class lianx_inner open;
     
     #act {你需要提高基本功} {
@@ -193,12 +233,14 @@
                 _fskmsg 需要领悟;
                 #class lianx_inner kill;
                 #undelay {wd_lian};
-                yun recover;
-                cb_lianx;
-                #unalias cb_lianx;
+                lingw;
             } {
                 fsk stop;
                 _fskmsg 当前技能达到上限;
+                
+                on_next_skill {
+                    lianx;
+                };
             };
         };
     };
@@ -214,9 +256,13 @@
         #delay {dl_next_lianx} {
             #if {$status[hp] < 50} {
                 yun recover;
+            } {
+                _lian;
             };
-            _lian;
         }{1};        
+    };
+    #act {^你深深吸了几口气，脸色看起来好多了。} {
+        _lian;
     };
     #nop #act {你的体力太低了};
     #act {{你的体力太低|你的体力太差|你的体力不够|你现在气血虚浮|你太累了}} {
@@ -236,13 +282,21 @@
             sleep;
         } {5};
     };
+    #act {不一会儿，你就进入了梦乡} {
+        #delay {wd_wakeup} {
+            _go_fsk { _lingwu };
+        }{100};
+    };
     #act {你一觉醒来，精神抖擞地活动了几下手脚} {
         #cr;
+        #undelay {wd_wakeup};
         _fskmsg 睡觉醒来去练功;
-        hpbrief1;
-        _go_fsk { _lian };
+        #delay {1} {
+            _go_fsk { _lian };
+        };
     };
     #act {你的内力不够} {
+        #undelay {dl_next_lianx};
         _fskmsg 内力不够去睡觉;
         he jiudai;eat liang;
         #delay {1} {_go_sleep};
@@ -250,20 +304,49 @@
     
     #class lianx_inner close;
     
-    #delay {1.5}{_lian};
+    unwield all;
+    #delay {1.5} {
+        #if {"$fsk[status][base]" == "force"} {
+            fsk stop;
+            lingw;
+        } {
+            #switch {"$fsk[status][base]"} {
+                #case {"sword"} {
+                    wield sword;
+                };
+                #case {"blade"} {
+                    wield blade;
+                };
+                #case {"whip"} {
+                    wield whip;
+                };
+                #case {"staff"} {
+                    wield staff;
+                };
+                #case {"club"} {
+                    wield club;
+                };
+            };
+            #delay {1} {_lian};
+        };
+    };
 };
 #alias {fsk} {
     #switch {"%1"} {
         #case {"start"} {
+            
             #var fsk[flag][mode] %2;
+            #var fsk[status][skill_idx] 0;
             
             on_next_skill {
-                
+                lianx;
             };
         };
         #case {"stop"} {
+            #untic {tk_walk};
             #undelay {wd_lian};
             #undelay {wd_lingwu};
+            #undelay {wd_wakeup};
             #undelay {dl_next_lianx};
             #undelay {dl_next_lingw};
             #class lianx_inner kill;

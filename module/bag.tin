@@ -83,7 +83,7 @@
         get all from corpse %1;
     };
     drop jin hua;
-    drop ling;
+    drop shenghuo ling;
 };
 
 #alias {pgem} {
