@@ -16,13 +16,17 @@
 };
 
 #alias {xue.start} {
+    #var testfreq %3;
+    
     #class xue.start.inner open;
     
-    #var testfreq 1;
-    #tic {tk_xue}{xue shu sheng for literate $testfreq}{1};
+    #tic {tk_xue}{xue %1 for %2 $testfreq}{1};
     #tic {tk_chihe} {eat liang;he jiudai}{60};
     #tic {tk_yunjing} {yun jing}{66};
     
+    #act {^也许是缺乏实战经验，你%*总是无法领会} {
+        xue.stop;
+    };
     #nop 书生说道：您太客气了，这怎么敢当;
     #act {{看上去书生并不想教你|书生像是受宠若惊一样|书生说道：您太客气了}} {
         #untic {tk_xue};

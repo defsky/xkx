@@ -586,20 +586,6 @@
 
 #act {^#SESSION%*ACTIVATED%*}{hpbrief1};
 
-#act {你五心向天，排除一切杂念，内息顺经脉缓缓流动} {
-    #nop #tic {tk_yunqi}{hpbrief1}{1};
-};
-#act {你将内息走了个小周天，流回丹田，收功站了起来} {
-    #nop #untic tk_yunqi;
-    hpbrief1;
-};
-#act {你坐下来运气}{
-    #tic {tk_yunqi}{hpbrief1}{1};
-};
-#act {你运功完毕}{
-    #untic tk_yunqi;
-};
-
 #class $mod_name close;
 
 ${mod_name}_load;

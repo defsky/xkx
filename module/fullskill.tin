@@ -123,7 +123,7 @@
     };
     set brief 1;
     #path load $fsk[config][rpath];
-    #tic {tk_walk}{#path walk}{0.5};
+    #tic {tk_walk}{#path walk}{1};
     on_there {
         cb_go_fsk;
         #unalias cb_go_fsk
@@ -169,7 +169,7 @@
             } {
                 _lingwu;
             };
-        }{1};        
+        }{1};     
     };
     #act {^你略一凝神} {
         _lingwu;
@@ -226,6 +226,8 @@
     
     #class lianx_inner open;
     
+    #nop 特殊内功无法练习;
+    
     #act {你需要提高基本功} {
         _check_skill_level;
         #delay {1} {
@@ -248,7 +250,7 @@
         _fskmsg 需要领悟;
         #class lianx_inner kill;
         #undelay {wd_lian};
-        cb_lianx;
+        lingw;
         #unalias cb_lianx;
     };
     #act {^你%*练习%*获得了%*进步} {
@@ -284,7 +286,7 @@
     };
     #act {不一会儿，你就进入了梦乡} {
         #delay {wd_wakeup} {
-            _go_fsk { _lingwu };
+            _go_fsk { _lian };
         }{100};
     };
     #act {你一觉醒来，精神抖擞地活动了几下手脚} {
