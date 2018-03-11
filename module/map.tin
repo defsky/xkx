@@ -845,6 +845,7 @@
             on_blocked {
                 #class go_forward_inner kill;
                 #class _path_run_inner kill;
+                set brief 0;
                 
                 gt_wrn ÐÐ×ß³ö´í;
             };

@@ -52,7 +52,7 @@
                 #unact {你吐纳完毕，睁开双眼，站了起来};
                 zq.start;
             };
-            tuna 8000;
+            tuna 6000;
         };
         #elseif {$status[hp_valid] < @eval{$status[hp_max] * 0.98}} {
             halt;
@@ -75,6 +75,34 @@
 };
 #alias {zq.stop} {
     #class zq.start.inner kill;
+};
+
+
+#alias {chaojing} {
+    #act {^http://pkuxkx.net/antirobot/robot.php?filename=%*} {
+        #unact {^http://pkuxkx.net/antirobot/robot.php?filename=%*};
+        #show %%0;
+    } {4};
+    #act {^云游僧人说道：记住你的工号：} {
+        #unact {^云游僧人说道：记住你的工号：};
+        goto 石经峪;
+        on_there {
+            #act {^你默写良久，终于抄完了，看样子可以回去领工钱了} {
+                #unact {^你默写良久，终于抄完了，看样子可以回去领工钱了};
+                goto 石门寺;
+                on_there {
+                    #act {^云游僧人说道：「报上你的口令！report 口令！」} {
+                        #unact {^云游僧人说道：「报上你的口令！report 口令！」};
+                        #showme <139>输入工号领工资(report 工号):<079>;
+                        #buffer lock;
+                    };
+                    ask sengren about done;
+                };
+            };
+            write jing;
+        };
+    };
+    ask sengren about job;
 };
 #class $mod_name close;
 
