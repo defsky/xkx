@@ -230,7 +230,7 @@
     
     #act {你需要提高基本功} {
         _check_skill_level;
-        #delay {1} {
+        #delay {3} {
             #if {$fsk[status][level] < $fsk[config][limit]} {
                 _fskmsg 需要领悟;
                 #class lianx_inner kill;
