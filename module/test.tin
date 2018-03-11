@@ -61,6 +61,9 @@
             zq.start;
         };
         #else {
+            #if {$status[hp] < @eval{$status[hp_valid] * 0.5}} {
+                yun recover;
+            };
             perform zui-quan.lingwu;
         };
     } {10};
