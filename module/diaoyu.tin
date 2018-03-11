@@ -1,0 +1,75 @@
+#class $mod_name open;
+
+#alias {${mod_name}_load} {
+    #showme Module $mod_name loaded;
+    #unalias ${mod_name}_load;
+};
+
+#alias {${mod_name}_unload}{
+    #showme Module $mod_name unloaded;
+    #class $mod_name kill;
+};
+
+#alias {${mod_name}_help}{
+    #showme <139>模块帮助文档 : ${mod_name}<079>;
+
+    
+    #showme  ;
+    #showme <139> -> 按任意键继续...<079>;
+    #buffer lock;
+};
+
+#alias {diao.start} {
+    #class diao.start.inner open;
+    
+    #act {^你猛地一拉鱼线，感到手上一沉} {
+        #nop #unact {^你一提杆，钓到了一条};
+        eat liang;he jiudai;
+        #if {$bag[items][Yuer] < 10} {
+            diao.stop;
+            goto 宝和记;
+            on_there {
+                #act {^你身上没有fish} {
+                    #unact {^你身上没有fish};
+                    
+                };
+                #act {^你只有%*条fish，没那么多可卖} {
+                    #unact {^你只有%*条fish，没那么多可卖};
+                    #untic {tk_sellfish};
+                    sell fish for @eval{%%1};
+                    #delay {2} {
+                        goto 杂货铺;
+                        on_there {
+                            #tic {tk_buy_yuer} {
+                                #if {$bag[items][Yuer] > 300} {
+                                    #untic {tk_buy_yuer};
+                                    goto 湖边;
+                                    on_there {
+                                        diao.start;
+                                    };
+                                } {
+                                    buy yuer 100;
+                                };
+                                _update_bag;
+                            } {2};
+                        };
+                    };
+                };
+                #tic {tk_sellfish} {sell fish for 100} {1};
+            };
+        } {
+            #delay {2} {gua yuer;diao yu};
+            #delay {4} {_update_bag};
+        };
+    };
+    
+    #class diao.start.inner close;
+    gua yuer;diao yu;
+};
+#alias {diao.stop} {
+    #class diao.start.inner kill;
+};
+
+#class $mod_name close;
+
+${mod_name}_load;
