@@ -44,7 +44,26 @@
 };
 #alias {zq.start} {
     #class zq.start.inner open;
-    #tic {tk_lwzq} {perform zui-quan.lingwu} {10};
+    #tic {tk_lwzq} {
+        #if {$status[sp] < @eval{$status[sp_max] * 0.5}} {
+            halt;
+            zq.stop;
+            #act {你吐纳完毕，睁开双眼，站了起来} {
+                #unact {你吐纳完毕，睁开双眼，站了起来};
+                zq.start
+            };
+            tuna 8000;
+        }:
+        #elseif {$status[hp_valid] < @eval{$status[hp_max] * 0.98}} {
+            halt;
+            zq.stop;
+            yun heal;
+            zq.start;
+        };
+        #else {
+            perform zui-quan.lingwu;
+        }
+    } {10};
     #tic {tk_chihe} {he jiudai;eat liang}{60};
     #act {^未有对手或者你和对方未处于战斗中，不能%*领悟醉拳} {
         fight mu ren;
