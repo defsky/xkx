@@ -45,7 +45,7 @@
 #alias {zq.start} {
     #class zq.start.inner open;
     #tic {tk_lwzq} {
-        #if {$status[sp] < @eval{$status[sp_max] * 0.5}} {
+        #if {$status[energy] < @eval{$status[energy_max] * 0.5}} {
             halt;
             zq.stop;
             #act {ÄãÍÂÄÉÍê±Ï£¬Õö¿ªË«ÑÛ£¬Õ¾ÁËÆğÀ´} {
