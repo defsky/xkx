@@ -42,7 +42,19 @@
     #undelay {dl_restart_xue};
     #untic {tk_xue};
 };
-
+#alias {zq.start} {
+    #class zq.start.inner open;
+    bei none;
+    #tic {tk_lwzq} {perform zui-quan.lingwu} {10};
+    #tic {tk_chihe} {he jiudai;eat liang}{60};
+    #act {^未有对手或者你和对方未处于战斗中，不能%*领悟醉拳} {
+        fight mu ren;
+    };
+    #class zq.start.inner close;
+};
+#alias {zq.stop} {
+    #class zq.start.inner kill;
+};
 #class $mod_name close;
 
 ${mod_name}_load;
