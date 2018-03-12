@@ -82,7 +82,9 @@
                 eat liang;he jiudai;
                 _do_dazuo;
             };
-
+            #act {^你现在精不够，无法控制内息的流动} {
+                yun regenerate;
+            };
             #act {你现在的气太少了，无法产生内息运行全身经脉} {
                 yun recover;
             };
@@ -108,7 +110,10 @@
                 #cr;
                 _do_dazuo;
             };
-            #act {你深深吸了几口气} {
+            #act {^你深深吸了几口气} {
+                _do_dazuo;
+            };
+            #act {^你略一凝神} {
                 _do_dazuo;
             };
             #act {牛皮酒袋已经被喝得一滴也不剩了} {

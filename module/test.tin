@@ -48,17 +48,21 @@
         #if {$status[energy] < @eval{$status[energy_max] * 0.5}} {
             halt;
             zq.stop;
-            #act {你吐纳完毕，睁开双眼，站了起来} {
-                #unact {你吐纳完毕，睁开双眼，站了起来};
-                zq.start;
+            #delay {2} {
+                #act {你吐纳完毕，睁开双眼，站了起来} {
+                    #unact {你吐纳完毕，睁开双眼，站了起来};
+                    zq.start;
+                };
+                tuna 6000;
             };
-            tuna 6000;
         };
         #elseif {$status[hp_valid] < @eval{$status[hp_max] * 0.98}} {
             halt;
             zq.stop;
-            yun heal;
-            zq.start;
+            #delay {2} {
+                yun heal;
+                zq.start;
+            };
         };
         #else {
             #if {$status[hp] < @eval{$status[hp_valid] * 0.5}} {
@@ -70,6 +74,9 @@
     #tic {tk_chihe} {he jiudai;eat liang}{60};
     #act {^未有对手或者你和对方未处于战斗中，不能%*领悟醉拳} {
         fight mu ren;
+    };
+    #act {^你刚跟这个木人练过功} {
+        fight mu ren 2;
     };
     #class zq.start.inner close;
     bei none;
@@ -107,6 +114,31 @@
     };
     ask sengren about job;
 };
+
+#alias {on_test_pass} {
+    #alias cb_on_test_pass_true #cr;
+    #alias cb_on_test_pass_false #cr;
+    
+    #alias cb_on_test_pass_true {%1};
+    #alias cb_on_test_pass_false {%2};
+    
+    #if {$tt == 1} {
+        cb_on_test_pass_true;
+    } {
+        cb_on_test_pass_false;
+    };
+};
+#alias {testa} {
+    #var tt %1;
+    on_test_pass {
+        #show pass;
+        #show test ok;
+    } {
+        #show fail;
+        #show test failed;
+    };
+}
+
 #class $mod_name close;
 
 ${mod_name}_load;

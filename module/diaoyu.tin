@@ -19,6 +19,60 @@
     #buffer lock;
 };
 
+    #alias {on_yuer_enough} {
+        #alias cb_on_yuer_enough #cr;
+        #alias cb_on_yuer_enough %0;
+        
+        #if {$bag[items][Yuer] > 300} {
+            cb_on_yuer_enough;
+        }
+    };
+    #alias {buy_yuer} {
+        #alias cb_buy_yuer #cr;
+        #alias cb_buy_yuer %0;
+        
+        #tic {tk_buy_yuer} {
+            #if {$bag[items][Yuer] > 300} {
+                #untic {tk_buy_yuer};
+                cb_buy_yuer;
+            } {
+                buy yuer 100;
+            };
+            _update_bag;
+        } {2};
+    };
+    #alias {get_fish_count} {
+        #act {^你只有%*条fish，没那么多可卖} {
+            #unact {^你只有%*条fish，没那么多可卖};
+            #var diaoyu[lastfish] @ctd{%%1};
+        };
+        sell fish for 100;
+    };
+    #alias {sell_fish} {
+        #alias cb_sell_fish #cr;
+        #alias cb_sell_fish %0;
+        
+        #act {^你身上没有fish} {
+            #unact {^你身上没有fish};
+            #untic {tk_sellfish};
+
+            cb_sell_fish;
+        };
+        #act {^你只有%*条fish，没那么多可卖} {
+            #unact {^你只有%*条fish，没那么多可卖};
+            #untic {tk_sellfish};
+            get_fish_count;
+            
+            #delay {2} {
+                sell fish for $diaoyu[lastfish];
+                
+                #delay {2} {
+                    cb_sell_fish;
+                };
+            };
+        };
+        #tic {tk_sellfish} {sell fish for 100} {2};
+    };
 #alias {diao.start} {
     #class diao.start.inner open;
     
@@ -26,36 +80,19 @@
         #nop #unact {^你一提杆，钓到了一条};
         eat liang;he jiudai;
         #if {$bag[items][Yuer] < 10} {
-            diao.stop;
             goto 宝和记;
             on_there {
-                #act {^你身上没有fish} {
-                    #unact {^你身上没有fish};
-                    
-                };
-                #act {^你只有%*条fish，没那么多可卖} {
-                    #unact {^你只有%*条fish，没那么多可卖};
-                    #untic {tk_sellfish};
-                    sell fish for @eval{%%1};
-                    #delay {2} {
-                        goto 杂货铺;
-                        on_there {
-                            #tic {tk_buy_yuer} {
-                                #if {$bag[items][Yuer] > 300} {
-                                    #untic {tk_buy_yuer};
-                                    goto 湖边;
-                                    on_there {
-                                        diao.start;
-                                    };
-                                } {
-                                    buy yuer 100;
-                                };
-                                _update_bag;
-                            } {2};
+                sell_fish {
+                    goto 杂货铺;
+                    on_there {
+                        buy_yuer {
+                            goto 湖边;
+                            on_there {
+                                diao.start;
+                            };
                         };
                     };
                 };
-                #tic {tk_sellfish} {sell fish for 100} {1};
             };
         } {
             #delay {2} {gua yuer;diao yu};
