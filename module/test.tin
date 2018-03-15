@@ -225,6 +225,35 @@
     ask guan about job;
 };
 
+#alias {climbtree} {
+    #if {"%1" == "stop"} {
+        #class climb_tree_inner kill;
+    } {
+        #class climb_tree_inner open;
+        
+        #act {^你领悟出一些基本轻功方面的窍门} {
+            #delay {1.5} {climb tree};
+        };
+        #act {^你减缓真气运行，让气血运行恢复正常} {
+            yun qi;
+        };
+        #act {^你现在正忙着呢} {
+            #delay {1} {he jiudai;eat liang;climb tree};
+        };
+        #act {^你身子发虚，一头栽了下来，哎呀} {
+            #delay {20} {
+                climb tree;
+            };
+        };
+        #act {^( 你上一个动作还没有完成，不能施用内功。)} {
+            #delay {1} {yun qi};
+        };
+        #class climb_tree_inner close;
+        yun qi;
+        climb tree;
+    };
+};
+
 #class $mod_name close;
 
 ${mod_name}_load;

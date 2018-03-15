@@ -315,12 +315,14 @@
             #switch {"$fsk[status][base]"} {
                 #case {"sword"} {
                     wield sword;
+                    wield changjian;
                 };
                 #case {"blade"} {
                     wield blade;
                 };
                 #case {"whip"} {
                     wield whip;
+                    wield bian;
                 };
                 #case {"staff"} {
                     wield staff;

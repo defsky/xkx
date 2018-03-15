@@ -139,6 +139,7 @@
             #undelay {dl_dazuo_do};
             #undelay {dl_dazuo_cantsleep};
             #undelay {dl_dazuo_sleep};
+            #undelay {dl_dazuo_timeout};
             _dzmsg ´ò×ø½áÊø;
         };
         #case {"setpath"} {
