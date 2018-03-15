@@ -45,6 +45,11 @@
         }{0.5};
     };
 };
+
+#var baowei[startpos] 8;
+#alias {baowei_start} {
+    #var baowei[startpos] %1;
+};
 #alias {_next_pos} {
     #var baowei[new_pos] 1;
 
@@ -56,7 +61,7 @@
     };
 };
 #alias {_go_start_pos} {
-    #if {$baowei[pathidx] == 8} {
+    #if {$baowei[pathidx] == $baowei[startpos]} {
         #delay {1} {
             #var baowei[status] 1;
             look;

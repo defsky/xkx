@@ -729,6 +729,7 @@
 };
 
 #nop 乒地一声，里面有人把大门关上了;
+#nop 江百胜伸手拦住你说道：盟主很忙，现在不见外客，你下山去吧;
 
 #alias {goto_stop} {
     set brief 0;
@@ -839,6 +840,9 @@
     #list path_run[list] size path_run[list_len];
     #var path_run[list_idx] 0;
     
+    #alias {back_one_step} {
+        #math path_run[list_idx] {$path_run[list_idx] - 1};
+    };
     #alias {go_forward} {
         
         #math path_run[list_idx] {$path_run[list_idx] + 1};
@@ -855,6 +859,13 @@
                 set brief 0;
                 
                 gt_wrn 行走出错;
+            };
+            on_rewalk_need {
+                #map undo;
+                back_one_step;
+                #delay {1} {
+                    go_forward;
+                };
             };
             
             #class go_forward_inner close;
@@ -895,10 +906,40 @@
         #alias cb_on_blocked #cr;
         #alias cb_on_blocked %%0;
         
+        #nop 你身上没有车资二两白银七十文铜板，车夫拒绝开车;
+        #nop 清兵说道：赶快滚开，这是你停留的地方吗;
+        #nop 黄钟公说道：「里间是我休息之地，贵客请勿进去。」;
+        
+        #nop 你轻吸一口气，长啸一声：「放下吊桥～～～」，声音远远传了出去。;
+        #nop 只听得轧轧声响，吊桥缓缓放下，正架在你的眼前。;
+        #nop 吊桥还没有升起来，你就这样走了，可能会给外敌可乘之机的;
+        #nop 六名雪山弟子一齐转动机关，吊桥便又升了起来;
+        #nop 只听一阵吱呀乱响，吊桥又升了起来;
+        
         #act {^{这个方向没有出路|哎哟，你一头撞在墙上}} {
             #unact {^{这个方向没有出路|哎哟，你一头撞在墙上}};
             cb_on_blocked
         };
+    };
+    #alias {on_rewalk_need} {
+        #alias cb_on_rewalk_need #cr;
+        #alias cb_on_rewalk_need %%0;
+        
+        #class on_rewalk_need_inner open;
+        
+        #list on_rewalk_need_trigger_list create {
+            ^吊桥还没有升起来，你就这样走了，可能会给外敌可乘之机的;
+        };
+        
+        #foreach {$on_rewalk_need_trigger_list[%*]} {regstring} {
+            #act {$regstring} {
+                #class on_rewalk_need_inner kill;
+                cb_on_rewalk_need;
+            };
+        };
+        
+        #class on_rewalk_need_inner close;
+        
     };
     #alias {on_car_arrived} {
         #alias cb_on_car_arrived #cr;
@@ -913,10 +954,24 @@
         #alias cb_on_boat_arrived #cr;
         #alias cb_on_boat_arrived %%0;
         
-        #act {^艄公说“到啦，上岸吧”，随即把一块踏脚板搭上堤岸} {
-            #unact {^艄公说“到啦，上岸吧”，随即把一块踏脚板搭上堤岸};
-            cb_on_boat_arrived;
+        #class on_boat_arrived_inner open;
+        
+        #list boat_arrived_trigger_list create {
+            ^艄公说“到啦，上岸吧”，随即把一块踏脚板搭上堤岸;
+            ^你沿着踏板走了上去;
+            ^你朝船夫挥了挥手便跨上岸去;
+            ^不知过了多久，船终于靠岸了，你累得满头大汗;
+            ^小舟终于划到近岸，你从船上走了出来;
         };
+        
+        #foreach {$boat_arrived_trigger_list[%*]} {regstring} {
+            #act {$regstring} {
+                #class on_boat_arrived_inner kill;
+                cb_on_boat_arrived;
+            };
+        };
+        
+        #class on_boat_arrived_inner close;
     };
     #class _path_run_inner close;
     

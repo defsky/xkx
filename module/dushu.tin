@@ -49,9 +49,18 @@
     #alias cb_on_dushu_tired #cr;
     #alias cb_on_dushu_tired %0;
     
-    #act {你现在过于疲倦，无法专心下来研读新知} {
-        cb_on_dushu_tired
+    #class on_dushu_tired_inner open;
+    
+    #act {^你现在过于疲倦，无法专心下来研读新知} {
+        #nop #class on_dushu_tired_inner kill;
+        cb_on_dushu_tired;
     };
+    #act {^你已经很累了，歇歇再读吧，身体要紧} {
+        #nop #class on_dushu_tired_inner kill;
+        cb_on_dushu_tired;
+    };
+    
+    #class on_dushu_tired_inner close;
 };
 #act {你的内力不够} {
     sleep;

@@ -67,12 +67,13 @@
             #case {"建康府南城"} { #var hszjob[area] 建康府南};
             #case {"建康府北城"} { #var hszjob[area] 建康府北};
             #case {"姑苏慕容"} { #var hszjob[area] 慕容};
+            #case {"西湖梅庄"} { #var hszjob[area] 梅庄};
             
         }; 
         on_there {
             #delay {1} {datan};
         };
-        gt {%*$hszjob[room]%*}{}{}{%*$hszjob[area]%*};
+        goto $hszjob[room] $hszjob[area];
         
     };
     #elseif {"%1" == "fin"} {
@@ -86,7 +87,7 @@
         ask han about fail;
     };
     #else {
-        gt {大厅}{}{这里是韩王府的大厅}{};
+        goto 韩世忠;
     };
 };
 
