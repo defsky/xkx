@@ -15,6 +15,9 @@
     #system {firefox http://pkuxkx.net/antirobot/robot.php?filename=%1};
 };
 
+#alias {_tstmsg} {
+    #showme <139>test : %0<079>;
+};
 #alias {xue.start} {
     #var testfreq %3;
     
@@ -26,6 +29,30 @@
     
     #act {^也许是缺乏实战经验，你%*总是无法领会} {
         xue.stop;
+    };
+    #act {^你今天太累了，结果什么也没有学到} {
+        #untic {tk_xue};
+        goto 休息室;
+        on_there {
+            #class xue.start.sleep open;
+            
+            #act {你刚在三分钟内睡过一觉} {
+                _tstmsg 睡觉cd中,5秒后再尝试睡觉;
+                #delay {dl_sleep} {
+                    sleep;
+                } {5};
+            };
+            #act {你一觉醒来，精神抖擞地活动了几下手脚} {
+                #cr;
+                goto 朱熹;
+                on_there {
+                    #tic {tk_xue} {xue zhu for literate 1} {1};
+                };
+                #class xue.start.sleep kill;
+            };
+            #class xue.start.sleep close;
+            sleep;
+        };
     };
     #nop 书生说道：您太客气了，这怎么敢当;
     #act {{看上去书生并不想教你|书生像是受宠若惊一样|书生说道：您太客气了}} {
@@ -44,6 +71,9 @@
 };
 #alias {zq.start} {
     #class zq.start.inner open;
+    
+    #var murenid 1;
+    
     #tic {tk_lwzq} {
         #if {$status[energy] < @eval{$status[energy_max] * 0.5}} {
             halt;
@@ -76,7 +106,14 @@
         fight mu ren;
     };
     #act {^你刚跟这个木人练过功} {
-        fight mu ren 2;
+        
+        #if {$murenid == 1} {
+            #var murenid 2;
+            fight mu ren 2;
+        } {
+            #var murenid 1;
+            fight mu ren;
+        };
     };
     #class zq.start.inner close;
     bei none;
@@ -138,6 +175,55 @@
         #show test failed;
     };
 }
+
+#alias {gozqt} {
+    #class gozqt_inner open;
+    
+    #act {^%S%s-%s$} {
+        #if {"%%1" == "紫气台"} {
+            #class gozqt_inner kill;
+        } {
+            #show %%1;
+        };
+    };
+    #tic {tk_gozqt} {ed;wu;westup} {2};
+    
+    #class gozqt_inner open;
+}
+
+#alias {showtime} {
+    
+    #class showtime_inner open;
+    
+    #act {^管事对你说道：你去%*表演一下吧} {
+        #var showtime[pos] %%1;
+    };
+    #act {^管事吩咐手下给了你一套表演道具} {
+        _tstmsg 领到道具，出发表演;
+        goto $showtime[pos];
+        on_there {
+            biaoyan suizhuan;
+        };
+    };
+    #act {^你只见好大的块砖头应声而碎，旁人看得张大口说不出话来} {
+        _tstmsg 表演完毕;
+        biaoyan suizhuan;
+    };
+    #act {^你已唱完戏了，回去报告吧} {
+        goto 戏园子;
+        on_there {
+            ask guan about 完成;
+        };
+    };
+    #act {^管事把唱戏道具收了回去} {
+        _tstmsg 唱戏完成;
+        #class showtime_inner kill;
+    };
+    
+    #class showtime_inner close;
+    
+    ask guan about job;
+};
 
 #class $mod_name close;
 

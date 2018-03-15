@@ -63,12 +63,16 @@
                 #send canchan;
                 #delay {anti_free} {#send canchan;}{3};
             };
+            on_canchan_limit {
+                cc stop;
+            };
             #tic {tk_cc} {canchan} {300};
             #class canchan_start_inner close;
             
             #send canchan;
         };
         #case {"stop"} {
+            #show <139>canchan : ²Îìø½áÊø<079>;
             #class canchan_start_inner kill;
         };
         #default {

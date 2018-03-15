@@ -727,6 +727,17 @@
     #message  TICKERS               %1;
     #message  VARIABLES             %1;
 };
+
+#nop 乒地一声，里面有人把大门关上了;
+
+#alias {goto_stop} {
+    set brief 0;
+    gt_wrn 行走停止;
+    #class go_forward_inner kill;
+    #class _path_run_inner kill;
+    #class goto_inner kill;
+};
+
 #alias {goto} {
     #nop param1 roomname;
     #nop param2 roomarea;
@@ -756,7 +767,8 @@
         };
     };
     
-    
+    #class goto_inner close;
+
     #nop path finding;
     
     #if {"%1" == "" && "%2" == ""} {
@@ -817,7 +829,6 @@
         };
     };
     
-    #class goto_inner close;
 };
 
 #alias {_path_run} {
@@ -838,10 +849,6 @@
         } {
             #class go_forward_inner open;
             
-            on_walked {
-                #class go_forward_inner kill;
-                go_forward;
-            };
             on_blocked {
                 #class go_forward_inner kill;
                 #class _path_run_inner kill;
@@ -855,6 +862,19 @@
             #if {"$path_run[list][$path_run[list_idx]]" == "to%*"} {
                 on_car_arrived {
                     xia;
+                    go_forward;
+                };
+            };
+            #elseif {"$path_run[list][$path_run[list_idx]]" == "%*boat"} {
+                on_boat_arrived {
+                    out;
+                    go_forward;
+                };
+            };
+            #else {
+                on_walked {
+                    #class go_forward_inner kill;
+                    go_forward;
                 };
             };
              

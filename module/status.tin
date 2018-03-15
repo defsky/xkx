@@ -428,7 +428,7 @@
 #alias {hnd_hb}{
     #if {"%1" != ""} {
         #if {$hnd_hb[line] == 3} {
-            #regexp {%1}{^#%S,%S,%S,%S$}
+            #regexp {%1}{^#%S,%S,%S,%S,%S$}
             {
                 #var status[zhenqi] &1;
                 #var status[zhenyuan] &2;
@@ -441,6 +441,20 @@
                 
                 update_status_bar top;
                 update_status_bar;
+            } {
+                #regexp {%1}{^#%S,%S,%S,%S$} {
+                    #var status[zhenqi] &1;
+                    #var status[zhenyuan] &2;
+                    #var status[food] &3;
+                    #var status[water] &4;
+
+                    #unvar hnd_hb;
+                    
+                    #line gag;
+                    
+                    update_status_bar top;
+                    update_status_bar;
+                };
             };
         } {
             #regexp {%1}{^#%S,%S,%S,%S,%S,%S$}

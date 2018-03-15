@@ -75,7 +75,9 @@
     };
 #alias {diao.start} {
     #class diao.start.inner open;
-    
+    #act {^你已经有足够的资本出去闯荡了，不用再浪费时间在钓鱼上了} {
+        diao.stop;
+    };
     #act {^你猛地一拉鱼线，感到手上一沉} {
         #nop #unact {^你一提杆，钓到了一条};
         eat liang;he jiudai;

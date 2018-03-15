@@ -12,8 +12,11 @@
 
 #MACRO {\eOQ}{eat yao};
 #MACRO {\eOR}{yun recover};
-#MACRO {\eOS}{yun powerup};
 
+
+#alias {pu} {
+    yun powerup;
+};
 #alias {wi} {
     wield staff;
 };

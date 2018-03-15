@@ -74,14 +74,17 @@
 	            #var dazuo[limit] @eval{%%4 * 10};
                 _do_dazuo;
             };
-            #act {你五心向天，排除一切杂念，内息顺经脉缓缓流动} {
+            #act {^{你五心向天，排除一切杂念，内息顺经脉缓缓流动|你坐下来运气用功，一股内息开始在体内流动}} {
                 #var dazuo[status] 1;
+                #delay {dl_dazuo_timeout} {_do_dazuo} {300};
             };
-            #act {你将内息走了个小周天，流回丹田，收功站了起来} {
+            #act {^{你将内息走了个小周天，流回丹田，收功站了起来|你运功完毕，深深吸了口气，站了起来}} {
                 #var dazuo[status] 0;
+                #undelay {dl_dazuo_timeout};
                 eat liang;he jiudai;
                 _do_dazuo;
             };
+
             #act {^你现在精不够，无法控制内息的流动} {
                 yun regenerate;
             };
@@ -100,6 +103,11 @@
                     _do_dazuo;
                 } {30};
             };
+            #act {^不一会儿，你就进入了梦乡} {
+                #delay {dl_wakeup} {
+                    _do_dazuo;
+                } {100};
+            };
             #act {你刚在三分钟内睡过一觉} {
                 _dzmsg 5秒后再尝试睡觉;
                 #delay {dl_dazuo_sleep} {
@@ -108,6 +116,7 @@
             };
             #act {你一觉醒来，精神抖擞地活动了几下手脚} {
                 #cr;
+                #undelay {dl_wakeup};
                 _do_dazuo;
             };
             #act {^你深深吸了几口气} {

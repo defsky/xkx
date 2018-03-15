@@ -297,7 +297,7 @@
             _go_fsk { _lian };
         };
     };
-    #act {你的内力不够} {
+    #act {^你的内力{太低|不够}} {
         #undelay {dl_next_lianx};
         _fskmsg 内力不够去睡觉;
         he jiudai;eat liang;

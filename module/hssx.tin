@@ -48,12 +48,14 @@
     
     #act {你伸手向怀中一摸，发现密函已经不翼而飞} {
         gt stop;
+        goto_stop;
         #send look;
         #var task[fight] 1;
         dbg 密函被偷了！！！;
     };
     #act {你，把密函给我乖乖交出来吧} {
         gt stop;
+        goto_stop;
         #send look;
         #var task[fight] 1;
         dbg 抢信的来了！！！;
