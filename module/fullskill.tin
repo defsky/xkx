@@ -267,7 +267,7 @@
         _lian;
     };
     #nop #act {你的体力太低了};
-    #act {{你的体力太低|你的体力太差|你的体力不够|你现在气血虚浮|你太累了}} {
+    #act {^{你的精力太低|你的体力太低|你的体力太差|你的体力不够|你现在气血虚浮|你太累了}} {
         hpbrief1;
         he jiudai;eat liang;
         #delay {1} {
@@ -326,6 +326,7 @@
                 };
                 #case {"staff"} {
                     wield staff;
+                    wield zhang;
                 };
                 #case {"club"} {
                     wield club;

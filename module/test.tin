@@ -254,6 +254,19 @@
     };
 };
 
+#alias {gn} {gan che to north};
+#alias {gs} {gan che to south};
+#alias {ge} {gan che to east};
+#alias {gw} {gan che to west};
+#alias {gne} {gan che to northeast};
+#alias {gnw} {gan che to northwest};
+#alias {gse} {gan che to southeast};
+#alias {gsw} {gan che to northeast};
+#alias {gup} {gan che to up};
+#alias {gdown} {gan che to down};
+#alias {genter} {gan che to enter};
+#alias {gout} {gan che to out};
+
 #class $mod_name close;
 
 ${mod_name}_load;

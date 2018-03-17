@@ -14,10 +14,19 @@
     #class login_inner open;
     
     #event {SESSION CONNECTED}{
+        #format screen[rows] {%R};
+        #format screen[cols] {%C};
+
+        #list {startup_modules} {create} {event;common;path;login;sched;bag};
+
+        startup_mod_init;
+        
         #send %%0;
         #class login_inner kill;
     };
-    
+    #act {			欢迎来到北大侠客行} {
+        
+    };
     #class login_inner close;
     
     #ses %1 mud.pkuxkx.net 8080;

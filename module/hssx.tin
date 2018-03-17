@@ -45,7 +45,11 @@
         #var task[id] @lower{%%2};
     };
     #send {look mi han};
+    pu;
     
+    #act {^浩气苍冥功运功完毕，心中壮怀之激烈情绪犹留心中} {
+        yun powerup;
+    };
     #act {你伸手向怀中一摸，发现密函已经不翼而飞} {
         gt stop;
         goto_stop;
@@ -108,8 +112,6 @@
         #regexp {%0} {^    「%S」%S(%w %w)} {
             #list task[rob] add &2;
             dbg 劫匪ID : &2 &3 &4;
-            kill @lower{&3};
-            #delay {1} {#send look;}; 
         };
         
     };

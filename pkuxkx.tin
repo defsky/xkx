@@ -24,11 +24,4 @@
 
 #read framework/module.tin;
 
-#format screen[rows] {%R};
-#format screen[cols] {%C};
-
-#list {startup_modules} {create} {event;common;path;login;sched;bag};
-
-startup_mod_init;
-
 #split;
