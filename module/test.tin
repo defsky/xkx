@@ -58,8 +58,8 @@
     #act {{看上去书生并不想教你|书生像是受宠若惊一样|书生说道：您太客气了}} {
         #untic {tk_xue};
         #show <139>test : 该给钱了<079>;
-        give 1 gold to shu sheng;
-        #delay {dl_restart_xue} {#tic {tk_xue}{xue shu sheng for literate $testfreq}{1};}{2};
+        give 1 cash to shu sheng;
+        #delay {dl_restart_xue} {#tic {tk_xue}{xue shu sheng for literate 25}{1};}{2};
     };
     #class xue.start.inner close;
     yun jing;
@@ -266,6 +266,20 @@
 #alias {gdown} {gan che to down};
 #alias {genter} {gan che to enter};
 #alias {gout} {gan che to out};
+
+#alias {w2e} {e;e;e;e;e;e;e;e};
+#alias {w2n} {e;e;e;e;n;n;n;n};
+#alias {w2s} {e;e;e;e;s;s;s;s};
+#alias {s2n} {n;n;n;n;n;n;n;n};
+#alias {s2w} {n;n;n;n;w;w;w;w};
+#alias {s2e} {n;n;n;n;e;e;e;e};
+#alias {e2w} {w;w;w;w;w;w;w;w};
+#alias {e2n} {w;w;w;w;n;n;n;n};
+#alias {e2s} {w;w;w;w;s;s;s;s};
+#alias {n2s} {s;s;s;s;s;s;s;s};
+#alias {n2w} {s;s;s;s;w;w;w;w};
+#alias {n2e} {s;s;s;s;e;e;e;e};
+#alias {ka} {killall};
 
 #class $mod_name close;
 

@@ -882,6 +882,12 @@
                     go_forward;
                 };
             };
+            #elseif {"$path_run[list][$path_run[list_idx]]" == "climb%*"
+                || "$path_run[list][$path_run[list_idx]]" == "guo%*" } {
+                on_action_done {
+                    go_forward;
+                };
+            };
             #else {
                 on_walked {
                     #class go_forward_inner kill;
@@ -915,6 +921,8 @@
         #nop 吊桥还没有升起来，你就这样走了，可能会给外敌可乘之机的;
         #nop 六名雪山弟子一齐转动机关，吊桥便又升了起来;
         #nop 只听一阵吱呀乱响，吊桥又升了起来;
+
+        #nop 你终于一步步的终于挨到了桥头;
         
         #act {^{这个方向没有出路|哎哟，你一头撞在墙上}} {
             #unact {^{这个方向没有出路|哎哟，你一头撞在墙上}};
@@ -932,6 +940,8 @@
             ^你的动作还没有完成，不能移动;
             ^僧兵上前把大门关了起来;
             ^只听得江面上隐隐传来：“别急嘛，这儿正忙着呐;
+            ^你还在山中跋涉，一时半会恐怕走不出这六盘山;
+            ^你逃跑失败;
         };
         
         #foreach {$on_rewalk_need_trigger_list[%*]} {regstring} {
@@ -943,6 +953,28 @@
         
         #class on_rewalk_need_inner close;
         
+    };
+    
+    #alias {on_action_done} {
+        #alias cb_on_action_done #cr;
+        #alias cb_on_action_done %%0;
+        
+        #class on_action_done_inner open;
+        
+        #list on_action_done_trigger_list create {
+            ^突然间蓬一声，屁股撞上了什么物事，身子向上弹起，原来恰好撞到崖边伸出的一株;
+            ^一条大瀑布如玉龙悬空，滚滚而下，倾入一座清澈异常的大湖之中;
+            ^你终于一步步的终于挨到了桥头;
+        };
+        
+        #foreach {$on_action_done_trigger_list[%*]} {regstring} {
+            #act {$regstring} {
+                #class on_action_done_inner kill;
+                cb_on_action_done;
+            };
+        };
+        
+        #class on_action_done_inner close;
     };
     #alias {on_car_arrived} {
         #alias cb_on_car_arrived #cr;
