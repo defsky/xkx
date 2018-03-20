@@ -26,7 +26,6 @@
         #var jiudai_empty 0;
         put jiudai in bao 2;
         get jiudai from bao;
-        he jiudai;
         #delay {5} {#var jiudai_empty 1;};
     };
 };
