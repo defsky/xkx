@@ -28,6 +28,8 @@
 #alias {jl} {
     ask guo about 奖励;
     
+    #var baowei[pathidx] 1;
+    
     #act {^郭靖说道：「蒙古兵大军来袭，这位英雄预要参加襄阳保卫战，可以在我这里报名（join）。」} {
         #unact {^郭靖说道：「蒙古兵大军来袭，这位英雄预要参加襄阳保卫战，可以在我这里报名（join）。」};
         bw;

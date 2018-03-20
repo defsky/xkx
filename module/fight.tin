@@ -119,6 +119,7 @@
 #act {你%*喝了%*}{hpbrief1};
 #act {你全身放松，坐下来开始运功疗伤}{hpbrief1};
 #act {你吃下一包金创药} {hpbrief1};
+#act {^你必须空手才能使用} {unwield all};
 
 #class $mod_name close;
 

@@ -728,9 +728,6 @@
     #message  VARIABLES             %1;
 };
 
-#nop 乒地一声，里面有人把大门关上了;
-#nop 江百胜伸手拦住你说道：盟主很忙，现在不见外客，你下山去吧;
-
 #alias {goto_stop} {
     set brief 0;
     gt_wrn 行走停止;
@@ -848,19 +845,27 @@
         #math path_run[list_idx] {$path_run[list_idx] + 1};
         #if {$path_run[list_idx] > $path_run[list_len]} {
             #class _path_run_inner kill;
+            #class on_blocked_inner kill;
+            #class on_rewalk_need_inner kill;
+            
             set brief 0;
             gt_msg 到达目的地;
         } {
             #class go_forward_inner open;
             
             on_blocked {
+                #map undo;
+                
                 #class go_forward_inner kill;
                 #class _path_run_inner kill;
+                #class on_rewalk_need_inner kill;
+                
                 set brief 0;
                 
                 gt_wrn 行走出错;
             };
             on_rewalk_need {
+                #nop #show 需要重走 $path_run[list][$path_run[list_idx]];
                 #map undo;
                 back_one_step;
                 #delay {1} {
@@ -872,20 +877,32 @@
             
             #if {"$path_run[list][$path_run[list_idx]]" == "to%*"} {
                 on_car_arrived {
+                    on_walked {
+                        #class go_forward_inner kill;
+                        go_forward;
+                    };
                     xia;
-                    go_forward;
                 };
             };
             #elseif {"$path_run[list][$path_run[list_idx]]" == "%*boat"} {
                 on_boat_arrived {
+                    on_walked {
+                        #class go_forward_inner kill;
+                        go_forward;
+                    };
                     out;
                     go_forward;
                 };
             };
-            #elseif {"$path_run[list][$path_run[list_idx]]" == "climb%*"
-                || "$path_run[list][$path_run[list_idx]]" == "guo%*" } {
+            #elseif {"$path_run[list][$path_run[list_idx]]" == "climb%*" ||
+                     "$path_run[list][$path_run[list_idx]]" == "guo%*" ||
+                     "$path_run[list][$path_run[list_idx]]" == "zou%*" } {
                 on_action_done {
-                    go_forward;
+                    on_walked {
+                        #class go_forward_inner kill;
+                        go_forward;
+                    };
+                    #nop go_forward;
                 };
             };
             #else {
@@ -894,7 +911,8 @@
                     go_forward;
                 };
             };
-             
+            
+            #nop #show $path_run[list][$path_run[list_idx]];
             $path_run[list][$path_run[list_idx]];
         };
         
@@ -912,22 +930,34 @@
         #alias cb_on_blocked #cr;
         #alias cb_on_blocked %%0;
         
-        #nop 你身上没有车资二两白银七十文铜板，车夫拒绝开车;
-        #nop 清兵说道：赶快滚开，这是你停留的地方吗;
-        #nop 黄钟公说道：「里间是我休息之地，贵客请勿进去。」;
+        #class on_blocked_inner open;
         
-        #nop 你轻吸一口气，长啸一声：「放下吊桥～～～」，声音远远传了出去。;
-        #nop 只听得轧轧声响，吊桥缓缓放下，正架在你的眼前。;
-        #nop 吊桥还没有升起来，你就这样走了，可能会给外敌可乘之机的;
-        #nop 六名雪山弟子一齐转动机关，吊桥便又升了起来;
-        #nop 只听一阵吱呀乱响，吊桥又升了起来;
-
-        #nop 你终于一步步的终于挨到了桥头;
-        
-        #act {^{这个方向没有出路|哎哟，你一头撞在墙上}} {
-            #unact {^{这个方向没有出路|哎哟，你一头撞在墙上}};
-            cb_on_blocked
+        #list on_blocked_trigger_list create {
+            ^这个方向没有出路;
+            ^哎哟，你一头撞在墙上;
+            ^你刚要前行，忽然发现江水决堤，不由暗自庆幸，还好没过去;
+            ^你从悬崖上摔了下来;
+            ^你身上没有车资%*车夫拒绝开车;
+            ^陆大有喝道：你不是华山弟子，不得入内;
+            ^童百熊说道：「你不是我日月神教弟子，来我教干什么？速速离开！」;
+            ^江百胜伸手拦住你说道：盟主很忙，现在不见外客，你下山去吧;
+            ^清兵说道：赶快滚开，这是你停留的地方吗;
+            ^守山弟子说: 非我派弟子不许上峨嵋山;
+            ^守卫喝道：闲杂人等，不得乱闯;
+            ^褚万里喝道：闲杂人等，不得入内;
+            ^王府亲兵大声喝道：「哪里来的刁民，胆敢擅闯王府？」;
+            ^校尉挡住了你的去路：大将军不在府上;
+            ^梅剑伸手拦住你，说道：“非灵鹫宫弟子请回！”;
         };
+        
+        #foreach {$on_blocked_trigger_list[%*]} {regstring} {
+            #act {$regstring} {
+                #class on_blocked_inner kill;
+                cb_on_blocked;
+            };
+        };
+        
+        #class on_blocked_inner close;
     };
     #alias {on_rewalk_need} {
         #alias cb_on_rewalk_need #cr;
@@ -939,14 +969,20 @@
             ^吊桥还没有升起来，你就这样走了，可能会给外敌可乘之机的;
             ^你的动作还没有完成，不能移动;
             ^僧兵上前把大门关了起来;
+            ^乒地一声，里面有人把大门关上了;
             ^只听得江面上隐隐传来：“别急嘛，这儿正忙着呐;
-            ^你还在山中跋涉，一时半会恐怕走不出这六盘山;
             ^你逃跑失败;
+            ^沙石地几乎没有路了，你走不了那么快;
+            ^你小心翼翼往前挪动，遇到艰险难行处，只好放慢脚步;
+            ^你还在山中跋涉，一时半会恐怕走不出这六盘山;
+            ^你还在山中跋涉，一时半会恐怕走不出这西南地绵绵群山;
+            ^你还在山中跋涉，一时半会恐怕走不出这藏边群山;
+            ^青海湖畔美不胜收，你不由停下脚步，欣赏起了风景;
         };
         
         #foreach {$on_rewalk_need_trigger_list[%*]} {regstring} {
             #act {$regstring} {
-                #class on_rewalk_need_inner kill;
+                #nop #classon_rewalk_need_inner kill;
                 cb_on_rewalk_need;
             };
         };
@@ -965,6 +1001,7 @@
             ^突然间蓬一声，屁股撞上了什么物事，身子向上弹起，原来恰好撞到崖边伸出的一株;
             ^一条大瀑布如玉龙悬空，滚滚而下，倾入一座清澈异常的大湖之中;
             ^你终于一步步的终于挨到了桥头;
+            ^你终于来到了对面，心里的石头终于落地;
         };
         
         #foreach {$on_action_done_trigger_list[%*]} {regstring} {
