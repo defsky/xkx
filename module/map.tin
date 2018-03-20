@@ -66,7 +66,7 @@
 #nop ============ Module private function start ===============================;
 
 #alias {_hnd_roomdesc} {
-    #regexp {%1} {^%*%s-%s$} {
+    #regexp {%1} {^%S%s-%s$} {
         #nop #send {get all};
         #var hnd_addesc_inner[desc_start] 1;
         #var hnd_addesc_inner[desc] {};
