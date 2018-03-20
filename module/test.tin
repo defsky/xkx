@@ -44,7 +44,8 @@
             };
             #act {你一觉醒来，精神抖擞地活动了几下手脚} {
                 #cr;
-                goto 朱熹;
+                #nop goto 朱熹;
+                goto 武馆大厅;
                 on_there {
                     #tic {tk_xue} {xue zhu for literate 1} {1};
                 };
@@ -284,7 +285,7 @@
 
 #act {^%s%S(%w %w) <昏迷不醒>} {
     #show <139>有人昏了 : %3 %4<079>;
-    kill @lower{%3} %4;
+    #nop kill @lower{%3} %4;
 };
 
 #alias {gn} {gan che to north};
