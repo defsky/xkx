@@ -1,0 +1,68 @@
+#class $mod_name open;
+
+#alias {${mod_name}_load} {
+    #showme Module $mod_name loaded;
+    #unalias ${mod_name}_load;
+};
+
+#alias {${mod_name}_unload}{
+    #untic {tk_music};
+    #showme Module $mod_name unloaded;
+    #class $mod_name kill;
+};
+
+#alias {${mod_name}_help}{
+    #showme <139>模块帮助文档 : ${mod_name}<079>;
+    #showme <139>  首先走到长安国子监，然后e;n到达上面一间书学学堂<079>;
+    #showme <139>  tk <start | stop><079>;
+    
+    #showme  ;
+    #showme <139> -> 按任意键继续...<079>;
+    #buffer lock;
+};
+
+#var room 1;
+#alias {change_room} {
+    #if {$room == 1} {
+        s;s;
+        #var room 2;
+    };
+    #elseif {$room == 2} {
+        n;n;
+        #var room 1;
+    };
+};
+#alias {check_course} {
+
+};
+#alias {tk} {
+
+    #if {"%1" == "start"} {
+        #class tk_start_inner open;
+        
+        #act {^你坐下来开始听国子监里面的博士讲授课程} {
+            #untic {tk_music};
+        };
+        #act {^你专心听博士讲授%*，感觉自己对这方面的知识又掌握了一些} {
+
+        };
+        #act {^国子监的博士结束了%*的讲授，学生们站起来欢送博士的离开} {
+            #tic {tk_music} {listen} {10};
+        };
+        #act {^%S这门课程对你来说过于%*，请以后再来听讲。} {
+            change_room;
+        };
+        
+        #class tk_start_inner open;
+        listen;
+    };
+    #elseif {"%1" == "stop"} {
+        #untic {tk_music};
+        #class tk_start_inner kill;
+    };
+    
+};
+
+#class $mod_name close;
+
+${mod_name}_load;

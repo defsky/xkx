@@ -47,7 +47,7 @@
                 #nop goto 朱熹;
                 goto 武馆大厅;
                 on_there {
-                    #tic {tk_xue} {xue zhu for literate 1} {1};
+                    #tic {tk_xue} {xue jiaotou for literate 1} {1};
                 };
                 #class xue.start.sleep kill;
             };
@@ -285,7 +285,7 @@
 
 #act {^%s%S(%w %w) <昏迷不醒>} {
     #show <139>有人昏了 : %3 %4<079>;
-    #nop kill @lower{%3} %4;
+    kill @lower{%3} %4;
 };
 
 #alias {gn} {gan che to north};
