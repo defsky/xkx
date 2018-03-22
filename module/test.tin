@@ -285,7 +285,7 @@
 
 #act {^%s%S(%w %w) <昏迷不醒>} {
     #show <139>有人昏了 : %3 %4<079>;
-    kill @lower{%3} %4;
+    #nop kill @lower{%3} %4;
 };
 
 #alias {gn} {gan che to north};
