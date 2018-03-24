@@ -310,9 +310,23 @@
     };
 };
 
-#act {^%s%S(%w %w) <昏迷不醒>} {
-    #show <139>有人昏了 : %3 %4<079>;
-    #nop kill @lower{%3} %4;
+#alias {fish} {
+    #if {"%1" == "on"} {
+        #act {^%s%S(%w %w) <昏迷不醒>} {
+            #show <139>有人昏了 : %%3 %%4<079>;
+            #var fish_target {%%3 %%4};
+            #if {"$fish_target" == "Menggu bing" ||
+                "$fish_target" == "Qianhu zhang" ||
+                "$fish_target" == "Qianfu zhang" ||
+                "$fish_target" == "Menggu jianxi" } {
+                
+                kill @lower{$fish_target};
+            };
+        };
+    };
+    #elseif {"%1" == "off"} {
+        #unact {^%s%S(%w %w) <昏迷不醒>}
+    };
 };
 
 #act {^你感觉到你的真气开始四处乱闯，渐渐体力不支，不得不回来歇一歇} {

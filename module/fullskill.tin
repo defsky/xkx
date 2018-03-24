@@ -74,15 +74,18 @@
     
     #if {$fsk[status][skill_idx] > $fsk[config][skill_count]} {
         _fskmsg 所有技能升级完成;
+        log 所有技能升级完成;
         
     } {
-        _fskmsg 准备下一个技能;
         #var fsk[status][base] $fsk[skills][$fsk[status][skill_idx]][base];
         #var fsk[status][special] $fsk[skills][$fsk[status][skill_idx]][special];
         
         #if {"$fsk[status][base]" != "force"} {
             jifa $fsk[status][base] $fsk[status][special];
         };
+        
+        _fskmsg 准备下一个技能;
+        log 准备下一个技能 : $fsk[status][base] $fsk[status][special];
         
         cb_on_next_skill;
     };
@@ -145,11 +148,13 @@
     
     #act {{你的基本功夫比你的高级功夫还高|你已经达到你的技能等级极限}} {
         _fskmsg 需要练习;
+        log 需要练习 : $fsk[status][special];
         #class lingw_inner kill;
         #undelay {wd_lingwu};
         #if {"$fsk[status][base]" == "force"} {
             fsk stop;
             _fskmsg 基本内功达到上限;
+            log 基本内功达到上限;
             on_next_skill {
                 lianx;
             };
@@ -186,6 +191,7 @@
     };
     #act {你刚在三分钟内睡过一觉} {
         _fskmsg 5秒后再尝试睡觉;
+        log 5秒后再尝试睡觉;
         #delay {dl_lingwu_sleep} {
             sleep;
         } {5};
@@ -199,6 +205,7 @@
         #cr;
         #undelay {wd_wakeup};
         _fskmsg 睡觉醒来去领悟;
+        log 睡觉醒来去领悟 : $fsk[status][base];
         #delay {1} {
             _go_fsk { _lingwu };
         };
@@ -206,6 +213,7 @@
     #act {你的内力不够} {
         #undelay {dl_next_lingw};
         _fskmsg 内力不够去睡觉;
+        log 内力不够去睡觉;
         he jiudai;eat liang;
         #delay {1} {_go_sleep};
     };
@@ -232,12 +240,14 @@
         #delay {3} {
             #if {$fsk[status][level] < $fsk[config][limit]} {
                 _fskmsg 需要领悟;
+                log 需要领悟 : $fsk[status][base];
                 #class lianx_inner kill;
                 #undelay {wd_lian};
                 lingw;
             } {
                 fsk stop;
                 _fskmsg 当前技能达到上限;
+                log 当前技能达到上限 : $fsk[status][base] $fsk[status][special];
                 
                 on_next_skill {
                     lianx;
@@ -247,6 +257,7 @@
     };
     #act {你的基本%*的级别还没有%*的级别高，不能通过练习来提高了} {
         _fskmsg 需要领悟;
+        log 需要领悟 : $fsk[status][base];
         #class lianx_inner kill;
         #undelay {wd_lian};
         lingw;
@@ -279,6 +290,7 @@
     };
     #act {你刚在三分钟内睡过一觉} {
         _fskmsg 5秒后再尝试睡觉;
+        log 5秒后再尝试睡觉;
         #delay {dl_lian_sleep} {
             sleep;
         } {5};
@@ -292,6 +304,7 @@
         #cr;
         #undelay {wd_wakeup};
         _fskmsg 睡觉醒来去练功;
+        log 睡觉醒来去练功 : $fsk[status][special];
         #delay {1} {
             _go_fsk { _lian };
         };
@@ -299,6 +312,7 @@
     #act {^你的内力{太低|不够}} {
         #undelay {dl_next_lianx};
         _fskmsg 内力不够去睡觉;
+        log 内力不够去睡觉;
         he jiudai;eat liang;
         #delay {1} {_go_sleep};
     };
