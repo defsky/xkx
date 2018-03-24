@@ -18,20 +18,39 @@
 #alias {_tstmsg} {
     #showme <139>test : %0<079>;
 };
+
+#nop 武馆教头像是受宠若惊一样，说道：请教？这怎么敢当？;
+#nop 武馆教头笑着说道：您见笑了，我这点雕虫小技怎够资格「指点」您什么？;
+#nop 武馆教头说道：您太客气了，这怎么敢当？;
+
 #alias {xue.start} {
-    #var testfreq %3;
+    #var xue[freq] %3;
+    #var xue[master] %1;
+    #var xue[skill] %2;
     
     #class xue.start.inner open;
     
-    #tic {tk_xue}{xue %1 for %2 $testfreq}{1};
     #tic {tk_chihe} {eat liang;he jiudai}{60};
-    #tic {tk_yunjing} {yun jing}{66};
+    #nop #tic {tk_yunjing} {yun jing}{66};
+    
+    #alias {xuexi} {
+        #tic {tk_xue} {xue $xue[master] for $xue[skill] $xue[freq]} {1};
+    };
     
     #act {^也许是缺乏实战经验，你%*总是无法领会} {
         xue.stop;
     };
+    #act {^你的潜能已经发挥到极限了，没有办法再成长了} {
+        xue.stop;
+    };
     #act {^你今天太累了，结果什么也没有学到} {
         #untic {tk_xue};
+        #delay {1}{yun regenerate};
+    };
+    #act {^你略一凝神} {
+        xuexi;
+    };
+    #act {^你的内力不够} {
         goto 休息室;
         on_there {
             #class xue.start.sleep open;
@@ -47,28 +66,32 @@
                 #nop goto 朱熹;
                 goto 武馆大厅;
                 on_there {
-                    #tic {tk_xue} {xue jiaotou for literate 1} {1};
+                    xuexi;
                 };
                 #class xue.start.sleep kill;
             };
             #class xue.start.sleep close;
             sleep;
         };
+    
     };
     #nop 书生说道：您太客气了，这怎么敢当;
     #act {{看上去书生并不想教你|书生像是受宠若惊一样|书生说道：您太客气了}} {
         #untic {tk_xue};
         #show <139>test : 该给钱了<079>;
         give 1 cash to shu sheng;
-        #delay {dl_restart_xue} {#tic {tk_xue}{xue shu sheng for literate 25}{1};}{2};
+        #delay {dl_restart_xue} {xuexi}{2};
     };
+    
     #class xue.start.inner close;
-    yun jing;
+    #nop yun jing;
+    xuexi;
 };
 #alias {xue.stop} {
     #class xue.start.inner kill;
     #undelay {dl_restart_xue};
     #untic {tk_xue};
+    #unvar xue;
 };
 #alias {zq.start} {
     #class zq.start.inner open;
@@ -246,6 +269,10 @@
                 climb tree;
             };
         };
+        #act {^你像只小猴子一样在树上窜上窜下} {
+            #show 可以换地方了;
+            climbtree stop;
+        };
         #act {^( 你上一个动作还没有完成，不能施用内功。)} {
             #delay {1} {yun qi};
         };
@@ -286,6 +313,22 @@
 #act {^%s%S(%w %w) <昏迷不醒>} {
     #show <139>有人昏了 : %3 %4<079>;
     #nop kill @lower{%3} %4;
+};
+
+#act {^你感觉到你的真气开始四处乱闯，渐渐体力不支，不得不回来歇一歇} {
+    log 第$enterhole_count次尝失败了。。。;
+    on_unbusy {
+        eat liang;he jiudai;
+        enter hole;
+    };
+};
+#act {^突然，一股暗流把你推到一个洞口，你终于可以走到洞里，感觉轻松多了...} {
+    log 第$enterhole_count次尝失成功了！;
+};
+#act {^你取出火折，轻轻一纵，跃入古洞之中} {
+    #math enterhole_count {$enterhole_count + 1};
+    
+    log 第$enterhole_count次尝试进入洪荒古洞;
 };
 
 #alias {gn} {gan che to north};

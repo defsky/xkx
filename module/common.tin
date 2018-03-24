@@ -90,6 +90,32 @@
 	#unvar count;
 }
 
+#alias {log} {
+    #format nowtime {%t}{%H:%M:%S};
+    #format logstr {%-9s%-13s%s}{$nowtime}{$status[id]}{%0};
+    #system {echo -e "$logstr" >> data/all.log};
+    #unvar logstr;#unvar nowtime;
+};
+
+#alias {on_unbusy} {
+    #alias cb_on_unbusy #cr;
+    #alias cb_on_unbusy %0;
+    
+    #class on_unbusy_inner open;
+    #gag {^ÄãÕýÃ¦};
+    
+    #act {^Äã²»Ã¦} {
+        #class on_unbusy_inner kill;
+        cb_on_unbusy;
+    };
+    #tic {check_busy} {checkbusy}{1};
+    #class on_unbusy_inner close;
+};
+
+#alias {*} {
+    chat* %0;
+};
+
 #class $mod_name close;
 
 ${mod_name}_load;

@@ -341,6 +341,17 @@
     };
 };
 
+#alias {on_map_pad} {
+    #alias cb_on_map_pad #cr;
+    #alias cb_on_map_pad %0;
+    
+    #act {^->map padding complete} {
+        #unact {^->map padding complete};
+        #delay {1} {cb_on_map_pad};
+    };
+    
+    map pad;
+};
 #alias {on_handle_roomdesc} {
     #alias cb_on_handle_roomdesc #cr;
     #alias cb_on_handle_roomdesc %0;
@@ -736,11 +747,19 @@
     #class go_forward_inner kill;
     #class _path_run_inner kill;
     #class goto_inner kill;
+    #var map[gt][status] 0;
 };
 
 #alias {goto} {
     #nop param1 roomname;
     #nop param2 roomarea;
+    
+    #if {$map[gt][status] == 1} {
+        #return;
+    };
+    #elseif {$map[gt][status] == 0} {
+        #var map[gt][status] 1;
+    };
     
     mess off;
     
@@ -814,14 +833,13 @@
 
         #if {0 == $path_has_find} {
             gt_wrn 目标地点不可达;
-            #class goto_inner kill;        
+            #class goto_inner kill;
+            #var map[gt][status] 0;        
         } {
             gt_msg 找到路径 {$map[gt][path]};
-            
-            on_there {
-                #class goto_inner kill;
-            };
+
             on_error {
+                #var map[gt][status] 0;
                 #class goto_inner kill;
             };
             
@@ -852,6 +870,8 @@
             
             set brief 0;
             gt_msg 到达目的地;
+            #var map[gt][status] 0;
+            #class goto_inner kill;
         } {
             #class go_forward_inner open;
             
