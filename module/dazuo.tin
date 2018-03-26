@@ -47,6 +47,7 @@
                 };
 
                 _dzmsg $dazuo_value;
+                log 打坐 : $dazuo_value;
                 #send {dazuo $dazuo_value};
                 #unvar dazuo_value;
             } {
@@ -59,6 +60,7 @@
             };
         } {
             _dzmsg 内力达到上限;
+            log 内力达到上限;
             daz stop;
         };
     } {2};

@@ -37,6 +37,9 @@
         #tic {tk_xue} {xue $xue[master] for $xue[skill] $xue[freq]} {1};
     };
     
+    #act {^你和师父切磋%*，消耗了大量潜能} {
+        xue.stop;
+    };
     #act {^也许是缺乏实战经验，你%*总是无法领会} {
         xue.stop;
     };

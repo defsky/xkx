@@ -90,14 +90,17 @@
 #act {你向岳不群打听有关『job』的消息。} {
     #class temp_inner open;
     
-    #act {^岳不群道：「多谢壮士，你赶紧把它送到灵鹫密道附近的郝民手中。」} {
+    #act {^岳不群道：「多谢壮士，你赶紧把它送到%*附近的%*中。」} {
         parse_task %%1 %%2;
+        #system {echo "%%1">>data/hssx.log};
     };
-    #act {^岳不群道：「多谢小兄弟，你赶紧把它送到%*的%*手中。」} {
+    #act {^岳不群道：「多谢小兄弟，你赶紧把它送到%*附近的%*手中。」} {
         parse_task %%1 %%2;
+        #system {echo "%%1">>data/hssx.log};
     };
-    #act {^岳不群对你道：「我这里正好有封密函，麻烦你跑一趟，交给%*的%*。」} {
+    #act {^岳不群对你道：「我这里正好有封密函，麻烦你跑一趟，交给%*附近的%*。」} {
         parse_task %%1 %%2;
+        #system {echo "%%1">>data/hssx.log};
     };
     #class temp_inner close;
 };

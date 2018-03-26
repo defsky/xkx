@@ -45,10 +45,12 @@
             };
             
             _tnmsg $tuna_value;
+            log 吐纳 : $tuna_value;
             #send {tuna $tuna_value};
             #unvar tuna_value;
         } {
             _tnmsg 达到上限，吐纳完成;
+            log 精力达到上限;
             tn stop;
         };
     } {2};

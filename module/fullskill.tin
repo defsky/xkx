@@ -284,6 +284,7 @@
             #if {$status[force] > @eval{$status[force_max] * 0.2}} {
                 yun recover
             } {
+                log 体力不够去睡觉;
                 _go_sleep;
             };
         };
