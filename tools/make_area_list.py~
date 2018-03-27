@@ -1,0 +1,7 @@
+#!/usr/bin/python3 
+
+try:
+    _, filename = argv
+except ValueError:
+    print('''
+    Usage : make_area_list.py <mapfile>

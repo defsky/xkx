@@ -332,6 +332,24 @@
     };
 };
 
+#alias {dztn} {
+    mod dazuo reload;
+    
+    #act {^ dazuo : 打坐结束} {
+        #unact {^ dazuo : 打坐结束};
+        mod dazuo unload;
+        mod tuna reload;
+        
+        #act {^ tuna : 吐纳结束} {
+            #unact {^ tuna : 吐纳结束};
+            mod tuna unload;
+        };
+        tn start;
+    };
+    
+    daz start;
+};
+
 #act {^你感觉到你的真气开始四处乱闯，渐渐体力不支，不得不回来歇一歇} {
     log 第$enterhole_count次尝失败了。。。;
     on_unbusy {

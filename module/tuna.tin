@@ -137,7 +137,7 @@
             #undelay {dl_tuna_do};
             #undelay {dl_tuna_sleep};
             #undelay {dl_tuna_cantsleep};
-            _tnmsg ÍÂÄÉÍ£Ö¹;
+            _tnmsg ÍÂÄÉ½áÊø;
         };
         #case {"setpath"} {
             #var tuna[path] %2;

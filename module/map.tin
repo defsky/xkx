@@ -792,6 +792,7 @@
     
     #if {"%1" == "" && "%2" == ""} {
         gt_msg goto <roomname> [roomarea];
+        #var map[gt][status] 0;
     } {
         #map get roomname map[room][name];
         
@@ -909,9 +910,11 @@
             #elseif {"$path_run[list][$path_run[list_idx]]" == "%*boat"} {
                 on_boat_arrived {
                     on_walked {
+                        #undelay {wd_boat_arrived};
                         #class go_forward_inner kill;
                         go_forward;
                     };
+                    #delay {wd_boat_arrived}{look}{5};
                     out;
                     #nop go_forward;
                 };
@@ -978,6 +981,8 @@
             ^厚土旗众大声吼道：“你不是明教弟子，不许上山！”;
             ^明教休息室，外派弟子不得入内;
             ^官兵拦住你说道;
+            ^就凭你这点武功，最好不要瞅热闹了，小心被潮水卷跑了;
+            ^你身上背的东西太重，洞口又太高，你够不着;
         };
         
         #foreach {$on_blocked_trigger_list[%*]} {regstring} {
