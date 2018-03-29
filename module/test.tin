@@ -10,9 +10,16 @@
     #class $mod_name kill;
 };
 
-#ACTION {http://pkuxkx.net/antirobot/robot.php?filename=%*}
-{
-    #system {firefox http://pkuxkx.net/antirobot/robot.php?filename=%1};
+#alias {fm} {
+    #if {"%1" == ""} {
+        #act {http://pkuxkx.net/antirobot/robot.php?filename=%*} {
+            #unact {http://pkuxkx.net/antirobot/robot.php?filename=%*};
+            #system {firefox http://pkuxkx.net/antirobot/robot.php?filename=%%1};
+        };
+        fullme;
+    } {
+        fullme %1;
+    };
 };
 
 #alias {_tstmsg} {
@@ -315,6 +322,8 @@
 
 #alias {fish} {
     #if {"%1" == "on"} {
+        #class fish_on_inner open;
+        
         #act {^%s%S(%w %w) <昏迷不醒>} {
             #show <139>有人昏了 : %%3 %%4<079>;
             #var fish_target {%%3 %%4};
@@ -326,9 +335,18 @@
                 kill @lower{$fish_target};
             };
         };
+        #act {襄阳保卫战正在进行中，现在是蒙古兵第%*轮发兵} {
+            #tic {fish_look} {look}{2};
+            #delay {60}{#untic fish_look};
+            #delay {2} {jiali max};
+            #delay {3} {yun powerup};
+            #delay {4} {yun qi};
+        };
+        
+        #class fish_on_inner close;
     };
     #elseif {"%1" == "off"} {
-        #unact {^%s%S(%w %w) <昏迷不醒>}
+        #class fish_on_inner kill;
     };
 };
 
@@ -364,6 +382,15 @@
     #math enterhole_count {$enterhole_count + 1};
     
     log 第$enterhole_count次尝试进入洪荒古洞;
+};
+
+#act {^    %S({Silver|Gold})} {
+    #if {"%2" == "Silver"} {
+        get silver;
+    };
+    #elseif {"%2" == "Gold"} {
+        get gold;
+    };
 };
 
 #alias {gn} {gan che to north};

@@ -6,6 +6,7 @@
 };
 
 #alias {${mod_name}_unload}{
+    #unvar hssx;
     #showme Module $mod_name unloaded;
     #class $mod_name kill;
 };
@@ -22,75 +23,158 @@
 #alias {fin} {ask yue about finish};
 #alias {fai} {ask yue about fail};
 
+#alias {_sxmsg} {
+    #showme <139> hssx : %0<079>;
+};
+
 #nop 你从怀中掏出信交给荆猛波，道：「这是岳不群先生托在下送给您的信，请收好。」;
 #nop 荆猛波拆开信浏览了一遍，对你笑道：「多谢多谢，辛苦你了。」;
 #nop 你的任务完成，快回去复命吧。;
 
 #var task {{target}{}{pos}{}{ok}{0}{fight}{0}{rob}{}{robcount}{0}{id}{}};
 
-#alias {parse_task} {
-    #class temp_inner kill;
+#alias {check_rob} {
+
+    #if {"%1" == "on"} {
+        #class on_robber_found_inner open;
+        
+        #var hssx[robcount] 0;
+        #var hssx[roblist] {};
+        
+        #act {你伸手向怀中一摸，发现密函已经不翼而飞} {
+            #unact {你伸手向怀中一摸，发现密函已经不翼而飞};
+            goto_stop;
+            #send look;
+            _sxmsg 密函被偷了！！！;
+        };
+        
+        #list on_robber_found_trigger_list create {
+            ^%S说道：「既然甘当岳不群那老贼的走狗，就别怪本大爷不客气了！」;
+            ^%S笑道：「%S你别逞能，点子爪子硬，老子来帮你！」;
+            ^%S说道：「嘿嘿，让本大爷来教训教训你！」;
+            ^%S说道：「想跑，没那么容易！」;
+        };
+        
+        #foreach {$on_robber_found_trigger_list[%*]} {regstring} {
+            #act {$regstring} {
+                #if {&hssx[roblist][%%1] == 0} {
+                    #var hssx[robname] %%1;
+                    #var hssx[roblist][%%1] {};
+                    #var hssx[robdown] false;
+                    #math hssx[robcount] {$hssx[robcount] + 1};
+                    
+                    #class hssx_rob_list open;
+                    
+                    #act {$hssx[robname](%w %w)} {
+                        _sxmsg @lower{%%%1 %%%2};
+                        kill @lower{%%%1 %%%2};
+                    };
+                    #act {^$hssx[robname]死了} {
+                        dbg $hssx[robname] died;
+                        #math hssx[robcount] {$hssx[robcount] - 1};
+                        
+                        #if {$hssx[robcount] <= 0} {
+                            #class hssx_rob_list kill;
+                            #var hssx[robdown] true;
+                            
+                            _sxmsg 劫匪处理完毕，可以送信了;
+                            #delay {10} {look};
+                        };
+                        #delay {hssx_gc}{gc}{4};
+                        #delay {hssx_gc2}{gc 2}{8};
+                    };
+                    
+                    #class hssx_rob_list close;
+                    
+                    #unvar hssx[robname];
+                    
+                    #delay {hssx_look}{look}{2};
+                };
+            };
+        };
+        
+        #class on_robber_found_inner close;
+    };
+    #elseif {"%1" == "off"} {
+        #class on_robber_found_inner kill;
+    };
     
-    #var task[target] %2;
-    #var task[pos] %1;
-    #var task[ok] 0;
-    #var task[fight] 0;
-    #var task[robcount] 0;
-    #var task[rob] {};
+};
+
+#alias {on_get_receiver} {
+    #class on_get_receiver_inner open;
+    
+    #alias cb_on_get_receiver #cr;
+    #alias cb_on_get_receiver %0;
     
     #act {^           收信人：%S(%w %w)} {
-        #var task[id] @lower{%%2 %%3};
+        #var hssx[id] {%%2 %%3};
+        #var hssx[name] %%1;
+        cb_on_get_receiver;
+        #class on_get_receiver_inner kill;
     };
-    #act {^           收信人：%S(%w)} {
-        #var task[id] @lower{%%2};
+    #act {^           收信人：%S(%S)} {
+        #var hssx[id] %%2;
+        #var hssx[name] %%1;
+        cb_on_get_receiver;
+        #class on_get_receiver_inner kill;
     };
-    #send {look mi han};
+    
+    #class on_get_receiver_inner close;
+    
+    look mi han;
+};
+
+#alias {check_receiver} {
+    #act {$hssx[name]($hssx[id])} {
+        #if {"$hssx[robdown]" == "true"} {
+            #act {^你的任务完成，快回去复命吧} {
+                #unact {^你的任务完成，快回去复命吧};
+                #var hssx[robdown] false;
+                check_rob off;
+                #var hssx[ok] 1;
+                on_map_pad {
+                    on_there {
+                        fin;
+                        #delay {0.5} {#buffer lock;};
+                    };
+                    goto 书房 华山;
+                };
+                
+            };
+            #unact {$hssx[name]($hssx[id])};
+            sx;
+        } {
+            _sxmsg 找到收信人，先杀劫匪再送信：sx;
+        };
+    };
+};
+
+#alias {parse_task} {
+    check_rob on;
+    #class temp_inner kill;
+    
+    #var hssx[target] %2;
+    #var hssx[pos] %1;
+    #var hssx[ok] 0;
+    #var hssx[fight] 0;
+    #var hssx[robcount] 0;
+    #var hssx[rob] {};
+    
+    on_get_receiver {
+        check_receiver;
+    };
+    
     pu;
     
     #act {^浩气苍冥功运功完毕，心中壮怀之激烈情绪犹留心中} {
         yun powerup;
     };
-    #act {你伸手向怀中一摸，发现密函已经不翼而飞} {
-        gt stop;
-        goto_stop;
-        #send look;
-        #var task[fight] 1;
-        dbg 密函被偷了！！！;
-    };
-    #act {你，把密函给我乖乖交出来吧} {
-        gt stop;
-        goto_stop;
-        #send look;
-        #var task[fight] 1;
-        dbg 抢信的来了！！！;
-    };
-    #act {你的任务完成，快回去复命吧} {
-        #var task[ok] 1;
-        #delay {0.5} {#buffer lock;};
-    };
-    #act {%*死了。} {
-        #if {$task[fight] == 1} {
-            #delay {1} {get all from corpse;};
-            
-            #if {1 == @isListMember{task[rob];%%1}} {
-                #math task[robcount] {$task[robcount] + 1};
-            };
-            #list task[rob] find %%1 idx;
-            #if {$idx != 0 } {
-                #list task[rob] delete $idx;
-            };
-            #list task[rob] size len;
-            #if {$len == 0} {
-                #var task[fight] 2;
-            };
-            #unvar idx;#unvar len;
-        };
-    };
 };
 #act {你向岳不群打听有关『job』的消息。} {
     #class temp_inner open;
     
-    #act {^岳不群道：「多谢壮士，你赶紧把它送到%*附近的%*中。」} {
+    #act {^岳不群道：「多谢壮士，你赶紧把它送到%*附近的%*手中。」} {
         parse_task %%1 %%2;
         #system {echo "%%1">>data/hssx.log};
     };
@@ -107,30 +191,8 @@
 #nop    「六合连环红」戴小八(Dai xiaoba);
 #nop    「南海迅雷棒」冯捷梅(Feng jiemei) <战斗中>;
 
-#act {看起来%*想杀死你} {
-    dbg %1;
-    
-};
-#act {^    %S%s%S(%w %w)$} {
-    #var npc_name {%4 %5};
-    
-    #if {$task[fight] == 1} {
-        #regexp {%0} {^    「%S」%S(%w %w)} {
-            #list task[rob] add &2;
-            dbg 劫匪ID : &2 &3 &4;
-        };
-        
-    };
-    #elseif {"@lower{$npc_name}" == "$task[id]" && $task[ok] == 0} {
-        #if {$task[fight] == 2} {
-            sx;
-        } {
-            dbg 找到收信人，先杀劫匪再送信：sx;
-        };
-    };
-};
 #alias {sx} {
-    songxin $task[id];
+    songxin @lower{$hssx[id]};
 };
 
 #class $mod_name close;

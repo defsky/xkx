@@ -434,6 +434,92 @@
                 #var status[zhenyuan] &2;
                 #var status[food] &3;
                 #var status[water] &4;
+                
+                #var status[exp] $hnd_hb[exp];
+                #var status[pot] $hnd_hb[pot];
+                #var status[force_max] $hnd_hb[force_max];
+                #var status[force] $hnd_hb[force];
+                #var status[energy_max] $hnd_hb[energy_max];
+                #var status[energy] $hnd_hb[energy];
+                #var status[hp_max] $hnd_hb[hp_max];
+                #var status[hp_valid] $hnd_hb[hp_valid];
+                #var status[hp] $hnd_hb[hp];
+                #var status[sp_max] $hnd_hb[sp_max];
+                #var status[sp_valid] $hnd_hb[sp_valid];
+                #var status[sp] $hnd_hb[sp];
+	                
+                #unvar hnd_hb;
+                
+                #line gag;
+                
+                update_status_bar top;
+                update_status_bar;
+            } {
+                #regexp {%1}{^#%S,%S,%S,%S$} {
+                    #var status[zhenqi] &1;
+                    #var status[zhenyuan] &2;
+                    #var status[food] &3;
+                    #var status[water] &4;
+
+                    #var status[exp] $hnd_hb[exp];
+                    #var status[pot] $hnd_hb[pot];
+                    #var status[force_max] $hnd_hb[force_max];
+                    #var status[force] $hnd_hb[force];
+                    #var status[energy_max] $hnd_hb[energy_max];
+                    #var status[energy] $hnd_hb[energy];
+                    #var status[hp_max] $hnd_hb[hp_max];
+                    #var status[hp_valid] $hnd_hb[hp_valid];
+                    #var status[hp] $hnd_hb[hp];
+                    #var status[sp_max] $hnd_hb[sp_max];
+                    #var status[sp_valid] $hnd_hb[sp_valid];
+                    #var status[sp] $hnd_hb[sp];
+                
+                    #unvar hnd_hb;
+                    
+                    #line gag;
+                    
+                    update_status_bar top;
+                    update_status_bar;
+                };
+            };
+        } {
+            #regexp {%1}{^#%S,%S,%S,%S,%S,%S$}
+            {
+                #if {$hnd_hb[line] != 2} {
+                    #var hnd_hb {};
+                    #var hnd_hb[line] 2;
+
+                    #var hnd_hb[exp] &1;
+	                #var hnd_hb[pot] &2;
+	                #var hnd_hb[force_max] &3;
+	                #var hnd_hb[force] &4;
+	                #var hnd_hb[energy_max] &5;
+	                #var hnd_hb[energy] &6;
+                } {
+                    #var hnd_hb[hp_max] &1;
+	                #var hnd_hb[hp_valid] &2;
+	                #var hnd_hb[hp] &3;
+	                #var hnd_hb[sp_max] &4;
+	                #var hnd_hb[sp_valid] &5;
+	                #var hnd_hb[sp] &6;
+	                
+	                #var hnd_hb[line] 3;
+                };
+                #line gag;
+            };
+        }; 
+    };
+};
+
+#alias {hnd_hb1}{
+    #if {"%1" != ""} {
+        #if {$hnd_hb[line] == 3} {
+            #regexp {%1}{^#%S,%S,%S,%S,%S$}
+            {
+                #var status[zhenqi] &1;
+                #var status[zhenyuan] &2;
+                #var status[food] &3;
+                #var status[water] &4;
 
                 #unvar hnd_hb;
                 

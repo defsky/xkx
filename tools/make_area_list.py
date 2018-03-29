@@ -10,6 +10,20 @@ except ValueError:
     ''')
     exit(0)
     
-f = open(mapfile,'r',encoding='GBK')
-f.read(1)
+f = open(mapfile,'r',encoding='GB18030')
 
+line = f.readline()
+
+room_count = 0
+
+while line:
+    words = line.split(' ')
+    
+    if words[0] == 'R':
+        room_count += 1;
+    
+    line = f.readline()
+    
+f.close()
+
+print("room count : {}".format(room_count))
