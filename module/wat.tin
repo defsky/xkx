@@ -13,14 +13,7 @@
 #alias {ql} {
     qiao luo;
 };
-#act {看起来番邦武士想杀死你} {
-    killall wushi;
-    #tic {tk_rc} {
-        #if {$status[hp] < @eval{$status[hp_valid] * 0.9}} {
-            yun recover;
-        };
-    } {0.5};
-};
+
 #act {如果你现在离开，可获厚礼} {
     #untic tk_rc;
     #if {$status[hp_valid] < $status[hp_max]} {

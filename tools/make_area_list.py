@@ -32,17 +32,33 @@ while line:
             area_dict[matchobj.group(7)] += 1
         else:
             area_dict[matchobj.group(7)] = 1
+    else:
+        words = line.split(' ')
+        if words[0] == 'R':
+            print(line)
     
     line = f.readline()
     
     if line:
-        print("Room count processed : {5d}".format(room_count),end = "\r")
+        print("Room count processed : {}".format(room_count), end = "\r")
     else:
         print("Room count processed : {}".format(room_count))
     
 f.close()
 
 #print("room count : {}".format(room_count))
+print("Process completed")
 
+arealist = "#list area_list create {"
 for i in area_dict:
-    print("{} {}".format(i,area_dict[i]))
+    arealist = arealist + i + ";"
+    
+arealist = arealist + "}"
+print(arealist)
+    
+    
+    
+    
+    
+    
+    

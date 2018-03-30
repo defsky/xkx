@@ -496,209 +496,6 @@
 #nop 你的动作还没有完成，不能移动;
 #nop 你不小心被什么东西绊了一下，差点摔个大跟头;
 
-#alias {gt} {
-    #if {"%1" == "stop"} {
-        set brief 0;
-        #class gt_inner kill;
-    };
-    #elseif {"%1" != ""} {
-        
-        #class gt_inner open;
-        
-        #var gt_start 0;
-        #var gt_car 0;
-        #var gt_boat 0;
-        #var gt_walkend 0;
-        
-        #act {#SHORTEST PATH: NO PATH FOUND TO} {
-            #var gt_start 0;
-            set brief 0;
-            
-            #showme <119>找不到目的地：%1<079>
-            #class gt_inner kill;
-        };
-        #act {这个方向没有出路} {
-            dbg 行走出错;
-            gt stop;
-        };
-        #act {接过你递给的船资} {
-            #var gt_start 0;
-        };
-
-        #act {王兴隆说道：“后面是我家，没事别瞎转悠} {
-            #var gt_start 0;
-            hit wang;
-        };
-        #act {王兴隆脚下一个不稳，跌在地上一动也不动了} {
-            #var gt_start 1;
-            
-        };
-        #act {王兴隆死了} {
-            #var gt_start 1;
-        };
-        #act {童百熊说道：「你不是我日月神教弟子，来我教干什么？速速离开！」} {
-            #var gt_start 0;
-            hit tong;
-        };
-        
-        #act {童百熊脚下一个不稳，跌在地上一动也不动了} {
-            #var gt_start 1;
-        };
-        
-        #act {童百熊死了} {
-            #var gt_start 1;
-        };
-        
-        #act {陆大有喝道：你不是华山弟子，不得入内} {
-            #var gt_start 0;
-            hit lu;
-        };
-        
-        #act {陆大有脚下一个不稳，跌在地上一动也不动了} {
-            #var gt_start 1;
-        };
-        
-        #act {陆大有死了} {
-            #var gt_start 1;
-        };
-
-        #act {你登上了一辆马车} {
-            #var gt_car 1;
-        };
-        
-        #act {在出发前，你结清了车资} {
-            #var gt_start 0;
-        };
-        #act {你身上没有车资%*，车夫拒绝开车} {
-            gt stop;
-        };
-        #act {马车缓缓开动} {
-            #var gt_start 0;
-        };
-        
-        #act {你从马车上走了下来} {
-            #var gt_car 0;
-            #var gt_start 1;
-        };
-        
-        #act {你可以下车(xia)了} {
-            xia;
-            #var gt_car 0;
-            
-            #if {$gt_walkend == 1} {
-                #class gt_inner kill;
-            } {
-                #var gt_start 1;
-            };
-        };
-        
-        #nop 长江黄河渡船;
-        #act {你从踏板上走上了船} {
-            #var gt_start 0;
-            #var gt_boat 1;
-        };
-        #act {船夫把踏脚板收起来，说了一声“坐稳喽”，船桨一点，小船向东海驶去} {
-
-        };
-        #act {船夫对你说道：“到了，上岸吧。”，随即把一块踏脚板搭上堤岸} {
-            #var gt_start 1;
-            #var gt_boat 0;
-        };
-        #act {你沿着踏板走了上去} {
-            #var gt_start 1;
-            #var gt_boat 0;
-        };
-        #act {你吸了口气，一声“船家”，声音中正平和地远远传了出去} {
-            #var gt_start 0;
-            #var gt_boat 1;
-        };
-        #act {你鼓足中气，长啸一声：“船家！”} {
-            #var gt_start 0;
-            #var gt_boat 1;
-        };
-        #act {艄公把踏脚板收起来，说了一声“坐稳喽”} {
-
-        };
-        #act {船夫把踏脚板收起来，说了一声“坐稳喽”，船桨一点，小船向湖心驶去} {
-
-        };
-        #act {艄公要继续做生意了，所有人被赶下了渡船} {
-            #var gt_start 1;
-        };
-        #act {船夫对你说道：“到了，上岸吧。”，随即把一块踏脚板搭上堤岸} {
-            #var gt_start 1;
-            #var gt_boat 0;
-            #showme <139>->下船了<079>;
-        };
-        #act {艄公说“到啦，上岸吧”，随即把一块踏脚板搭上堤岸} {
-            out;
-            #var gt_boat 0;
-            
-            #if {$gt_walkend == 1} {
-                #class gt_inner kill;
-            } {
-                #var gt_start 1;
-            };
-        };
-        
-        #nop 姑苏慕容小船;
-        #act {绿衣少女将小船系在树枝之上，你跨上岸去} {
-            #var gt_start 1;
-        };
-        
-        #act {你跃上小舟，船就划了起来} {
-            #var gt_start 0;
-        };
-        
-        #act {小舟终于划到近岸，你从船上走了出来} {
-            #var gt_start 1;
-        };
-        #act {你拿起船桨用力划了起来} {
-            #var gt_start 0;
-        };
-        #act {不知过了多久，船终于靠岸了，你累得满头大汗} {
-            #var gt_start 1;
-            #var gt_boat 0;
-        };
-        #act {你跃上小舟，小船晃了晃，你吓得脸色苍白} {
-            
-        };
-        
-        #nop 神龙岛小船;
-        #act {你跃上木船，船夫把木船划向海中} {
-            #var gt_start 0;
-        };
-        #act {你朝船夫挥了挥手便跨上岸去} {
-            #var gt_start 1;
-        };
-        
-        #ticker {walk_path} {
-            #if {$gt_start == 1} {
-                #path walk;
-            };
-            #if {$gt_walkend == 1 && $gt_car == 0 && $gt_boat == 0} {
-                #showme <129>到达目的地：%1<079>;
-                #class gt_inner kill;
-            };
-        } {0.5};
-        
-        #event {END OF PATH} {
-            #var gt_walkend 1;
-            #var gt_start 0;
-            set brief 0;
-        };
-        
-        #class gt_inner close;
-        
-        #map find {%1} {%2} {%3} {%4} {%5};
-        set brief 1;
-        #var gt_start 1;
-    };
-    #else {
-        #showme Usage : gt <目的地名>;
-    };
-};
-
 #alias {on_there} {
     #alias cb_on_there #cr;
     #alias cb_on_there %0;
@@ -797,37 +594,54 @@
         #map get roomname map[room][name];
         
         #var map[gt][path] {};
-
-        #if {0 == $path_has_find} {
-            #map find {} {} {} {$map[gt][dest][area]}{$map[gt][dest][name]};
-            path_save;
-        };
-        #if {0 == $path_has_find} {
-            #map find {$map[gt][dest][name]} {} {} {$map[gt][dest][area]};
-            path_save;
-        };
-        #if {0 == $path_has_find} {
-            #map find {} {} {} {} {$map[gt][dest][name]};
-            path_save;
-        };
-        #if {0 == $path_has_find} {
-            #map find {%*$map[gt][dest][name]%*}{}{}{$map[gt][dest][area]};
-            path_save;
-        };
-        #if {0 == $path_has_find} {
-            #map find {%*$map[gt][dest][name]%*};
-            path_save;
-        };
-        #if {0 == $path_has_find} {
-            #map find {}{}{}{%*$map[gt][dest][area]%*};
-            path_save;
-        };
-        #if {0 == $path_has_find} {
-            #map find {}{}{}{%*$map[gt][dest][name]%*};
-            path_save;
-        };
-        #if {0 == $path_has_find} {
-            path_save;
+        
+        #if {"%2" == ""} {
+            #if {0 == $path_has_find} {
+                #map find {$map[gt][dest][name]};
+                path_save;
+            };
+            #if {0 == $path_has_find} {
+                #map find {%*$map[gt][dest][name]%*};
+                path_save;
+            };
+            #if {0 == $path_has_find} {
+                #map find {}{}{}{}{$map[gt][dest][name]};
+                path_save;
+            };
+            #if {0 == $path_has_find} {
+                #map find {}{}{}{}{%*$map[gt][dest][name]%*};
+                path_save;
+            };
+        
+        } {
+            #if {0 == $path_has_find} {
+                #map find {$map[gt][dest][name]} {} {} {$map[gt][dest][area]};
+                path_save;
+            };
+            #if {0 == $path_has_find} {
+                #map find {%*$map[gt][dest][name]%*} {} {} {$map[gt][dest][area]};
+                path_save;
+            };
+            #if {0 == $path_has_find} {
+                #map find {%*$map[gt][dest][name]%*}{}{}{%*$map[gt][dest][area]%*};
+                path_save;
+            };
+            #if {0 == $path_has_find} {
+                #map find {} {} {} {$map[gt][dest][area]} {$map[gt][dest][name]};
+                path_save;
+            };
+            #if {0 == $path_has_find} {
+                #map find {} {} {} {$map[gt][dest][area]} {%*$map[gt][dest][name]%*};
+                path_save;
+            };
+            #if {0 == $path_has_find} {
+                #map find {} {} {} {%*$map[gt][dest][area]%*} {%*$map[gt][dest][name]%*};
+                path_save;
+            };
+            #if {0 == $path_has_find} {
+                path_save;
+            };
+        
         };
     
         mess on;
@@ -1090,6 +904,8 @@
     set brief 1;
     go_forward;
 };
+
+#
 
 #alias {on_get_exits} {
     #alias cb_on_get_exits #cr;

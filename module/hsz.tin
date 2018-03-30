@@ -15,6 +15,12 @@
     #act {你已经陷入半昏迷状态，随时都可能摔倒晕去} {
         #send $hszjob[esc];
     };
+    #act {^这时，你展开了精心绘制的地区地图，找到了异族奸细的行迹} {
+        #act {http://pkuxkx.net/antirobot/robot.php?filename=%*} {
+            #unact {http://pkuxkx.net/antirobot/robot.php?filename=%*};
+            #system {firefox http://pkuxkx.net/antirobot/robot.php?filename=%%1};
+        };
+    };
 };
 
 #alias {leave} {
