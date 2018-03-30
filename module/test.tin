@@ -400,7 +400,15 @@
 #alias {gne} {gan che to northeast};
 #alias {gnw} {gan che to northwest};
 #alias {gse} {gan che to southeast};
-#alias {gsw} {gan che to northeast};
+#alias {gsw} {gan che to southwest};
+#alias {gnu} {gan che to northup};
+#alias {gnd} {gan che to northdown};
+#alias {gsu} {gan che to southup};
+#alias {gsd} {gan che to southdown};
+#alias {gwu} {gan che to westup};
+#alias {gwd} {gan che to westdown};
+#alias {geu} {gan che to eastup};
+#alias {ged} {gan che to eastdown};
 #alias {gup} {gan che to up};
 #alias {gdown} {gan che to down};
 #alias {genter} {gan che to enter};

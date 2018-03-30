@@ -133,12 +133,15 @@
                 #var hssx[robdown] false;
                 check_rob off;
                 #var hssx[ok] 1;
-                on_map_pad {
-                    on_there {
-                        fin;
-                        #delay {0.5} {#buffer lock;};
+                
+                #delay {1.5} {
+                    on_map_pad {
+                        on_there {
+                            fin;
+                            #delay {0.5} {#buffer lock;};
+                        };
+                        goto 书房 华山;
                     };
-                    goto 书房 华山;
                 };
                 
             };
@@ -163,6 +166,10 @@
     
     on_get_receiver {
         check_receiver;
+        #delay {1} {
+            _sxmsg $hssx[pos];
+            gotowork $hssx[pos]
+        };
     };
     
     pu;
@@ -174,6 +181,9 @@
 #act {你向岳不群打听有关『job』的消息。} {
     #class temp_inner open;
     
+    #act {^岳不群说道：「%*下去休息休息吧。」} {
+        #class temp_inner kill;
+    };
     #act {^岳不群道：「多谢壮士，你赶紧把它送到%*附近的%*手中。」} {
         parse_task %%1 %%2;
         #system {echo "%%1">>data/hssx.log};
