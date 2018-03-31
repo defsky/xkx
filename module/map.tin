@@ -855,6 +855,7 @@
             ^一条大瀑布如玉龙悬空，滚滚而下，倾入一座清澈异常的大湖之中;
             ^你终于一步步的终于挨到了桥头;
             ^你终于来到了对面，心里的石头终于落地;
+            ^你觉得好象停了下来，睁开眼一看;
         };
         
         #foreach {$on_action_done_trigger_list[%*]} {regstring} {
@@ -915,6 +916,8 @@
     #replace {work_place} {杭州提督府} {临安提督府};
     #replace {work_place} {建康府南城} {建康府南};
     #replace {work_place} {建康府北城} {建康府北};
+    #replace {work_place} {长江长江} {长江南岸长江};
+    #replace {work_place} {牙山牙山} {牙山湾牙山};
     #replace {work_place} {大理城中} {大理城};
     #replace {work_place} {姑苏慕容} {慕容};
     #replace {work_place} {小山村} {华山村};
@@ -924,7 +927,6 @@
     #replace {work_place} {扬州} {扬州城};
     #replace {work_place} {镇江} {镇江府};
     #replace {work_place} {西湖} {临安府西湖};
-    #replace {work_place} {牙山} {牙山湾};
     #replace {work_place} {苏州} {苏州城};
     #replace {work_place} {峨嵋} {峨嵋派};
     #replace {work_place} {桃源} {桃源县};
@@ -938,9 +940,15 @@
     #replace {work_place} {灵鹫} {灵鹫宫};
     #replace {work_place} {全真} {全真教};
     
-    #foreach {$area_list} {areaname} {
-        #regexp {$work_place}{^$areaname%*} { 
-            goto &1 $areaname;;
+    #foreach {$area_list[%*]} {areaname} {
+        #regexp {$work_place}{^$areaname%*} {
+        
+            #if {"&1" == "红娘%*"} {
+                goto &1;
+            };
+            #else {
+                goto &1 $areaname;
+            };
             
             log $areaname &1;
             
@@ -950,6 +958,29 @@
     };
 };
 
+#list bus_station_list create {11;20;21;30;45;46;64;94;135;168;186;197;243;255;285;321;796;985;989;991;1008;1010;1052;1075;1106;1108;1120;1181;1209;1532;1579;1580;1690;1740;2100;2200;2494;2532}
+
+#alias {mapcar} {
+    #map get roomvnum current_room_id;
+    
+    #if {"%1" == "on"} {
+        #foreach {$bus_station_list[%*]} {room_id} {
+            #map goto $room_id;
+            #map roomflag avoid off;
+        };
+        #showme <139>GPS : 开启马车行节点<079>;
+    };
+    #elseif {"%1" == "off"} {
+        #foreach {$bus_station_list[%*]} {room_id} {
+            #map goto $room_id;
+            #map roomflag avoid on;
+        };
+        #showme <139>GPS : 关闭马车行节点<079>;
+    };
+    
+    #map goto $current_room_id;
+    #unvar current_room_id;
+};
 #alias {on_get_exits} {
     #alias cb_on_get_exits #cr;
     #alias cb_on_get_exits %0;
