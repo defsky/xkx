@@ -398,6 +398,7 @@
     };
     #act {^【%*地图－%*】} {
         #var map[room][area] %%1%%2;
+        #nop #var map[room][area2] %%2;
         get_area_end;
     };
     #class get_area_inner1 close;
@@ -798,6 +799,7 @@
             ^就凭你这点武功，最好不要瞅热闹了，小心被潮水卷跑了;
             ^你身上背的东西太重，洞口又太高，你够不着;
             ^红花会众说道：“阁下不是红花会弟子，最好不要进去;
+            ^你觉得贸然进去有些不妥，还是先问问傻姑和程英再说吧;
         };
         
         #foreach {$on_blocked_trigger_list[%*]} {regstring} {
@@ -905,36 +907,35 @@
     go_forward;
 };
 
-#list area_list create {扬州城;长江北岸;长江南岸;镇江府;建康府南;临安府;嘉兴;明州;牙山湾;江州;苏州城;慕容;泉州;峨嵋派;岳阳;临安府西湖;梅庄;建康府北;归云庄;闽南;大理城;桃源县;临安提督府;灵州;黄河南岸;杀手帮;黄河北岸;丝绸之路;南昌;桃花岛;铁掌峰;建康府诸军都统制府;岳王墓;信阳;荆州;襄阳;洛阳城;长安城;华山;少林寺寺内;回族小镇;大轮寺;凌霄城;侠客岛;冰火岛;华山村;洛阳东;麒麟村;晋阳城;北京城内城;丐帮;日月神教;兰州城;湟中城;星宿海;灵鹫宫;中原;全真教;古墓;曲阜;泰山;武当山;紫禁城;天坛;康亲王府;神龙岛;回部;明教;天龙寺;张家口;白驼;无量山;成都;昆明;苗疆;平西王府;}
-
+#list area_list create {建康府诸军都统制府;临安府西湖;临安提督府;少林寺寺内;北京城内城;长江北岸;长江南岸;建康府南;建康府北;黄河南岸;黄河北岸;丝绸之路;回族小镇;日月神教;康亲王府;平西王府;扬州城;镇江府;临安府;牙山湾;苏州城;峨嵋派;归云庄;大理城;桃源县;杀手帮;桃花岛;铁掌峰;岳王墓;洛阳城;长安城;大轮寺;凌霄城;侠客岛;冰火岛;华山村;洛阳东;麒麟村;晋阳城;兰州城;湟中城;星宿海;灵鹫宫;全真教;武当山;紫禁城;神龙岛;天龙寺;张家口;无量山;嘉兴;明州;江州;慕容;泉州;岳阳;梅庄;闽南;灵州;南昌;信阳;荆州;襄阳;华山;丐帮;中原;古墓;曲阜;泰山;天坛;回部;明教;白驼;成都;昆明;苗疆}
 
 #alias {gotowork} {
     #var work_place %1;
     
-    #replace {work_place} {福州} {闽南};
-    #replace {work_place} {扬州} {扬州城};
-    #replace {work_place} {镇江} {镇江府};
     #replace {work_place} {杭州提督府} {临安提督府};
-    #replace {work_place} {西湖} {临安府西湖};
-    #replace {work_place} {牙山} {牙山湾};
-    #replace {work_place} {苏州} {苏州城};
-    #replace {work_place} {姑苏慕容} {慕容};
-    #replace {work_place} {峨嵋} {峨嵋派};
     #replace {work_place} {建康府南城} {建康府南};
     #replace {work_place} {建康府北城} {建康府北};
     #replace {work_place} {大理城中} {大理城};
+    #replace {work_place} {姑苏慕容} {慕容};
+    #replace {work_place} {小山村} {华山村};
+    #replace {work_place} {少林寺} {少林寺寺内};
+    #replace {work_place} {白驼山} {白驼};
+    #replace {work_place} {福州} {闽南};
+    #replace {work_place} {扬州} {扬州城};
+    #replace {work_place} {镇江} {镇江府};
+    #replace {work_place} {西湖} {临安府西湖};
+    #replace {work_place} {牙山} {牙山湾};
+    #replace {work_place} {苏州} {苏州城};
+    #replace {work_place} {峨嵋} {峨嵋派};
     #replace {work_place} {桃源} {桃源县};
     #replace {work_place} {洛阳} {洛阳城};
     #replace {work_place} {长安} {长安城};
-    #replace {work_place} {少林寺} {少林寺寺内};
-    #replace {work_place} {小山村} {华山村};
     #replace {work_place} {晋阳} {晋阳城};
     #replace {work_place} {北京} {北京城内城};
     #replace {work_place} {兰州} {兰州城};
     #replace {work_place} {湟中} {湟中城};
     #replace {work_place} {星宿} {星宿海};
     #replace {work_place} {灵鹫} {灵鹫宫};
-    #replace {work_place} {白驼山} {白驼};
     #replace {work_place} {全真} {全真教};
     
     #foreach {$area_list} {areaname} {

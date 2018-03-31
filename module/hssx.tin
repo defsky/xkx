@@ -130,7 +130,6 @@
         #if {"$hssx[robdown]" == "true"} {
             #act {^你的任务完成，快回去复命吧} {
                 #unact {^你的任务完成，快回去复命吧};
-                #var hssx[robdown] false;
                 check_rob off;
                 #var hssx[ok] 1;
                 
@@ -154,6 +153,7 @@
 };
 
 #alias {parse_task} {
+    #var hssx[robdown] false;
     check_rob on;
     #class temp_inner kill;
     
