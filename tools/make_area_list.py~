@@ -59,9 +59,7 @@ area_list.sort(key=lambda str:len(str),reverse=True)
 connector = ";"
 area_list = connector.join(area_list)
 
-arealist = "#list area_list create {" + area_list + "}"
-
-print(arealist)
+print("#list area_list create {" + area_list + "}")
     
     
     

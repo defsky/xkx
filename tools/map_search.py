@@ -21,16 +21,17 @@ area_dict = {}
 bus_station_list = []
 
 while line:
-    #words = line.split(' ')
-    
-    #if words[0] == 'R':
-    #    room_count += 1;
     matchobj = re.match(r'R {(.*)} {(.*)} {(.*)} {(.*马车\S+)} {(.*)} {(.*)} {(.*)} {(.*)} {(.*)} {(.*)} {(.*)}',line)
     
     if matchobj:
         room_count += 1;
         bus_station_list.append(matchobj.group(1).strip())
-        print("id:{} status:{} name:{} area:{}".format(matchobj.group(1),matchobj.group(2),matchobj.group(4),matchobj.group(7)))
+        new_name = "{0:{wd}}".format(matchobj.group(4),wd=16-len(matchobj.group(4))*2)
+        print("id:{} status:{} name:{} area:{}".format(
+            matchobj.group(1),
+            matchobj.group(2),
+            new_name,
+            matchobj.group(7)))
     
     line = f.readline()
     

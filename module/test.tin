@@ -324,6 +324,10 @@
     #if {"%1" == "on"} {
         #class fish_on_inner open;
         
+        #act {^【任务】襄阳保卫战开启，请大家踊跃从军，到襄阳的郭靖处报名（ask guojing about 襄阳保卫）} {
+            ask guo about 襄阳保卫;
+            #delay {1} {join 3};
+        };
         #act {^%s%S(%w %w) <昏迷不醒>} {
             #show <139>有人昏了 : %%3 %%4<079>;
             #var fish_target {%%3 %%4};
@@ -338,11 +342,17 @@
         #act {襄阳保卫战正在进行中，现在是蒙古兵第%*轮发兵} {
             #tic {fish_look} {look}{2};
             #delay {60}{#untic fish_look};
+            #delay {1} {yun qi};
             #delay {2} {jiali max};
-            #delay {3} {yun powerup};
-            #delay {4} {yun qi};
+            #delay {3} {pu};
+            #delay {4} {jg};
         };
-        
+        #act {你双手合十，散去了凝聚于全身上下的「金刚不坏体神功」} {
+            jg;
+        };
+        #act {你的易筋经神功运行完毕，将内力收回丹田} {
+            pu;
+        };
         #class fish_on_inner close;
     };
     #elseif {"%1" == "off"} {
@@ -366,6 +376,17 @@
     };
     
     daz start;
+};
+
+#alias {watch_canju} {
+    #act {^你精力不够，无法领悟残局} {
+        #unact {^你精力不够，无法领悟残局};
+        #act {^你内力不够} {
+            #delay {60}{watch_canju};
+        };
+        yun regenerate;
+    };
+    watch canju;
 };
 
 #act {^你感觉到你的真气开始四处乱闯，渐渐体力不支，不得不回来歇一歇} {

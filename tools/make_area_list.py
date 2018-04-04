@@ -19,10 +19,6 @@ room_count = 0
 area_dict = {}
 
 while line:
-    #words = line.split(' ')
-    
-    #if words[0] == 'R':
-    #    room_count += 1;
     matchobj = re.match(r'R {(.*)} {(.*)} {(.*)} {(.*)} {(.*)} {(.*)} {(.*)} {(.*)} {(.*)} {(.*)} {(.*)}',line)
     
     if matchobj:
@@ -46,7 +42,6 @@ while line:
     
 f.close()
 
-#print("room count : {}".format(room_count))
 print("Process completed")
 
 area_list = []

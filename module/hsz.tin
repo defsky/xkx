@@ -18,7 +18,7 @@
     #act {^这时，你展开了精心绘制的地区地图，找到了异族奸细的行迹} {
         #act {http://pkuxkx.net/antirobot/robot.php?filename=%*} {
             #unact {http://pkuxkx.net/antirobot/robot.php?filename=%*};
-            #system {firefox http://pkuxkx.net/antirobot/robot.php?filename=%%1};
+            #system {firefox http://pkuxkx.net/antirobot/robot.php?filename=%%%1};
         };
     };
 };

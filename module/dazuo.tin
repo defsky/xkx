@@ -58,10 +58,14 @@
                     #delay {1} {dazuo 10};
                 };
             };
-        } {
+        };
+        #elseif {$status[force_max] == $dazuo[limit]} {
             _dzmsg 内力达到上限;
             log 内力达到上限;
             daz stop;
+        };
+        #else {
+            _do_dazuo;
         };
     } {2};
 };
@@ -73,6 +77,7 @@
             
             #act {^%s内功 (force)%*有效等级%*%d$}
             {
+                #unact {^%s内功 (force)%*有效等级%*%d$};
 	            #var dazuo[limit] @eval{%%4 * 10};
                 _do_dazuo;
             };
@@ -121,18 +126,9 @@
                 #undelay {dl_wakeup};
                 _do_dazuo;
             };
-            #act {^你深深吸了几口气} {
+            #act {^{你深深吸了几口气|你现在气力充沛|你略一凝神}} {
                 _do_dazuo;
             };
-            #act {^你略一凝神} {
-                _do_dazuo;
-            };
-            #act {牛皮酒袋已经被喝得一滴也不剩了} {
-                get jiudai 4 from bao;
-                put jiudai 2 in bao;
-                he jiudai;
-            };
-            
             #class dz_start_inner close;
             jifa;
         };

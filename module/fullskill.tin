@@ -109,31 +109,11 @@
     
     goto $fsk[config][sleep];
     on_there {
+        #delay {wd_dosleep} {sleep}{5};
         sleep;
     };
 };
-#var _on_sleep_way 0;
-#alias {_go_sleep1} {
-    #if {$_on_sleep_way == 0} {
-        #var _on_sleep_way 1;
-        
-        #undelay {wd_lian};
-        #undelay {wd_lingwu};
-        #event {END OF PATH} {
-            #untic {tk_walk};
-            set brief 0;
-            #delay {1} {_fskmsg 到达目的地};
-            #unevent {END OF PATH};
-        };
-        set brief 1;
-        #path load $fsk[config][path];
-        #tic {tk_walk}{#path walk}{1};
-        on_there {
-            #var _on_sleep_way 0;
-            sleep;
-        };
-    };
-};
+
 #alias {_go_fsk} {
     #alias cb_go_fsk #cr;
     #alias cb_go_fsk %0;
@@ -144,24 +124,7 @@
         #unalias cb_go_fsk
     };
 };
-#alias {_go_fsk1} {
-    #alias cb_go_fsk #cr;
-    #alias cb_go_fsk %0;
-    
-    #event {END OF PATH} {
-        #untic {tk_walk};
-        set brief 0;
-        #delay {1} {_fskmsg 到达目的地};
-        #unevent {END OF PATH};
-    };
-    set brief 1;
-    #path load $fsk[config][rpath];
-    #tic {tk_walk}{#path walk}{1};
-    on_there {
-        cb_go_fsk;
-        #unalias cb_go_fsk
-    };
-};
+
 #alias {_lian} {
     #delay {wd_lian} {_lian} {5};
     
@@ -221,14 +184,20 @@
             };
         };
     };
-    #act {你刚在三分钟内睡过一觉} {
+    #act {^你刚在三分钟内睡过一觉} {
+        #undelay {wd_dosleep};
         _fskmsg 10秒后再尝试睡觉;
         log 10秒后再尝试睡觉;
         #delay {dl_lingwu_sleep} {
+            #delay {wd_dosleep}{sleep}{5};
             sleep;
         } {10};
     };
+    #act {^你精血不足，翻来覆去无法入眠} {
+        #delay {60}{sleep};
+    };
     #act {不一会儿，你就进入了梦乡} {
+        #undelay {wd_dosleep};
         #delay {wd_wakeup} {
             _go_fsk { _lingwu };
         }{100};
@@ -323,13 +292,19 @@
         };
     };
     #act {你刚在三分钟内睡过一觉} {
+        #undelay {wd_dosleep};
         _fskmsg 10秒后再尝试睡觉;
         log 10秒后再尝试睡觉;
         #delay {dl_lian_sleep} {
+            #delay {wd_dosleep}{sleep}{5};
             sleep;
         } {10};
     };
+    #act {^你精血不足，翻来覆去无法入眠} {
+        #delay {60}{sleep};
+    };
     #act {不一会儿，你就进入了梦乡} {
+        #undelay {wd_dosleep};
         #delay {wd_wakeup} {
             _go_fsk { _lian };
         }{100};

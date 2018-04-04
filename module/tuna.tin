@@ -48,10 +48,14 @@
             log 吐纳 : $tuna_value;
             #send {tuna $tuna_value};
             #unvar tuna_value;
-        } {
+        };
+        #elseif {$status[energy_max] == $tuna[limit]} {
             _tnmsg 达到上限，吐纳完成;
             log 精力达到上限;
             tn stop;
+        };
+        #else {
+            _do_tuna;
         };
     } {2};
 };
@@ -64,6 +68,7 @@
             
             #act {^%s内功 (force)%*有效等级%*%d$}
             {
+                #unact {^%s内功 (force)%*有效等级%*%d$};
 	            #var tuna[limit] @eval{%%4 * 10};
 	            
                 _do_tuna;
@@ -119,11 +124,6 @@
             #act {^你略一凝神，精神看起来好多了} {
                 #undelay {dl_tuna_timeout};
                 _do_tuna;
-            };
-            #act {^牛皮酒袋已经被喝得一滴也不剩了} {
-                get jiudai 4 from bao;
-                put jiudai 2 in bao;
-                he jiudai;
             };
             #act {^你附近没有这样东西} {
                 _tnmsg bao里没有jiudai了;

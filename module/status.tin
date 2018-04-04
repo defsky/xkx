@@ -574,6 +574,7 @@
 #alias {hpbrief1}
 {
     #undelay {hpbrief1_watchdog};
+    #unvar hnd_hb;
     event_handler_add {hnd_hb}{RECEIVED LINE};
 
 	#send hpbrief;
@@ -581,72 +582,10 @@
 	#delay {hpbrief1_watchdog} {event_handler_del {hnd_hb}{RECEIVED LINE}} {3};
 };
 
-#alias {hpbrief1_old}{
-    #nop #经验，潜能，最大内力，当前内力，最大精力，当前精力;
-    #nop #最大气血，有效气血，当前气血，最大精神，有效精神，当前精神;
-    #nop set hpbrief long情况下可另显示一行 #真气，真元，食物，饮水;
-    
-    #class hpbf_inner open;
-    
-    #var hpbf_inner_buffer {};
-    #var hpbf_inner_buffer[line] 1;
-    #var hpbf_inner_buffer[start] 0;
-    
-    #event {RECEIVED LINE}
-    {
-        #var hpbf_inner_buffer[rcvd_line] {%%1};
-        #if {"$hpbf_inner_buffer[rcvd_line]" != ""}
-        {
-            #if {$hpbf_inner_buffer[line]==3}
-            {
-                #regexp {$hpbf_inner_buffer[rcvd_line]}{^#%S,%S,%S,%S$}
-                {
-                    #var status[zhenqi] &1;
-                    #var status[zhenyuan] &2;
-                    #var status[food] &3;
-                    #var status[water] &4;
-                    
-                    
-                    update_status_bar top;
-                    update_status_bar;
-                    
-                    #line gag;
-                    #class hpbf_inner kill;
-                };
-            }
-            {
-                #regexp {$hpbf_inner_buffer[rcvd_line]}{^#%S,%S,%S,%S,%S,%S$}
-                {
-                    #if {$hpbf_inner_buffer[line]==1}
-                    {
-                        #var hpbf_inner_buffer[start] 1;
-                        
-                        #var status[exp] &1;
-		                #var status[pot] &2;
-		                #var status[force_max] &3;
-		                #var status[force] &4;
-		                #var status[energy_max] &5;
-		                #var status[energy] &6;
-                    }
-                    {
-                        #var status[hp_max] &1;
-		                #var status[hp_valid] &2;
-		                #var status[hp] &3;
-		                #var status[sp_max] &4;
-		                #var status[sp_valid] &5;
-		                #var status[sp] &6;
-                    };
-                    #math hpbf_inner_buffer[line] $hpbf_inner_buffer[line] + 1;
-                };
-            }; 
-        };
-        #if {$hpbf_inner_buffer[start] == 1 } {#line gag};
-    };
-    
-    #class hpbf_inner close;
-    
-    hpbrief
-};
+#nop #经验，潜能，最大内力，当前内力，最大精力，当前精力;
+#nop #最大气血，有效气血，当前气血，最大精神，有效精神，当前精神;
+#nop set hpbrief long情况下可另显示一行 #真气，真元，食物，饮水;
+
 
 #alias {status.set_action}
 {

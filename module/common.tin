@@ -19,7 +19,7 @@
 #function {screenw} 	{#format result {%C}};
 #function {screenh} 	{#format result {%R}};
 #function {replace} 	{#var result %1;#replace result {%2} {%3}};
-#function {ctd} 		{#math result {@replace{@replace{{0+@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{%1;{零};{*0+}};{十};{*10+}};{百};{*100+}};{千};{*1000+}};{万};{*10000+}};{六};{6}};{一};{1}};{二};{2}};{三};{3}};{四};{4}};{五};{5}};{七};{7}};{八};{8}};{九};{9}}+0};{++};{+}};{+*};{+}}}};
+#function {ctd} 		{#math result {@replace{@replace{{0+@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{%1;{零};{*0+}};{十};{*10+}};{百};{*100+}};{千};{*1000+}};{万};{*10000+}};{甲子};{*60+}};{六};{6}};{一};{1}};{二};{2}};{三};{3}};{四};{4}};{五};{5}};{七};{7}};{八};{8}};{九};{9}}+0};{++};{+}};{+*};{+}}}};
 
 #function {reverse} {
     #switch {"%1"} {
