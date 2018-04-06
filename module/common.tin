@@ -116,6 +116,16 @@
     chat* %0;
 };
 
+#alias {bjd} {
+    give 1 gold to bai;
+    #delay {1} {give %1 to bai};
+};
+#alias {atld} {
+    autoload %1;yes;
+};
+#alias {dsld} {
+    disload %1;yes;
+};
 #class $mod_name close;
 
 ${mod_name}_load;

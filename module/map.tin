@@ -1030,7 +1030,18 @@
     #class traverse_inner close;
 };
 
-
+#alias {rbz} {
+    goto ÈÙ±¦Õ«;
+};
+#alias {dp} {
+    goto µ±ÆÌ;
+};
+#alias {qz} {
+    goto Ç®×¯;
+};
+#alias {wm} {
+    goto ÎäÃí;
+};
 #class $mod_name close;
 
 ${mod_name}_load;
