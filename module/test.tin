@@ -360,6 +360,14 @@
     };
 };
 
+#alias {dig2} {
+    #act {^你直起身来，看看已具规模的工事，擦了擦汗，停下来歇一歇} {
+        #unact {^你直起身来，看看已具规模的工事，擦了擦汗，停下来歇一歇};
+        dig;
+    };
+    dig;
+};
+
 #alias {dztn} {
     mod dazuo reload;
     
@@ -389,15 +397,54 @@
     watch canju;
 };
 
-#nop 你的眼前一黑，接著什么也不知道了;
-#nop 慢慢地你终于又有了知觉;
+#nop 八卦阵 -;
+#nop 你根本就没有受伤，疗什么伤啊;
+#nop 洪荒古阵 -;
 
-#alias {zoubagua} {
-    #list bagua_path create {坎;离;震;艮;艮;兑;巽;震;乾;震;兑;巽;离;坎;兑;艮;兑;坎};
+#list zbg[path] create {坎;离;震;艮;艮;兑;巽;震;乾;震;兑;巽;离;坎;兑;艮;兑;坎};
+
+#alias {zbg.recover.do} {
+    #alias cb_zbg #cr;
+    #alias cb_zbg %0;
     
-    #foreach {$bagua_path[%*]} {m} {
+    #if {$status[hp_max] > $status[hp_valid} {
+        yun heal
+        #delay {1} {zbg.recover.do};
+    };
+    #elseif {$status[hp_valid] > $status[hp]} {
+        yun recover
+        #delay {1} {zbg.recover.do};
+    };
+    #elseif {$status[sp_max] > $status[sp_valid} {
+        yun inspire;
+        #delay {1} {zbg.recover.do};
+    };
+    #elseif {$status[sp_valid] > $status[sp]} {
+        yun regenerate;
+        #delay {1} {zbg.recover.do};
+    };
+    #else {
+        cb_zbg;
+    };
+};
+#alias {zbg.reset} {
+    #var zbg[idx] 1;
+    #show <139>test : 路径恢复初始状态<079>;
+};
+#alias {zbg} {
+    
+    #act {^你的眼前一黑，接著什么也不知道了} {
+        #unact {^你的眼前一黑，接著什么也不知道了};
+        #act {^慢慢地你终于又有了知觉} {
+            #unact {^慢慢地你终于又有了知觉};
+            hpbrief1;
+
+        };
     
     };
+    
+    #send $zbg[path][$zbg[idx]];
+    #math zbg[idx] {$zbg[idx] + 1};
 };
 
 #alias {zuandong.start} {
@@ -426,6 +473,39 @@
 
 #alias {zuandong.stop} {
     #class zuandong_inner kill;
+};
+
+#alias {cjglw.start} {
+    #class cjglw_inner open;
+    
+    #var cjglw_stop 0;
+    
+    #act {^你结束了对佛法的冥思，觉得颇有所获} {
+        do 3 eat liang;
+        do 4 he jiudai;
+        #delay {3} {lingwu};
+        #math cjglw_count {$cjglw_count + 1};
+        log 已完成 $cjglw_count 次藏经阁领悟;
+        
+        #if {$cjglw_stop == 1} {
+            #class cjglw_inner kill;
+            log 结束藏经阁领悟;
+        };
+    };
+    
+    #act {^你突然觉得窗外的扫地老僧对你笑了笑} {
+        #math cjglw_smile_count {$cjglw_smile_count + 1};
+        log 扫地僧对你笑了 $cjglw_smile_count 次了;
+    };
+    
+    #tic {cjglw}{lingwu}{300};
+    
+    #class cjglw_inner close;
+    
+    lingwu;
+};
+#alias {cjglw.stop} {
+    #var cjglw_stop 1;
 };
 
 #act {^    %S({Silver|Gold})} {
