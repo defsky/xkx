@@ -389,20 +389,43 @@
     watch canju;
 };
 
-#act {^你感觉到你的真气开始四处乱闯，渐渐体力不支，不得不回来歇一歇} {
-    log 第$enterhole_count次尝失败了。。。;
-    on_unbusy {
-        eat liang;he jiudai;
-        enter hole;
+#nop 你的眼前一黑，接著什么也不知道了;
+#nop 慢慢地你终于又有了知觉;
+
+#alias {zoubagua} {
+    #list bagua_path create {坎;离;震;艮;艮;兑;巽;震;乾;震;兑;巽;离;坎;兑;艮;兑;坎};
+    
+    #foreach {$bagua_path[%*]} {m} {
+    
     };
 };
-#act {^突然，一股暗流把你推到一个洞口，你终于可以走到洞里，感觉轻松多了...} {
-    log 第$enterhole_count次尝失成功了！;
-};
-#act {^你取出火折，轻轻一纵，跃入古洞之中} {
-    #math enterhole_count {$enterhole_count + 1};
+
+#alias {zuandong.start} {
+    #class zuandong_inner open;
     
-    log 第$enterhole_count次尝试进入洪荒古洞;
+    #act {^你感觉到你的真气开始四处乱闯，渐渐体力不支，不得不回来歇一歇} {
+        log 第$enterhole_count次尝失败了。。。;
+        on_unbusy {
+            eat liang;he jiudai;
+            enter hole;
+        };
+    };
+    #act {^突然，一股暗流把你推到一个洞口，你终于可以走到洞里，感觉轻松多了...} {
+        log 第$enterhole_count次尝失成功了！;
+    };
+    #act {^你取出火折，轻轻一纵，跃入古洞之中} {
+        #math enterhole_count {$enterhole_count + 1};
+        
+        log 第$enterhole_count次尝试进入洪荒古洞;
+    };
+    
+    #class zuandong_inner close;
+    
+    enter hole;
+};
+
+#alias {zuandong.stop} {
+    #class zuandong_inner kill;
 };
 
 #act {^    %S({Silver|Gold})} {
