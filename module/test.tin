@@ -443,6 +443,7 @@
     
     };
     
+    #show <139>test : $zbg[path][$zbg[idx]]<079>;
     #send $zbg[path][$zbg[idx]];
     #math zbg[idx] {$zbg[idx] + 1};
 };
@@ -483,16 +484,20 @@
     #act {^你结束了对佛法的冥思，觉得颇有所获} {
         do 3 eat liang;
         do 4 he jiudai;
-        #delay {3} {lingwu};
+        
         #math cjglw_count {$cjglw_count + 1};
         log 已完成 $cjglw_count 次藏经阁领悟;
         
         #if {$cjglw_stop == 1} {
             #class cjglw_inner kill;
+            
             log 结束藏经阁领悟;
+        } {
+            #delay {3} {lingwu};
         };
     };
     
+    #nop 你突然觉得窗外的扫地老僧对你笑了笑,回头却发现他只是在专心打扫;
     #act {^你突然觉得窗外的扫地老僧对你笑了笑} {
         #math cjglw_smile_count {$cjglw_smile_count + 1};
         log 扫地僧对你笑了 $cjglw_smile_count 次了;
@@ -506,6 +511,7 @@
 };
 #alias {cjglw.stop} {
     #var cjglw_stop 1;
+    #show <139>test : 藏经阁领悟停止<079>;
 };
 
 #act {^    %S({Silver|Gold})} {

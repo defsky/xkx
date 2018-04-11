@@ -43,12 +43,16 @@
         #act {^你坐下来开始听国子监里面的博士讲授课程%*方面的一些知识} {
             log 开始听课 : %%1;
             #untic {tk_music};
+            #delay {wd_classover} {
+                #tic {tk_music}{listen}{10};
+            }{1100};
         };
         #act {^你专心听博士讲授%*，感觉自己对这方面的知识又掌握了一些} {
             log 正在听课 : %%1;
         };
         #act {^国子监的博士结束了%*的讲授，学生们站起来欢送博士的离开} {
             log 结束听课 : %%1;
+            #undelay {wd_classover};
             #tic {tk_music} {listen} {10};
         };
         #act {^%S这门课程对你来说过于%*，请以后再来听讲。} {

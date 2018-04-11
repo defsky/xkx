@@ -18,10 +18,10 @@
     yun powerup;
 };
 #alias {wi} {
-    wield staff;
+    wield blade;
 };
 #alias {uwi} {
-    unwield staff;
+    unwield blade;
 };
 #alias {lw}{
     perform zui-quan.lingwu;
