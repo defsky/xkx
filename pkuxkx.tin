@@ -24,4 +24,6 @@
 
 #read framework/module.tin;
 
+mod login load;
+
 #split;

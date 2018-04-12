@@ -299,7 +299,7 @@
         {
             #var status[money] &3;
         };
-        #regexp {%1} {^%s实战经验：%s%S年功力%*}
+        #regexp {%1} {^%s实战经验：%s%S{年|}功力%*}
         {
             #var status[ability] @ctd{&3};
         };
