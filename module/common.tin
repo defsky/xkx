@@ -126,6 +126,29 @@
 #alias {dsld} {
     disload %1;yes;
 };
+#alias {s2g} {
+    convert %1 silver to gold;
+};
+#alias {jq} {
+    #act {^jobquery 支持参数} {
+        #unact {^jobquery 支持参数};
+        #buffer lock;
+    };
+    jobquery;
+};
+
+#alias {fm} {
+    #if {"%1" == ""} {
+        #act {http://pkuxkx.net/antirobot/robot.php?filename=%*} {
+            #unact {http://pkuxkx.net/antirobot/robot.php?filename=%*};
+            #system {firefox http://pkuxkx.net/antirobot/robot.php?filename=%%1};
+        };
+        fullme;
+    } {
+        fullme %1;
+    };
+};
+
 #class $mod_name close;
 
 ${mod_name}_load;

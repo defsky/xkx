@@ -649,7 +649,7 @@
             #var map[gt][status] 0;        
         } {
             gt_msg 找到路径 {$map[gt][path]};
-
+            
             on_error {
                 #var map[gt][status] 0;
                 #class goto_inner kill;
@@ -662,6 +662,8 @@
 };
 
 #alias {_path_run} {
+    status.set_action 走路中;
+    
     #class _path_run_inner open;
     
     #var path_run {};
@@ -684,6 +686,8 @@
             gt_msg 到达目的地;
             #var map[gt][status] 0;
             #class goto_inner kill;
+            
+            status.set_action 空闲;
         } {
             #class go_forward_inner open;
             
@@ -697,6 +701,8 @@
                 set brief 0;
                 
                 gt_wrn 行走出错;
+                
+                status.set_action 空闲;
             };
             on_rewalk_need {
                 #nop #show 需要重走 $path_run[list][$path_run[list_idx]];

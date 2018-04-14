@@ -131,6 +131,8 @@
         _fskmsg 所有技能升级完成;
         log 所有技能升级完成;
         
+        status.set_action 空闲;
+        
     } {
         #var fsk[status][base] $fsk[skills][$fsk[status][skill_idx]][base];
         #var fsk[status][special] $fsk[skills][$fsk[status][skill_idx]][special];
@@ -147,6 +149,8 @@
 };
 
 #alias {_go_sleep} {
+    status.set_action 去睡觉;
+    
     #undelay {wd_lian};
     #undelay {wd_lingwu};
     
@@ -158,6 +162,8 @@
 };
 
 #alias {_go_fsk} {
+    status.set_action 去练功;
+    
     #alias cb_go_fsk #cr;
     #alias cb_go_fsk %0;
     
@@ -179,6 +185,8 @@
     #send {lingwu $fsk[status][base] $fsk[config][freq][lw]};
 };
 #alias {lingw} {
+    status.set_action 领悟;
+    
     unwield all;
     
     #class lingw_inner open;
@@ -255,7 +263,10 @@
         _fskmsg 睡觉醒来去领悟;
         log 睡觉醒来去领悟 : $fsk[status][base];
         #delay {1} {
-            _go_fsk { _lingwu };
+            _go_fsk {
+                status.set_action 领悟;
+                _lingwu;
+            };
         };
     };
     #act {你的内力不够} {
@@ -278,6 +289,7 @@
     #send {verify $fsk[status][special]};
 };
 #alias {lianx} {
+    status.set_action 练习;
     
     #var fsk[status][lianable] 1;
     
@@ -373,7 +385,10 @@
         _fskmsg 睡觉醒来去练功;
         log 睡觉醒来去练功 : $fsk[status][special];
         #delay {1} {
-            _go_fsk { _lian };
+            _go_fsk {
+                status.set_action 练习;
+                _lian;
+            };
         };
     };
     #act {^你的内力{太低|不够}} {

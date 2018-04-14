@@ -73,6 +73,8 @@
 #alias {daz} {
     #switch {"%1"} {
         #case {"start"} {
+            status.set_action 打坐;
+            
             #class dz_start_inner open;
             
             #act {^%s内功 (force)%*有效等级%*%d$}
@@ -133,6 +135,8 @@
             jifa;
         };
         #case {"stop"} {
+            status.set_action 空闲;
+            
             #class dz_start_inner kill;
             #undelay {dl_dazuo_do};
             #undelay {dl_dazuo_cantsleep};

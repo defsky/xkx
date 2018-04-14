@@ -62,6 +62,8 @@
 #alias {tn} {
     #switch {"%1"} {
         #case {"start"} {
+            status.set_action ÍÂÄÉ;
+            
             #class tn_start_inner open;
             
             #var tuna[level] %2;
@@ -133,6 +135,8 @@
             jifa;
         };
         #case {"stop"} {
+            status.set_action ¿ÕÏĞ;
+            
             #class tn_start_inner kill;
             #undelay {dl_tuna_do};
             #undelay {dl_tuna_sleep};

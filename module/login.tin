@@ -32,7 +32,7 @@
         #format screen[rows] {%R};
         #format screen[cols] {%C};
 
-        #list {startup_modules} {create} {event;common;path;sched;bag;fullskill};
+        #list {startup_modules} {create} {event;common;path;sched;bag;misc;test;fullskill};
 
         startup_mod_init;
         

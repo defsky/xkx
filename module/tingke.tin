@@ -41,6 +41,8 @@
         #class tk_start_inner open;
         
         #act {^你坐下来开始听国子监里面的博士讲授课程%*方面的一些知识} {
+            status.set_action 准备上课;
+            
             log 开始听课 : %%1;
             #untic {tk_music};
             #delay {wd_classover} {
@@ -48,9 +50,13 @@
             }{1100};
         };
         #act {^你专心听博士讲授%*，感觉自己对这方面的知识又掌握了一些} {
+            status.set_action 上课中;
+            
             log 正在听课 : %%1;
         };
         #act {^国子监的博士结束了%*的讲授，学生们站起来欢送博士的离开} {
+            status.set_action 等待上课;
+            
             log 结束听课 : %%1;
             #undelay {wd_classover};
             #tic {tk_music} {listen} {10};
@@ -66,6 +72,8 @@
         listen;
     };
     #elseif {"%1" == "stop"} {
+        status.set_action 空闲;
+        
         #untic {tk_music};
         #class tk_start_inner kill;
     };

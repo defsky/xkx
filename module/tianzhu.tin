@@ -1,0 +1,128 @@
+#class $mod_name open;
+
+#alias {${mod_name}_load} {
+    #showme Module $mod_name loaded;
+    #unalias ${mod_name}_load;
+};
+
+#alias {${mod_name}_unload}{
+    #showme Module $mod_name unloaded;
+    #class $mod_name kill;
+};
+
+#alias {${mod_name}_help}{
+    #showme <139>模块帮助文档 : ${mod_name}<079>;
+    
+    /* TODO: place your HELP doc here */
+    
+    #showme  ;
+    #showme <139> -> 按任意键继续...<079>;
+    #buffer lock;
+};
+
+#alias {tz} {
+    goto 莲花生大士;
+};
+#alias {tzjob} {
+    ask dashi about job;
+};
+#alias {tzf} {
+    ask dashi about fail;
+};
+#alias {gtz} {
+    get tian zhu;
+};
+
+#alias {tzpos} {
+    #show 莲花生大士(lianhuasheng dashi)告诉你：我推测天珠可能即将在%1的%2出世，你不妨去看一看;
+};
+#alias {on_tz_robs} {
+    #act {^    江湖巨盗%s%S(%w %w)} {
+        #var tz[robs][%%2] {@lower{%%3} %%4};
+    };
+};
+#alias {on_dzmax} {
+    #alias cb_on_dzmax #cr;
+    #alias cb_on_dzmax %0;
+    
+    #act {^{你将内息走了个小周天，流回丹田，收功站了起来|你现在内力接近圆满状态}} {
+        #un#act {^{你将内息走了个小周天，流回丹田，收功站了起来|你现在内力接近圆满状态}};
+        #unact {^你正在运行内功加速全身气血恢复，无法静下心来搬运真气};
+        
+        cb_on_dzmax;
+        #unalias cb_on_dzmax;
+    };
+    #act {^你正在运行内功加速全身气血恢复，无法静下心来搬运真气} {
+        #unact {^你正在运行内功加速全身气血恢复，无法静下心来搬运真气};
+        
+        #act {^你减缓真气运行，让气血运行恢复正常} {
+            dazuo max;
+        };
+    };
+    
+    dazuo max;
+    
+    status.set_action 打坐;
+};
+
+#act {^莲花生大士(lianhuasheng dashi)告诉你：天珠即将出世} {
+    #act {^你的客户端不支持MXP,请直接打开链接查看图片} {
+        #unact {^你的客户端不支持MXP,请直接打开链接查看图片};
+        
+        #act {http://pkuxkx.net/antirobot/robot.php?filename=%*} {
+            #unact {http://pkuxkx.net/antirobot/robot.php?filename=%*};
+            #system {firefox http://pkuxkx.net/antirobot/robot.php?filename=%%%1};
+        };
+    };
+} {4};
+#act {^莲花生大士(lianhuasheng dashi)告诉你：我推测天珠可能即将在%*的%*出世，你不妨去看一看} {
+    #var tz[pos][area] %1;
+    #var tz[pos][room] %2;
+    
+    log 天珠在 %1 %2;
+    
+    #act {^似乎有什么东西一闪} {
+        #unact {^似乎有什么东西一闪};
+        
+        #act {^    天珠(Tian zhu)} {
+            #unact {^    天珠(Tian zhu)};
+            
+            #untic tk_tz;
+            
+            #delay {1} {#show <139>发现天猪<079>};
+        };
+        #tic {tk_tz} {look} {1};
+    };
+    #act {等人出现，恶狠狠地看着你} {
+        #unvar tz[robs];
+        #unact {等人出现，恶狠狠地看着你};
+        on_tz_robs {
+        
+        };
+        look;
+    };
+    
+    #act {^历经艰辛之后，你获取了出世的天珠，可以把它交给莲花生大士复命了} {
+        #unact {^历经艰辛之后，你获取了出世的天珠，可以把它交给莲花生大士复命了};
+        #unact {^    江湖巨盗%s%S(%w %w)};
+        #unvar tz[pos];
+        
+        #act {^莲花生大士给了你一枚天珠，并嘱咐到：在短期内佩戴(pei)在身会有凝神醒脑、提升修为的作用} {
+            #unact {^莲花生大士给了你一枚天珠，并嘱咐到：在短期内佩戴(pei)在身会有凝神醒脑、提升修为的作用};
+            pei;
+        };
+        
+        goto 莲花生大士;
+        on_there {
+            give tian zhu to dashi;
+        };
+    };
+    
+    on_dzmax {
+        goto $tz[pos][room] $tz[pos][area];
+    };
+} {4};
+
+#class $mod_name close;
+
+${mod_name}_load;
