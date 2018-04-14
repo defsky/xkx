@@ -29,6 +29,33 @@
 #alias {tzf} {
     ask dashi about fail;
 };
+#alias {tzgo} {
+    #switch {"$tz[pos][area]"} {
+        #case {"建康府北城"} {
+            #var tz[pos][maparea] 建康府北;
+        };
+        #case {"建康府南城"} {
+            #var tz[pos][maparea] 建康府南;
+        };
+        #case {"小山村"} {
+            #var tz[pos][maparea] 华山村;
+        };
+        #case {"西湖"} {
+            #var tz[pos][maparea] 临安府西湖;
+        };
+        #case {"杭州提督府"} {
+            #var tz[pos][maparea] 临安提督府;
+        };
+        #case {"姑苏慕容"} {
+            #var tz[pos][maparea] 慕容;
+        };
+        #case {"姑苏慕容"} {
+            #var tz[pos][maparea] 慕容;
+        };
+    };
+    
+    goto $tz[pos][room] $tz[pos][maparea];
+};
 #alias {gtz} {
     get tian zhu;
 };
@@ -46,7 +73,7 @@
     #alias cb_on_dzmax %0;
     
     #act {^{你将内息走了个小周天，流回丹田，收功站了起来|你现在内力接近圆满状态}} {
-        #un#act {^{你将内息走了个小周天，流回丹田，收功站了起来|你现在内力接近圆满状态}};
+        #unact {^{你将内息走了个小周天，流回丹田，收功站了起来|你现在内力接近圆满状态}};
         #unact {^你正在运行内功加速全身气血恢复，无法静下心来搬运真气};
         
         cb_on_dzmax;
@@ -89,7 +116,10 @@
             
             #untic tk_tz;
             
-            #delay {1} {#show <139>发现天猪<079>};
+            log 发现天珠;
+            yun qi;
+            #delay {1} {jg};
+            #delay {2} {pu};
         };
         #tic {tk_tz} {look} {1};
     };
@@ -107,9 +137,15 @@
         #unact {^    江湖巨盗%s%S(%w %w)};
         #unvar tz[pos];
         
+        log 成功获取天珠 回城;
+        
         #act {^莲花生大士给了你一枚天珠，并嘱咐到：在短期内佩戴(pei)在身会有凝神醒脑、提升修为的作用} {
             #unact {^莲花生大士给了你一枚天珠，并嘱咐到：在短期内佩戴(pei)在身会有凝神醒脑、提升修为的作用};
             pei;
+        };
+        #act {^莲花生大士轻笑，居然有一颗%*包裹在天珠的外面，你也一起拿去吧} {
+            #unact {^莲花生大士轻笑，居然有一颗%*包裹在天珠的外面，你也一起拿去吧};
+            pgem;
         };
         
         goto 莲花生大士;
@@ -119,7 +155,7 @@
     };
     
     on_dzmax {
-        goto $tz[pos][room] $tz[pos][area];
+        tzgo;
     };
 } {4};
 

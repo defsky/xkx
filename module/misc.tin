@@ -519,11 +519,11 @@
         #math xiul[count] {$xiul[count] - 1};
         
         #if {$xiul[count] <= 0} {
-            log $xiul[target] 修炼完毕;
+            log 修炼完毕 $xiul[target];
             
             #unact {^你从玄幻之境回过神来，顿觉内功修为增进不小};
         } {
-            log $xiul[target] 还要修炼 $xiul[count] 次 ;
+            log 还要修炼 $xiul[count] 次 $xiul[target];
             xiulian $xiul[target];
         };
     };
