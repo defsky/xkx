@@ -288,16 +288,41 @@
         #act {^你减缓真气运行，让自身恢复正常} {
             yun jing;
         };
+        #act {^你的精不够，无法继续拜祭} {
+            baij stop;
+            
+            goto 春来;
+            on_there {
+                do 5 get jiudai from bao 2;
+                drink;
+                #act {酒袋装填完毕} {
+                    #unact {酒袋装填完毕};
+                    on_there {
+                        baij;
+                    };
+                    #delay {20} {goto 大成殿};
+                };
+                #delay {1} { filljd 5; };
+            };
+        };
         #tic {tk_bj} {
             #if {$status[sp] < @eval{$status[sp_max] * 0.5}} {
-                #var baiji_count 3;
+                #if {$baiji_count != 3} {
+                    log 精力不多慢慢拜祭;
+                    hpbrief1;
+                    #var baiji_count 3;
+                };
             };
             #elseif {$status[sp] > @eval{$status[sp_max] - 200}} {
-                #var baiji_count 10;
+                #if {$baiji_count != 10} {
+                    log 精力充足全速拜祭;
+                    #var baiji_count 10;
+                    hpbrief1;
+                };
             };
             do $baiji_count baiji xiang;
         } {1};
-        #tic {tk_chihe} {chi liang ;he jiudai} {40};
+        #tic {tk_chihe} {chi liang ;he jiudai} {120};
         #tic {tk_yunjing} {yun jing} {62};
         
         #class baij_inner close;

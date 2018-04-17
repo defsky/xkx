@@ -52,6 +52,9 @@
         #case {"¹ÃËÕÄ½ÈÝ"} {
             #var tz[pos][maparea] Ä½ÈÝ;
         };
+        #default {
+            #var tz[pos][maparea] $tz[pos][area];
+        };
     };
     
     goto $tz[pos][room] $tz[pos][maparea];
