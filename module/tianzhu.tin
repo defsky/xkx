@@ -52,6 +52,9 @@
         #case {"姑苏慕容"} {
             #var tz[pos][maparea] 慕容;
         };
+        #case {"大理城中"} {
+            #var tz[pos][maparea] 大理城;
+        };
         #default {
             #var tz[pos][maparea] $tz[pos][area];
         };
