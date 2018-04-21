@@ -350,6 +350,7 @@
             };
         };
         #act {襄阳保卫战正在进行中，现在是蒙古兵第%*轮发兵} {
+            halt;
             #tic {fish_look} {look}{2};
             #delay {60}{#untic fish_look};
             #delay {1} {yun qi};
@@ -557,6 +558,95 @@
     };
     
     xiulian $xiul[target];
+};
+
+#alias {bhdin} {n;e;n;w;n;s;e;e};
+#alias {bhdxd} {e;e;w;n;s};
+#alias {bhdsl} {n;n;w;n;s;e;s;w;climb tree;kan shugan};
+
+#alias {bhdgo} {
+    #act {^冰火岛海滩} {
+        #unact {^冰火岛海滩};
+        #untic {tk_gobhd};
+    };
+    #tic {tk_gobhd}{north}{1};
+};
+#alias {zyqsq} {
+    #If {"%1" == "stop"} {
+        status.set_action 空闲;
+        #class zyqsq.inner kill;
+    } {
+        status.set_action 钻研七伤;
+        
+        #class zyqsq.inner open;
+
+        #var count 10;
+        #var zy_mode 1;
+        
+        #act {^你减缓真气运行，让自身恢复正常} {
+            #if {$status[force] > @eval{$status[force_max] * 0.95}} {
+                log 内力充足 全速钻研;
+                #var zy_mode 1;
+                #var count 10;
+            } {
+                yun jing;
+            };
+        };
+        #act {^你已经很累了，歇歇再读吧,身体要紧} {
+            #if {$zy_mode == 1} {
+                log yun regenerate;
+                yun regenerate;
+            } {
+                log 钻研累了 放慢速度;
+                #if {$count != 1} {
+                    #var count 1;
+                };
+            };
+        };
+        
+        #tic {tk_zuanyan} {
+            #if {$zy_mode == 1} {
+                #if {$status[force] < @eval{$status[force_max] * 0.5}} {
+                    log 内力不够 放慢速度;
+                    #var zy_mode 0;
+                    yun jing;
+                };
+            } {
+                #if {$status[sp] < @eval{$status[sp_max] * 0.5}} {
+                    #if {$count != 1} {
+                        log 精神欠佳 慢慢钻研;
+                        hpbrief1;
+                        #var count 1;
+                    };
+                };
+                #elseif {$status[sp] > @eval{$status[sp_max] * 0.95}} {
+                    #if {$count != 10} {
+                        log 精神充沛 快速钻研;
+                        #var count 10;
+                        hpbrief1;
+                    };
+                };
+            };
+            zuanyan book $count;
+        } {1};
+        
+        #tic {tk_chihe} {eat liang;he jiudai} {100};
+            
+        #class zyqsq.inner open;
+    }; 
+};
+
+#alias {fjd} {
+    #var fjd_count %1;
+    
+    #loop {1} {$fjd_count} {idx} {
+        #show 装第 $idx 个;
+        fill jiudai;
+        drop jiudai;
+        #if {$idx == 20} {
+            #delay {0.5} {get all};
+        };
+    };
 };
 
 #alias {gn} {gan che to north};

@@ -55,6 +55,12 @@
         #case {"大理城中"} {
             #var tz[pos][maparea] 大理城;
         };
+        #case {"福州"} {
+            #var tz[pos][maparea] 闽南;
+        };
+        #case {"长江"} {
+            #var tz[pos][maparea] 长江南岸;
+        };
         #default {
             #var tz[pos][maparea] $tz[pos][area];
         };
