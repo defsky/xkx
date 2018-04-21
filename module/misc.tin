@@ -683,6 +683,8 @@
 #alias {n2w} {s;s;s;s;w;w;w;w};
 #alias {n2e} {s;s;s;s;e;e;e;e};
 #alias {ka} {killall};
+#alias {kb} {kill bing};
+#alias {kz} {kill qianhu zhang};
 
 #class $mod_name close;
 
