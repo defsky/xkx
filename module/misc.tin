@@ -636,18 +636,28 @@
     }; 
 };
 
-#alias {fjd} {
-    #var fjd_count %1;
+#alias {filljiudai} {
     
-    #loop {1} {$fjd_count} {idx} {
-        #show 装第 $idx 个;
+    #if {$fjd[count] > 0} {
         fill jiudai;
         drop jiudai;
-        #if {$idx == 20} {
-            #delay {0.5} {get all};
-        };
+        
+        #math fjd[count] {$fjd[count] - 1};
+        
+        #delay {0.5} {filljiudai};
+    } {
+        #show 酒袋装填完毕;
+        get all;
     };
 };
+#alias {fjd} {
+    #var fjd[count] %1;
+    
+    filljiudai;
+    
+};
+
+#alias {bxs} {goto 百晓生;};
 
 #alias {gn} {gan che to north};
 #alias {gs} {gan che to south};

@@ -61,6 +61,9 @@
         #case {"长江"} {
             #var tz[pos][maparea] 长江南岸;
         };
+        #case {"白驼山"} {
+            #var tz[pos][maparea] 白驼;
+        };
         #default {
             #var tz[pos][maparea] $tz[pos][area];
         };
@@ -149,7 +152,7 @@
         #unact {^    江湖巨盗%s%S(%w %w)};
         #unvar tz[pos];
         
-        log 成功获取天珠 回城;
+        log 成功找回天珠 回城;
         
         #act {^莲花生大士给了你一枚天珠，并嘱咐到：在短期内佩戴(pei)在身会有凝神醒脑、提升修为的作用} {
             #unact {^莲花生大士给了你一枚天珠，并嘱咐到：在短期内佩戴(pei)在身会有凝神醒脑、提升修为的作用};
