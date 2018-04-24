@@ -560,6 +560,8 @@
     xiulian $xiul[target];
 };
 
+#nop 你终于战胜了心魔，心智完全恢复了;
+
 #alias {bhdin} {n;e;n;w;n;s;e;e};
 #alias {bhdxd} {e;e;w;n;s};
 #alias {bhdsl} {n;n;w;n;s;e;s;w;climb tree;kan shugan};
@@ -583,6 +585,10 @@
         #var count 10;
         #var zy_mode 1;
         
+        #act {^你正读着七伤拳谱，突然感觉经脉运行不顺} {
+            zyqsq stop;
+            #nop #delay {qsq}{zyqsq}{60};
+        };
         #act {^你减缓真气运行，让自身恢复正常} {
             #if {$status[force] > @eval{$status[force_max] * 0.95}} {
                 log 内力充足 全速钻研;
@@ -598,6 +604,7 @@
                 yun regenerate;
             } {
                 log 钻研累了 放慢速度;
+                yun jing;
                 #if {$count != 1} {
                     #var count 1;
                 };
@@ -655,6 +662,25 @@
     
     filljiudai;
     
+};
+
+#alias {ch} {
+    #if {"%1" == "stop"} {
+        #class ch.inner kill;
+    } {
+        #class ch.inner open;
+        
+        #act {^你感觉心中的杀气渐渐消失} {
+            chanhui;
+        };
+        #act {^{你心中已没有丝毫杀气|你心中一片平和，已经没有丝毫杀气}} {
+            ch stop;
+        };
+        
+        #class ch.inner close;
+        
+        chanhui;
+    };
 };
 
 #alias {bxs} {goto 百晓生;};

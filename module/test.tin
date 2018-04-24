@@ -54,6 +54,38 @@
     };
 };
 
+#alis {hitlu} {
+    #act {^{陆大有已经这样了你还要打，过分了点吧|你的杀气增加了}} {
+        log 去忏悔;
+        #untic hitlu;
+        eat liang;
+        goto 武庙;
+        on_there {
+            #act {^{你感觉心中的杀气渐渐消失|你心中已没有丝毫杀气|你心中一片平和，已经没有丝毫杀气}} {
+                #unact {^{你感觉心中的杀气渐渐消失|你心中已没有丝毫杀气|你心中一片平和，已经没有丝毫杀气}};
+                
+                log 忏悔完毕;
+                
+                goto 春来;
+                on_there {
+                    #act {^{你端起桌上的粗茶碗，咕噜咕噜饮喝了几大口茶|你已经不渴了，还是别喝了}} {
+                        #unact {^{你端起桌上的粗茶碗，咕噜咕噜饮喝了几大口茶|你已经不渴了，还是别喝了}};
+                        log 喝水完毕;
+                        
+                        on_there {
+                            log hitlu准备就绪;
+                            #tic {hitlu}{eat liang;pu;hit lu}{30};
+                        };  
+                        #delay {1}{goto 客厅 华山};
+                    };
+                    #delay {1} {drink};
+                };
+            };
+            chanhui;
+        };
+    };
+};
+
 #class $mod_name close;
 
 ${mod_name}_load;
