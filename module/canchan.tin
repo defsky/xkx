@@ -25,6 +25,7 @@
     #alias cb_on_canchan_start %0;
     
     #act {{你面对墙壁慢慢盘膝坐下|渐渐的你心如止水}} {
+        
         cb_on_canchan_start;
     };
 };
@@ -33,6 +34,7 @@
     #alias cb_on_canchan_complete %0;
     
     #act {你修行完毕，收心定神，满心释然的站了起来} {
+        log 参禅修行完毕;
         cb_on_canchan_complete;
     };
 };
@@ -42,6 +44,7 @@
     
     #act {你受到自身经验和悟性的影响，无法继续参禅了} {
         #unact {你受到自身经验和悟性的影响，无法继续参禅了};
+        log 参禅达到上限;
         cb_on_canchan_limit;
     };
 };

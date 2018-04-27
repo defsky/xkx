@@ -100,6 +100,78 @@
     #unvar xue;
     status.set_action 空闲;
 };
+
+#alias {zhuxi} {
+    
+    #if {"%1" == "stop"} {
+        #class zhuxi.inner kill;
+    } {
+        #var zhuxi[count] %1;
+        #class zhuxi.inner open;
+        
+        #act {^你共请教了%*次} {
+            #if {@ctd{%%1} != $zhuxi[count]} {
+                
+                yun regenerate;
+            } {
+                #delay {1} {xue zhu for literate $zhuxi[count]};
+            };
+        };
+        #act {^你略一凝神} {
+            xue zhu for literate $zhuxi[count];
+        };
+        #act {^你的潜能已经发挥到极限了} {
+            zhuxi stop;
+        };
+        #act {^你的内力不够} {
+            log 需要休息;
+            zhuxi stop;
+            
+            goto 休息室;
+            on_there {
+                #act {^你一觉醒来} {
+                    #unact {^你一觉醒来};
+                    #unact {^你刚在三分钟内睡过一觉};
+                    
+                    log 睡觉醒来 去吃喝;
+                    
+                    goto 食堂;
+                    on_there {
+                        #act {^{你拿起冷馒头|你已经吃饱了}} {
+                            #unact {^{你拿起冷馒头|你已经吃饱了}};
+                            goto 古井;
+                            on_there {
+                                #act {^{你拿起水瓢舀出井水来喝|你已经喝饱了}} {
+                                    #unact {^{你拿起水瓢舀出井水来喝|你已经喝饱了}};
+                                    goto 朱熹;
+                                    on_there {
+                                        log 开始请教朱熹;
+                                        zhuxi $zhuxi[count];
+                                    };
+                                };
+                                drink;
+                            };
+                        };
+                        eat;
+                    };
+                };
+                #act {^你刚在三分钟内睡过一觉} {
+                    #unact {^你一觉醒来};
+                    #unact {^你刚在三分钟内睡过一觉};
+                    
+                    log 睡觉CD中 30s后继续学习;
+                    w;
+                    #delay {30} {zhuxi $zhuxi[count]};
+                };
+                sleep;
+            };
+        };
+        #class zhuxi.inner close;
+        
+        xue zhu for literate $zhuxi[count];
+    };
+};
+
 #alias {zq.start} {
     status.set_action 练醉拳;
     
@@ -366,6 +438,9 @@
         };
         #act {你的易筋经神功运行完毕，将内力收回丹田} {
             pu;
+        };
+        #act {^你减缓真气运行} {
+            dazuo max;
         };
         #class fish_on_inner close;
     };

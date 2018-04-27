@@ -42,7 +42,7 @@
 #alias {kw} {
     kill wushi;
 };
-#alias {ka} {
+#alias {kaw} {
     killall wushi;
 };
 #alias {cy} {

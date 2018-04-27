@@ -58,15 +58,12 @@
                     #delay {1} {dazuo 10};
                 };
             };
-        };
-        #elseif {$status[force_max] == $dazuo[limit]} {
+        } {
             _dzmsg 内力达到上限;
             log 内力达到上限;
             daz stop;
         };
-        #else {
-            _do_dazuo;
-        };
+        
     } {2};
 };
 

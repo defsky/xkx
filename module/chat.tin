@@ -35,17 +35,21 @@
     };
 };
 
+#function {nowtime} {
+    #format {result}{%t}{%H:%M}
+};
+
 #act {^¡¾±±ÏÀQQÈº¡¿%*} {
-    #system {echo -e "%0" >> data/chatlog};
+    #system {echo -e '[@nowtime{}]%0' >> data/chatlog};
 };
 #act {^¡¾ÏÐÁÄ¡¿%*} {
-    #system {echo -e "\033[1;36m%0\033[0m" >> data/chatlog};
+    #system {echo -e '\033[1;36m[@nowtime{}]%0\033[0m' >> data/chatlog};
 };
 #act {^%*»Ø´ðÄã£º%*} {
-    #system {echo -e "\033[1;32m%0\033[0m" >> data/chatlog};
+    #system {echo -e '\033[1;32m[@nowtime{}]%0\033[0m' >> data/chatlog};
 };
 #act {^%*¸æËßÄã£º%*} {
-    #system {echo -e "\033[1;32m%0\033[0m" >> data/chatlog};
+    #system {echo -e '\033[1;32m[@nowtime{}]%0\033[0m' >> data/chatlog};
 };
 
 #class $mod_name close;
