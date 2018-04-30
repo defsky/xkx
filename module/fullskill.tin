@@ -421,6 +421,7 @@
             };
             #case {"club"} {
                 wield club;
+                wield gun;
             };
         };
         #delay {1} {_lian};

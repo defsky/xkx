@@ -1,0 +1,247 @@
+#class $mod_name open;
+
+#alias {${mod_name}_load} {
+    #showme Module $mod_name loaded;
+    #unalias ${mod_name}_load;
+};
+
+#alias {${mod_name}_unload}{
+    #showme Module $mod_name unloaded;
+    #class $mod_name kill;
+};
+
+#alias {${mod_name}_help}{
+    #showme <139>模块帮助文档 : ${mod_name}<079>;
+    
+    
+    #showme  ;
+    #showme <139> -> 按任意键继续...<079>;
+    #buffer lock;
+};
+
+#alias {newjob_init} {
+    #class newjob_inner open;
+    
+    #alias {bzshifei} {
+        #act {^你捡起一个粪桶} {
+            #unact {^你捡起一个粪桶};
+            goto 粪坑;
+            on_there {
+                #act {^你打起了满满一桶粪便} {
+                    #unact {^你打起了满满一桶粪便};
+                    goto 奇草;
+                    on_there {
+                        #act {^施肥任务完成了} {
+                            #unact {^施肥任务完成了};
+                            #act {^你丢下一个粪桶} {
+                                #unact {^你丢下一个粪桶};
+                                goto 药圃;
+                                #class laozhe.inner kill;
+                            };
+                            drop fen tong;
+                        };
+                        shifei;
+                    };
+                };
+                yao;
+            };
+        };
+        get fen tong;
+    };
+    #alias {bzzaizhong} {
+        #class bzzaizhong.inner open;
+        
+        #act {^你不小心把挖出的药草根茎都弄伤} {
+            #delay {3} {wa};
+        };
+        #act {^你挖出了一棵完整的药草} {
+            goto 药圃;
+            on_there {
+                #class bzzaizhong.inner open;
+                #act {^药草被移栽到这里，终于成活了} {
+                    #delay {2} {s;n};
+                    #class bzzaizhong.inner kill;
+                    #class laozhe.inner kill;
+                };
+                #act {^土壤有些松动，移栽并未成功} {
+                    #delay {2} {zai};
+                };
+                #class bzzaizhong.inner close;
+                zai;
+            };
+        };
+        #class bzzaizhong.inner close;
+        wa;
+    };
+    #alias {bzjiaoshui} {
+        #act {^你捡起一个水桶} {
+            #unact {^你捡起一个水桶};
+            goto 水塘;
+            on_there {
+                #act {^你打起了满满一桶水} {
+                    #unact {^你打起了满满一桶水}; 
+                    goto 奇草;
+                    on_there {
+                        #act {^浇水任务完成了} {
+                            #unact {^浇水任务完成了};
+                            #act {^你丢下一个水桶} {
+                                #unact {^你丢下一个水桶};
+                                goto 药圃;
+                                #class laozhe.inner kill;
+                            };
+                            drop shui tong;
+                        };
+                        jiao;
+                    };  
+                };
+                dashui;
+            };
+        };
+        get shui tong;
+    };
+    
+    #alias {bzlaozhe} {
+        on_there {
+            #class laozhe.inner open;
+            #act {^老者说道：「你去奇草那里，给那些草施(shifei)点肥。」} {
+                goto 奇草;
+                on_there {
+                    bzshifei;
+                };
+                #class laozhe.inner kill;
+            };
+            #act {^老者说道：「你去奇草挖(wa)一株草药栽种(zai)到这里吧。」} {
+                goto 奇草;
+                on_there {
+                    bzzaizhong;
+                };
+            };
+            #act {^老者说道：「你去奇草那里，给那些草浇(jiao)点水，别干死了。」} {
+                goto 奇草;
+                on_there {
+                    bzjiaoshui;
+                };
+            };
+            #act {^老者说道：「最近药圃要收药，缺乏人手，你帮我收齐(shouqi)十株药材吧。」} {
+                #class laozhe.inner open;
+                #act {^你开始精心挑选这里的药草} {
+                    on_unbusy {
+                        shouqi;
+                    };
+                };
+                #act {^你凑齐十株药材，全部交给了老者} {
+                    #delay {3} {
+                        s;n;
+                        #class laozhe.inner kill;
+                    };
+                };
+                #class laozhe.inner close;
+                shouqi;
+            };
+            #class laozhe.inner close;
+            ask lao about 帮忙;
+        };
+        goto 药圃;
+    };
+    #alias {bzdaotong} {
+        goto 校经房;
+        on_there {
+            #class daotong.inner open;
+            #act {^道童说道：「又一个光说不练的啊。」} {
+                goto 天尊殿;
+                on_there {
+                    newjob next;
+                };
+                #class daotong.inner kill;
+            };
+            #act {^道童说道：「这本誊抄的道德经有个字似乎模糊了，你帮我找(zhao)出来吧。」} {
+                #class daotong.inner open;
+                #act {^你一眼就发现了错误所在} {
+                    give daode jing to daotong;
+                    #class daotong.inner kill;
+                };
+                #class daotong.inner close;
+            };
+            #act {^道童说道：「我的前些天誊写的书不见了} {
+                goto 天尊殿;
+                on_there {
+                    newjob next;
+                };
+                #class daotong.inner kill;
+            };
+            #act {^道童说道：「我肚子不太舒服，你能帮我在这里誊写(write)完道德经吗？」} {
+                #class daotong.inner open;
+                #act {^你写完了一页，赶紧再蘸墨继续抄誊} {
+                    write;
+                };
+                #act {^道童交给你的誊抄任务完成了} {
+                    #delay {2} {e;w};
+                    #class daotong.inner kill;
+                };
+                #class daotong.inner close;
+                
+                write;
+            };
+            #class daotong.inner close;
+            ask daotong about 帮忙;
+        };
+    };
+    
+    #act {^纸条上是全真弟子需要做的工作，可是上面并没有你的名字} {
+        goto 斋堂;
+        on_there {
+            zuo;
+            #delay {5} {
+                goto 天尊殿;
+                on_there {
+                    newjob next;
+                };
+            };
+        };
+    };
+    #act {^你已经通过全真派入门任务获得了%*点经验} {
+        #delay {3} {
+            goto 天尊殿;
+            on_there {
+                newjob next;
+            };
+        };
+    };
+    #act {^	速去药圃帮助老者，不得有误。} {
+        bzlaozhe;
+    };
+    #act {^	速去校经房帮助道童，不得有误。} {
+        bzdaotong;
+    };
+    
+    #class newjob_inner close;
+};
+
+#alias {newjob} {
+    #if {"%1" == "start"} {
+        newjob_init;
+        #var newjob[status] running;
+        newjob next;
+    };
+    #elseif {"%1" == "next"} {
+        #if {"$newjob[status]" == "running"} {
+            look notice;
+        } {
+            #unvar newjob;
+            #class newjob_inner kill;
+            
+            #class daotong.inner kill;
+            #class laozhe.inner kill;
+            
+            #show newjob:任务结束;
+        };
+    };
+    #elseif {"%1" == "stop"} {
+        #var newjob[status] stop;
+        #show newjob:本次任务完成后不会继续;
+    };
+};
+
+#class $mod_name close;
+
+${mod_name}_load;

@@ -649,7 +649,7 @@
     #tic {tk_gobhd}{north}{1};
 };
 #alias {zyqsq} {
-    #If {"%1" == "stop"} {
+    #if {"%1" == "stop"} {
         status.set_action 空闲;
         #class zyqsq.inner kill;
     } {
@@ -756,6 +756,32 @@
         
         chanhui;
     };
+};
+
+#alias {maijd} {
+    
+    #class mai.inner open;
+    
+    #var item[need] %2;
+    #var item[own] 0;
+    #var item[id] %1;
+    
+    #act {^你向当铺买下一个牛皮酒袋} {
+        #math item[own] {$item[own] + 1};
+        
+        #if {$item[own] == $item[need]} {
+            #show $item[need]个 $item[id] 购买完毕;
+            #class mai.inner kill;
+        } {
+            #delay {1} { buy $item[id]};
+        };
+    };
+    #act {^你现在正忙着呢} {
+        #delay {1} { buy $item[id]};
+    };
+    
+    #class mai.inner close;
+    buy $item[id];
 };
 
 #alias {bxs} {goto 百晓生;};
