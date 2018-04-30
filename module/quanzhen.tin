@@ -160,14 +160,41 @@
                     give daode jing to daotong;
                     #class daotong.inner kill;
                 };
+                #act {^哪个字写模糊了，快把它改(gai)掉吧} {
+                    #buffer get newjob[chaoben] 2 11;
+                    #buffer get newjob[yuanben] 15 24;
+                    
+                    #list newjob[chaoben] size len;
+                    
+                    #loop {1} {$len} {idx} {
+                        #if {"$newjob[chaoben][$idx]" == "$newjob[yuanben][$idx]"} {
+                        
+                        } {
+                            #var newjob[cb] $newjob[chaoben][$idx];
+                            #var newjob[yb] $newjob[yuanben][$idx];
+                        };
+                    };
+                    
+                    #unvar idx;#unvar len;
+                };
                 #class daotong.inner close;
+                zhao;
             };
             #act {^道童说道：「我的前些天誊写的书不见了} {
-                goto 天尊殿;
-                on_there {
-                    newjob next;
+                #class daotong.inner open;
+                #act {^道童接过你手里的书，大喜道：就是我的} {
+                    #class daotong.inner kill;
                 };
-                #class daotong.inner kill;
+                #act {道童的道德经(Daotong's jing)} {
+                    get daotong's jing;
+                    #delay {1} {
+                        goto 校经房;
+                        on_there {
+                            give daotong's jing to daotong;
+                        };
+                    };
+                };
+                #class daotong.inner close;
             };
             #act {^道童说道：「我肚子不太舒服，你能帮我在这里誊写(write)完道德经吗？」} {
                 #class daotong.inner open;
