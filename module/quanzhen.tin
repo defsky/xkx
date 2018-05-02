@@ -269,6 +269,51 @@
     };
 };
 
+#alias {dushu.stop} {
+    #class dushu.inner kill;
+};
+#alias {dushu.start} {
+    #class dushu.inner open;
+    
+    #act {^你现在过于疲倦，无法专心下来研读新知} {
+        yun regenerate;
+    };
+    #act {^你的内力不够} {
+        dushu.stop;
+        xiuxi;
+    };
+    
+    #tic {tk_dushu} {du shu for 1} {1};
+    
+    #class dushu.inner close;
+};
+#alias {xiuxi} {
+    goto 休息室;
+    on_there {
+        #class xiuxi.inner open;
+        
+        #act {^你一觉醒来} {
+            #class xiuxi.inner kill;
+            goto 斋堂;
+            on_there {
+                dushu.start;
+            };
+        };
+        #act {^你刚在三分钟内睡过} {
+            #class xiuxi.inner kill;
+            #delay {20} {
+                goto 斋堂;
+                on_there {
+                    zuo;
+                    dushu.start;
+                };
+            };
+        };
+        #class xiuxi.inner close;
+        sleep;
+    };
+};
+
 #class $mod_name close;
 
 ${mod_name}_load;
