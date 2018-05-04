@@ -475,17 +475,50 @@
     daz start;
 };
 
-#alias {watch_canju} {
+#alias {canju.start} {
     status.set_action 残局;
     
+    #class watch_canju.inner open;
+    
     #act {^你精力不够，无法领悟残局} {
-        #unact {^你精力不够，无法领悟残局};
-        #act {^你内力不够} {
-            #delay {60}{watch_canju};
+        status.set_action 休息;
+        #untic {tk_canju};
+        #delay {20} {
+            status.set_action 残局;
+            #tic {tk_canju} {watch canju} {1};
         };
-        yun regenerate;
+        he jiudai;eat liang;
     };
-    watch canju;
+    
+    #tic {tk_canju} {watch canju} {1};
+    #tic {tk_yunjing} {yun jing} {61};
+    
+    #class watch_canju.inner close;
+    
+    yun jing;
+};
+#alias {canju.stop} {
+    #class watch_canju.inner kill;
+};
+
+#alias {pd.start} {
+    status.set_action 凭吊;
+    
+    #class pd.start.inner open;
+    
+    #act {^你凭吊完毕,站起身来} {
+        log 岳王墓凭吊中...;
+        eat liang;he jiudai;
+        #delay {1} {pingdiao};
+    };
+    
+    #class pd.start.inner close;
+    
+    pingdiao;
+};
+#alias {pd.stop} {
+    #class pd.start.inner kill;
+    status.set_action 空闲;
 };
 
 #nop 八卦阵 -;

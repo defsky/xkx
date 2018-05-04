@@ -86,6 +86,24 @@
     };
 };
 
+#act {^这项任务必须在%*分%*秒内完成} {
+    #var time[limit] @eval{@eval{@ctd{%1} * 60} + @ctd{%2}};
+    #var time[left] $time[limit];
+    
+    #tic {tk_countdown} {
+        #if {$time[left] > 0} {
+            #math time[left] {$time[left] - 1};
+            
+            status.set_action $time[left];
+        } {
+            #untic {tk_countdown};
+            #unvar time;
+            
+            status.set_action 任务超时;
+        };
+    } {1};
+};
+
 #class $mod_name close;
 
 ${mod_name}_load;
