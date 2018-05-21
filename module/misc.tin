@@ -408,6 +408,11 @@
         
         #act {^【任务】襄阳保卫战开启，请大家踊跃从军，到襄阳的郭靖处报名（ask guojing about 襄阳保卫）} {
             ask guo about 襄阳保卫;
+            #act {    郭夫人「桃花仙子」黄蓉(Huang rong)} {
+                #unact {    郭夫人「桃花仙子」黄蓉(Huang rong)};
+                #show 发现黄蓉;
+                #delay {2} {#2 n;#7 w};
+            };
             #delay {1} {join 3};
         };
         #act {^%s%S(%w %w) <昏迷不醒>} {
@@ -431,7 +436,9 @@
             #delay {4} {jg};
         };
         #act {^【本地】襄阳保卫战（副本难度%*）守卫成功，各位可以到郭靖处领奖} {
-            ask guo about 奖励;
+            #7 e;#2 s;
+            
+            #delay {5} {ask guo about 奖励};
         };
         #act {你双手合十，散去了凝聚于全身上下的「金刚不坏体神功」} {
             jg;

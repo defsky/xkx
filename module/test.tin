@@ -103,6 +103,10 @@
         };
     } {1};
 };
+#act {^你对%*的忠诚度提高了%*点} {
+    #untic {tk_countdown};
+    status.set_action 空闲;
+};
 
 #class $mod_name close;
 
