@@ -662,6 +662,11 @@
 };
 
 #alias {xiul} {
+    #if {"%1" == ""} {
+        #show <139>Usage: xiul <target> <count><079>;
+        #return
+    }
+    
     #var xiul[target] %1;
     #var xiul[count] %2;
     
