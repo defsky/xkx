@@ -664,8 +664,15 @@
 #alias {xiul} {
     #if {"%1" == ""} {
         #show <139>Usage: xiul <target> <count><079>;
-        #return
+        #return;
     }
+    
+    #if {"%1" == "stop"} {
+        #class xiul_inner kill;
+        #return;
+    };
+    
+    #class xiul_inner open;
     
     #var xiul[target] %1;
     #var xiul[count] %2;
@@ -684,6 +691,8 @@
             xiulian $xiul[target];
         };
     };
+    
+    #class xiul_inner close;
     
     xiulian $xiul[target];
 };

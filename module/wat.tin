@@ -34,7 +34,14 @@
         };
     };
 };
-
+#act {^{结果|番邦武士}%*圣火令%*} {
+    #if {$jiali_value != 0} {
+        jiali 0;
+    };
+};
+#act {你设定每一击用 %* 点内力} {
+    #var jiali_value %1;
+};
 
 #alias {jt} {
     ask luzhang ke about 进塔
