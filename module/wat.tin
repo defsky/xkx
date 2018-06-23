@@ -39,6 +39,9 @@
         jiali 0;
     };
 };
+#act {} {
+
+};
 #act {你设定每一击用 %* 点内力} {
     #var jiali_value %1;
 };

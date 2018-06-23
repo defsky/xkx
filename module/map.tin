@@ -682,12 +682,14 @@
             #class on_blocked_inner kill;
             #class on_rewalk_need_inner kill;
             
-            set brief 0;
             #act {^设定环境变量：brief = 0} {
                 #unact {^设定环境变量：brief = 0};
                 #showme <129> GPS : 到达目的地<079>;
             };
+            
+            set brief 0;
             #var map[gt][status] 0;
+            
             #class goto_inner kill;
             
             status.set_action 空闲;
