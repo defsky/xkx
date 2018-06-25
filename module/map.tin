@@ -678,19 +678,19 @@
         
         #math path_run[list_idx] {$path_run[list_idx] + 1};
         #if {$path_run[list_idx] > $path_run[list_len]} {
-            #class _path_run_inner kill;
-            #class on_blocked_inner kill;
-            #class on_rewalk_need_inner kill;
-            
             #act {^设定环境变量：brief = 0} {
                 #unact {^设定环境变量：brief = 0};
                 #showme <129> GPS : 到达目的地<079>;
             };
             
-            set brief 0;
+            #class _path_run_inner kill;
+            #class on_blocked_inner kill;
+            #class on_rewalk_need_inner kill;
+            
             #var map[gt][status] 0;
             
             #class goto_inner kill;
+            set brief 0;
             
             status.set_action 空闲;
         } {
