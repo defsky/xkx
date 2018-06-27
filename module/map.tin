@@ -548,6 +548,13 @@
     #var map[gt][status] 0;
 };
 
+#alias {gt} {
+    #if {"%1" == ""} {
+        #showme <129> Usage : gt <roomname> [area]<079>;
+        #return;
+    };
+    goto %1 %2;
+};
 #alias {goto} {
     #nop param1 roomname;
     #nop param2 roomarea;
@@ -679,6 +686,7 @@
         #math path_run[list_idx] {$path_run[list_idx] + 1};
         #if {$path_run[list_idx] > $path_run[list_len]} {
             #act {^设定环境变量：brief = 0} {
+                #undelay {dl_check_walkend};
                 #unact {^设定环境变量：brief = 0};
                 #showme <129> GPS : 到达目的地<079>;
             };
@@ -690,9 +698,13 @@
             #var map[gt][status] 0;
             
             #class goto_inner kill;
-            set brief 0;
             
             status.set_action 空闲;
+            #delay {dl_check_walkend} {
+                #unact {^设定环境变量：brief = 0};
+                #showme <129> GPS : 到达目的地<079>;
+            } {5};
+            set brief 0;
         } {
             #class go_forward_inner open;
             
