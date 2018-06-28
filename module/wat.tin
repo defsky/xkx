@@ -1,0 +1,63 @@
+#class $mod_name open;
+
+#alias {${mod_name}_load} {
+    #showme Module $mod_name loaded;
+    #unalias ${mod_name}_load;
+};
+
+#alias {${mod_name}_unload}{
+    #showme Module $mod_name unloaded;
+    #class $mod_name kill;
+};
+
+#alias {ql} {
+    qiao luo;
+};
+#alias {watgo} {
+    goto 万安塔;
+};
+#act {如果你现在离开，可获厚礼} {
+    #untic tk_rc;
+    #if {$status[hp_valid] < $status[hp_max]} {
+        yun heal;
+    };
+};
+#act {你全身放松，坐下来开始运功疗伤} {
+    hpbrief1;
+    #delay {1} {
+        #if {$status[hp_valid] < $status[hp_max]} {
+            yun heal;
+        } {
+            #if {$status[hp] < $status[hp_valid]} {
+                yun recover;
+            };
+        };
+    };
+};
+#act {^{结果|番邦武士}%*圣火令%*} {
+    #if {$jiali_value != 0} {
+        jiali 0;
+    };
+};
+#act {} {
+
+};
+#act {你设定每一击用 %* 点内力} {
+    #var jiali_value %1;
+};
+
+#alias {jt} {
+    ask luzhang ke about 进塔
+};
+#alias {kw} {
+    kill wushi;
+};
+#alias {kaw} {
+    killall wushi;
+};
+#alias {cy} {
+    eat yao;
+};
+#class $mod_name close;
+
+${mod_name}_load;

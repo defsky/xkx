@@ -1,0 +1,463 @@
+#class $mod_name open;
+
+#alias {${mod_name}_load} {
+    _fskmsg 依赖map模块,请手动加载;
+    #showme Module $mod_name loaded;
+    #unalias ${mod_name}_load;
+};
+
+#alias {${mod_name}_unload}{
+    fsk stop;
+    #showme Module $mod_name unloaded;
+    #class $mod_name kill;
+};
+
+#alias {${mod_name}_help}{
+    #showme <139>模块帮助文档 : ${mod_name}<079>;
+    
+    #showme <139> 描述 : 领悟、练习指定skills到上限<079>;
+    #showme <139>  fsklimit <limit> : 设定技能上限<079>;
+    #showme <139>  fskfreq [lw|lx] <count> : 设定每秒领悟、练习的次数<079>;
+    #showme <139>  fsksleep <pos name> : 设定睡觉地点<079>;
+    #showme <139>  fsklingw <pos name> : 设定领悟地点<079>;
+    #showme <139>  fskadd <base> <special> : 添加skill进行练习<079>;
+    #showme <139>  fskdel <index> : 删除指定索引的skill<079>;
+    #showme <139>  fskconf : 显示fullskill配置<079>;
+    
+};
+
+#var jiudai_empty 1;
+
+#act {^牛皮酒袋已经被喝得一滴也不剩了} {
+    #if {$jiudai_empty == 1} {
+        #var jiudai_empty 0;
+        put jiudai in bao 2;
+        get jiudai from bao;
+        #delay {5} {#var jiudai_empty 1;};
+    };
+};
+
+#alias {_fskmsg} {
+    #showme <139>fullskill : %0<079>;
+};
+
+#alias {fsklingw} {
+    #var fsk[config][lingw] %1;
+};
+#alias {fsksleep} {
+    #var fsk[config][sleep] %1;
+};
+#alias {fsklimit} {
+    #var fsk[config][limit] %1;
+};
+#alias {fskfreq} {
+    #if {"%1" == "lw"} {
+        #var fsk[config][freq][lw] %2;
+        #if {"%3" != ""} {
+            #var fsk[config][freq][lwc] %3;
+        } {
+            #var fsk[config][freq][lwc] 1;
+        };
+    };
+    #elseif {"%1" == "lx"} {
+        #var fsk[config][freq][lx] %2;
+        #if {"%3" != ""} {
+            #var fsk[config][freq][lxc] %3;
+        } {
+            #var fsk[config][freq][lxc] 1;
+        };
+    };
+    #else {
+        #var fsk[config][freq][lw] %1;
+        #var fsk[config][freq][lx] %1;
+        
+        #if {"%2" != ""} {
+            #var fsk[config][freq][lwc] %2;
+            #var fsk[config][freq][lxc] %2;
+        } {
+            #var fsk[config][freq][lwc] 1;
+            #var fsk[config][freq][lxc] 1;
+        };
+    };
+};
+#alias {fskpath} {
+    #var fsk[config][path] %0;
+    #path load $fsk[config][path];
+    #path save backward fsk[config][rpath];
+};
+#alias {fskadd} {
+    #var tmp_sk[base] %1;
+    #var tmp_sk[special] %2;
+    #list fsk[skills] add {{$tmp_sk}};
+    #list fsk[skills] size fsk[config][skill_count];
+    #unvar tmp_sk;
+};
+#alias {fskdel} {
+    #list fsk[skills] delete %1;
+    #list fsk[skills] size fsk[config][skill_count];
+};
+#alias {fskconf} {
+    #show 练功配置;
+    #show -------------------------------------------------------;
+    #show 技能上限：$fsk[config][limit];
+    #show 领悟频率：$fsk[config][freq][lw] 次 / $fsk[config][freq][lwc] 秒;
+    #show 练习频率：$fsk[config][freq][lx] 次 / $fsk[config][freq][lxc] 秒;
+    #show 领悟地点：$fsk[config][lingw];
+    #show 睡觉地点：$fsk[config][sleep];
+    #show -------------------------------------------------------;
+    
+    #format {line_str} {%-6s%-20s%-20s} {序号} {基本功夫} {特殊功夫};
+    #show $line_str;
+    
+    #loop {1} {$fsk[config][skill_count]} {idx} {
+        #format {line_str} {%-6s%-20s%-20s} {$idx} {$fsk[skills][$idx][base]} {$fsk[skills][$idx][special]};
+        #show $line_str;
+    };
+    
+    #show -------------------------------------------------------;
+    
+    #buffer lock;
+    
+    #unvar line_str;
+};
+
+#alias on_next_skill {
+    #alias cb_on_next_skill #cr;
+    #alias cb_on_next_skill %0;
+    
+    #math fsk[status][skill_idx] {$fsk[status][skill_idx] + 1};
+    
+    #if {$fsk[status][skill_idx] > $fsk[config][skill_count]} {
+        _fskmsg 所有技能升级完成;
+        log 所有技能升级完成;
+        
+        status.set_action 空闲;
+        
+    } {
+        #var fsk[status][base] $fsk[skills][$fsk[status][skill_idx]][base];
+        #var fsk[status][special] $fsk[skills][$fsk[status][skill_idx]][special];
+        
+        #if {"$fsk[status][base]" != "force"} {
+            jifa $fsk[status][base] $fsk[status][special];
+        };
+        
+        _fskmsg 准备下一个技能;
+        log 准备下一个技能 : $fsk[status][base] $fsk[status][special];
+        
+        cb_on_next_skill;
+    };
+};
+
+#alias {_go_sleep} {
+    status.set_action 去睡觉;
+    
+    #undelay {wd_lian};
+    #undelay {wd_lingwu};
+    
+    goto $fsk[config][sleep];
+    on_there {
+        #delay {wd_dosleep} {sleep} {5};
+        sleep;
+    };
+};
+
+#alias {_go_fsk} {
+    status.set_action 去练功;
+    
+    #alias cb_go_fsk #cr;
+    #alias cb_go_fsk %0;
+    
+    goto $fsk[config][lingw];
+    on_there {
+        cb_go_fsk;
+        #unalias cb_go_fsk;
+    };
+};
+
+#alias {_lian} {
+    #delay {wd_lian} {_lian} {5};
+    
+    #send {lian $fsk[status][base] $fsk[config][freq][lx]};
+};
+#alias {_lingwu} {
+    #delay {wd_lingwu} {_lingwu} {5};
+    
+    #send {lingwu $fsk[status][base] $fsk[config][freq][lw]};
+};
+#alias {lingw} {
+    status.set_action 领悟;
+    
+    unwield all;
+    
+    #class lingw_inner open;
+    
+    #act {{你的基本功夫比你的高级功夫还高|你已经达到你的技能等级极限}} {
+        fsk stop;
+
+        #if {$fsk[status][lianable] == 1} {
+            _fskmsg 需要练习;
+            log 需要练习 : $fsk[status][special];
+            lianx;
+        } {
+            _fskmsg 当前技能达到上限;
+            log 当前技能达到上限 : $fsk[status][base] $fsk[status][special];
+            on_next_skill {
+                lianx;
+            };
+        };
+    };
+    #act {^你领悟了%*次} {
+        #nop hpbrief1;
+        #var fsk[status][lw_last_count] @ctd{%%1};
+        
+        #delay {dl_next_lingw} {
+            #if {$fsk[status][lw_last_count] < $fsk[config][freq][lw]} {
+                yun regenerate;
+                #if {$status[water] < @eval{$status[water_max] * 0.9}} {
+                    he jiudai;
+                };
+                #if {$status[food] < @eval{$status[food_max] * 0.9}} {
+                    eat liang;
+                };
+            } {
+                _lingwu;
+            };
+        }{$fsk[config][freq][lwc]};     
+    };
+    #act {^你略一凝神} {
+        log yun regenerate;
+        _lingwu;
+    };
+    #act {你现在过于疲倦,无法静下心来领悟功夫} {
+        hpbrief1;
+        he jiudai;eat liang;
+        #delay {1} {
+            #if {$status[force] > @eval{$status[force_max] * 0.2}} {
+                yun regenerate;
+            } {
+                _go_sleep;
+            };
+        };
+    };
+    #act {^你刚在三分钟内睡过一觉} {
+        #undelay {wd_dosleep};
+        _fskmsg 10秒后再尝试睡觉;
+        log 10秒后再尝试睡觉;
+        #delay {dl_lingwu_sleep} {
+            #delay {wd_dosleep}{sleep}{5};
+            sleep;
+        } {10};
+    };
+    #act {^你精血不足，翻来覆去无法入眠} {
+        #delay {60}{sleep};
+    };
+    #act {不一会儿，你就进入了梦乡} {
+        #undelay {wd_dosleep};
+        #delay {wd_wakeup} {
+            _go_fsk { _lingwu };
+        }{100};
+    };
+    #act {你一觉醒来，精神抖擞地活动了几下手脚} {
+        #cr;
+        #undelay {wd_wakeup};
+        _fskmsg 睡觉醒来去领悟;
+        log 睡觉醒来去领悟 : $fsk[status][base];
+        #delay {1} {
+            _go_fsk {
+                status.set_action 领悟;
+                _lingwu;
+            };
+        };
+    };
+    #act {你的内力不够} {
+        #undelay {dl_next_lingw};
+        _fskmsg 内力不够去睡觉;
+        log 内力不够去睡觉;
+        he jiudai;eat liang;
+        #delay {1} {_go_sleep};
+    };
+    
+    #class lingw_inner close;
+    
+    #delay {1.5}{_lingwu};
+};
+#alias {_check_skill_level} {
+    #act {^│技能级别%s　%d%s　技能等级%s　%S%s　技能类别%s　%S│} {
+        #var fsk[status][level] %%2;
+        #unact {^│技能级别%s　%d%s　技能等级%s　%S%s　技能类别%s　%S│};
+    };
+    #send {verify $fsk[status][special]};
+};
+#alias {lianx} {
+    status.set_action 练习;
+    
+    #var fsk[status][lianable] 1;
+    
+    #class lianx_inner open;
+    
+    #nop 特殊内功无法练习，你可以通过(learn)或者(xiulian)来提高;
+    #nop 特殊硬功无法练习，你可以通过(learn)来提高;
+    
+    #act {^特殊%*无法练习，你可以通过%*来提高} {
+        _fskmsg 需要领悟;
+        log 需要领悟 : $fsk[status][base];
+        #class lianx_inner kill;
+        #var fsk[status][lianable] 0;
+        #undelay {wd_lian};
+        lingw;
+    };
+    #act {你需要提高基本功} {
+        fsk stop;
+        _check_skill_level;
+        #delay {3} {
+            #if {$fsk[status][level] < $fsk[config][limit]} {
+                _fskmsg 需要领悟;
+                log 需要领悟 : $fsk[status][base];
+                
+                lingw;
+            } {
+                _fskmsg 当前技能达到上限;
+                log 当前技能达到上限 : $fsk[status][base] $fsk[status][special];
+                
+                on_next_skill {
+                    lianx;
+                };
+            };
+        };
+    };
+    #act {你的基本%*的级别还没有%*的级别高，不能通过练习来提高了} {
+        _fskmsg 需要领悟;
+        log 需要领悟 : $fsk[status][base];
+        #class lianx_inner kill;
+        #undelay {wd_lian};
+        lingw;
+        #unalias cb_lianx;
+    };
+    #act {^你%*练习%*获得了%*进步} {
+        #delay {dl_next_lianx} {
+            #if {$status[hp] < @eval{$status[hp_max] * 0.02}} {
+                yun recover;
+                hpbrief1;
+            } {
+                _lian;
+            };
+            
+        }{$fsk[config][freq][lxc]};        
+    };
+    #act {^你深深吸了几口气，脸色看起来好多了。} {
+        log 吸气;
+        _lian;
+    };
+    #nop #act {你的体力太低了};
+    #act {^{你的气血不够练|你的精力太差了，不能练|你的精力太低|你的体力太低|你的体力太差|你的体力不够|你现在气血虚浮|你太累了}} {
+        hpbrief1;
+        he jiudai;eat liang;
+        #delay {1} {
+            #if {$status[force] > @eval{$status[force_max] * 0.3}} {
+                yun recover
+            } {
+                log 体力不够去睡觉;
+                _go_sleep;
+            };
+        };
+    };
+    #act {你刚在三分钟内睡过一觉} {
+        #undelay {wd_dosleep};
+        _fskmsg 10秒后再尝试睡觉;
+        log 10秒后再尝试睡觉;
+        #delay {dl_lian_sleep} {
+            #delay {wd_dosleep}{sleep}{5};
+            sleep;
+        } {10};
+    };
+    #act {^你精血不足，翻来覆去无法入眠} {
+        #delay {60}{sleep};
+    };
+    #act {不一会儿，你就进入了梦乡} {
+        #undelay {wd_dosleep};
+        #delay {wd_wakeup} {
+            _go_fsk { _lian };
+        }{100};
+    };
+    #act {你一觉醒来，精神抖擞地活动了几下手脚} {
+        #cr;
+        #undelay {wd_wakeup};
+        _fskmsg 睡觉醒来去练功;
+        log 睡觉醒来去练功 : $fsk[status][special];
+        #delay {1} {
+            _go_fsk {
+                status.set_action 练习;
+                _lian;
+            };
+        };
+    };
+    #act {^你的内力{太低|不够}} {
+        #undelay {dl_next_lianx};
+        _fskmsg 内力不够去睡觉;
+        log 内力不够去睡觉;
+        he jiudai;eat liang;
+        #delay {1} {_go_sleep};
+    };
+    
+    #class lianx_inner close;
+    
+    unwield all;
+    #delay {1.5} {
+        #switch {"$fsk[status][base]"} {
+            #case {"sword"} {
+                wield sword;
+                wield changjian;
+            };
+            #case {"blade"} {
+                wield blade;
+            };
+            #case {"whip"} {
+                wield whip;
+                wield bian;
+            };
+            #case {"staff"} {
+                wield staff;
+                wield zhang;
+            };
+            #case {"club"} {
+                wield club;
+                wield gun;
+            };
+        };
+        #delay {1} {_lian};
+    };
+};
+#alias {fsk} {
+    #switch {"%1"} {
+        #case {"start"} {
+            bei none;
+            
+            #var fsk[flag][mode] %2;
+            #var fsk[status][skill_idx] 0;
+            
+            on_next_skill {
+                lianx;
+            };
+        };
+        #case {"stop"} {
+            #untic {tk_walk};
+            #undelay {wd_lian};
+            #undelay {wd_lingwu};
+            #undelay {wd_wakeup};
+            #undelay {dl_next_lianx};
+            #undelay {dl_next_lingw};
+            #class lianx_inner kill;
+            #class lingw_inner kill;
+        };
+        #case {""} {
+            mod fullskill help;
+        };
+        #default {
+        
+        };
+    };
+};
+
+#class $mod_name close;
+
+${mod_name}_load;

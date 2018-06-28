@@ -1,8 +1,0 @@
-#ACTION {^#SESSION '%0' DIED.$}
-{
-	#format timestr {%c%0断线 at %t%c}{light green}{%Y年%m月%d日 %T}{<088>};
-	@fn_log{$timestr;true};
-
-	#gts {#delay {autologin}{#ses %0 $host $port}{10}};
-}
-{5}

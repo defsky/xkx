@@ -1,0 +1,28 @@
+#class $mod_name open;
+
+#alias {${mod_name}_load} {
+    #showme Module $mod_name loaded;
+    #unalias ${mod_name}_load;
+};
+
+#alias {${mod_name}_unload}{
+    #showme Module $mod_name unloaded;
+    #class $mod_name kill;
+};
+
+#alias {${mod_name}_help}{
+    #showme <139>模块帮助文档 : ${mod_name}<079>;
+    
+    
+    #showme  ;
+    #showme <139> -> 按任意键继续...<079>;
+    #buffer lock;
+};
+
+#act {^$status[name]把这批红货送到%*那里，他已经派了个伙计名叫%*到%*附近接你，把镖车送到他那里就行了} {
+    #system {echo "%1 %2 %3">>data/hubiao.log};
+};
+
+#class $mod_name close;
+
+${mod_name}_load;

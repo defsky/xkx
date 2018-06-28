@@ -1,49 +1,113 @@
-#alias {hpbf}{
-    #class hpbf_inner open;
+#class $mod_name open;
+
+#alias {${mod_name}_load} {
+    #showme module $mod_name loaded;
+    #unalias ${mod_name}_load;
+};
+
+#alias {${mod_name}_unload}{
+    #showme module $mod_name unloaded.;
+    #class $mod_name kill;
+};
+
+
+
+#alias {_tstmsg} {
+    #showme <139>test : %0<079>;
+};
+
+#nop 武馆教头像是受宠若惊一样，说道：请教？这怎么敢当？;
+#nop 武馆教头笑着说道：您见笑了，我这点雕虫小技怎够资格「指点」您什么？;
+#nop 武馆教头说道：您太客气了，这怎么敢当？;
+
+
+#alias {on_test_pass} {
+    #alias cb_on_test_pass_true #cr;
+    #alias cb_on_test_pass_false #cr;
     
-    #var hpbf_inner_buffer {};
-    #var hpbf_inner_buffer[line] 1;
-    #var hpbf_inner_buffer[start] 0;
+    #alias cb_on_test_pass_true {%1};
+    #alias cb_on_test_pass_false {%2};
     
-    #event {RECEIVED LINE}
-    {
-        #var hpbf_inner_buffer[rcvd_line] {%%1};
-        #if {"$hpbf_inner_buffer[rcvd_line]" != ""}
-        {
-            #if {$hpbf_inner_buffer[line] == 3}
-            {
-                #regexp {$hpbf_inner_buffer[rcvd_line]}{^#%S,%S,%S,%S$}
-                {
-                    #showme line 3 : &1 &2 &3 &4;
-                    
-                    #line gag;
-                    #class hpbf_inner kill
-                };
-            }
-            {
-                #regexp {$hpbf_inner_buffer[rcvd_line]}{^#%S,%S,%S,%S,%S,%S$}
-                {
-                    #if {$hpbf_inner_buffer[line] == 1}
-                    {
-                        #var hpbf_inner_buffer[start] 1;
-                        #var hpbf_inner_buffer[line] 2;
+    #if {$tt == 1} {
+        cb_on_test_pass_true;
+    } {
+        cb_on_test_pass_false;
+    };
+};
+#alias {testa} {
+    #var tt %1;
+    on_test_pass {
+        #show pass;
+        #show test ok;
+    } {
+        #show fail;
+        #show test failed;
+    };
+}
+
+#act {^    %S({Silver|Gold})} {
+    #if {"%2" == "Silver"} {
+        get silver;
+    };
+    #elseif {"%2" == "Gold"} {
+        get gold;
+    };
+};
+
+#alis {hitlu} {
+    #act {^{陆大有已经这样了你还要打，过分了点吧|你的杀气增加了}} {
+        log 去忏悔;
+        #untic hitlu;
+        eat liang;
+        goto 武庙;
+        on_there {
+            #act {^{你感觉心中的杀气渐渐消失|你心中已没有丝毫杀气|你心中一片平和，已经没有丝毫杀气}} {
+                #unact {^{你感觉心中的杀气渐渐消失|你心中已没有丝毫杀气|你心中一片平和，已经没有丝毫杀气}};
+                
+                log 忏悔完毕;
+                
+                goto 春来;
+                on_there {
+                    #act {^{你端起桌上的粗茶碗，咕噜咕噜饮喝了几大口茶|你已经不渴了，还是别喝了}} {
+                        #unact {^{你端起桌上的粗茶碗，咕噜咕噜饮喝了几大口茶|你已经不渴了，还是别喝了}};
+                        log 喝水完毕;
                         
-                        #showme line 1 : &1 &2 &3 &4 &5 &6;
-                    }
-                    {
-                        #var hpbf_inner_buffer[line] 3;
-                        
-                        #showme line 2 : &1 &2 &3 &4 &5 &6;
+                        on_there {
+                            log hitlu准备就绪;
+                            #tic {hitlu}{eat liang;pu;hit lu}{30};
+                        };  
+                        #delay {1}{goto 客厅 华山};
                     };
-                    
+                    #delay {1} {drink};
                 };
             };
-            
+            chanhui;
         };
-        #if {$hpbf_inner_buffer[start]==1}{#line gag};
     };
+};
+
+#act {^这项任务必须在%*分%*秒内完成} {
+    #var time[limit] @eval{@eval{@ctd{%1} * 60} + @ctd{%2}};
+    #var time[left] $time[limit];
     
-    #class hpbf_inner close;
-    
-    hpbrief
-}
+    #tic {tk_countdown} {
+        #if {$time[left] > 0} {
+            #math time[left] {$time[left] - 1};
+            
+            status.set_action $time[left];
+        } {
+            #untic {tk_countdown};
+            #unvar time;
+            
+            status.set_action 任务超时;
+        };
+    } {1};
+};
+#act {^你对%*的忠诚度提高了%*点} {
+    #untic {tk_countdown};
+    status.set_action 空闲;
+};
+
+#class $mod_name close;
+
+${mod_name}_load;

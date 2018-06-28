@@ -1,0 +1,89 @@
+#class $mod_name open;
+
+#alias {${mod_name}_load} {
+    #showme Module $mod_name loaded;
+    #unalias ${mod_name}_load;
+};
+
+#alias {${mod_name}_unload}{
+    #undelay {dl_sleep}
+    #showme Module $mod_name unloaded;
+    #class $mod_name kill;
+};
+
+#alias {${mod_name}_help}{
+    #showme <139>模块帮助文档 : ${mod_name}<079>;
+    
+    #showme <139> 描述 : 自动读书<079>;
+    #showme <139> dushu <start <bookid> <times> | stop><079>;
+    #showme  ;
+    #showme <139> -> 按任意键继续...<079>;
+    #buffer lock;
+};
+
+#alias {on_drink_ok} {
+    #alias cb_on_drink_ok #cr;
+    #alias cb_on_drink_ok %0;
+    
+    #act {你端起桌上的粗茶碗，咕噜咕噜饮喝了几大口茶} {
+        cb_on_drink_ok;
+    };
+};
+#alias {on_dushu_start} {
+    #alias cb_on_dushu_start #cr;
+    #alias cb_on_dushu_start %0;
+    
+    #act {你%*准备好好研读} {
+        cb_on_dushu_start;
+    };
+};
+#alias {on_dushu_ok} {
+    #alias cb_on_dushu_ok #cr;
+    #alias cb_on_dushu_ok %0;
+    
+    #act {你研读了%*似乎有点心得} {
+        cb_on_dushu_ok;
+    };
+};
+#alias {on_dushu_tired} {
+    #alias cb_on_dushu_tired #cr;
+    #alias cb_on_dushu_tired %0;
+    
+    #class on_dushu_tired_inner open;
+    
+    #act {^你现在过于疲倦，无法专心下来研读新知} {
+        #nop #class on_dushu_tired_inner kill;
+        cb_on_dushu_tired;
+    };
+    #act {^你已经很累了，歇歇再读吧，身体要紧} {
+        #nop #class on_dushu_tired_inner kill;
+        cb_on_dushu_tired;
+    };
+    
+    #class on_dushu_tired_inner close;
+};
+#act {你的内力不够} {
+    sleep;
+};
+#act {你刚在三分钟内睡过一觉} {
+    #showme 5秒后再尝试睡觉;
+    #delay {dl_sleep} {
+        sleep;
+    } {5};
+};
+#act {你减缓真气运行，让自身恢复正常} {
+    #delay {1} {yun jing};
+};
+#act {牛皮酒袋已经被喝得一滴也不剩了} {
+    get jiudai from bao;
+};
+#tic {dushu} {du book for 1}{1};
+
+on_dushu_tired {
+    yun regenerate;
+    eat liang ;he jiudai;
+};
+
+#class $mod_name close;
+
+${mod_name}_load;

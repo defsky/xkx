@@ -1,0 +1,58 @@
+#class $mod_name open;
+
+#alias {${mod_name}_load} {
+    #showme Module $mod_name loaded;
+    #unalias ${mod_name}_load;
+};
+
+#alias {${mod_name}_unload}{
+    #showme Module $mod_name unloaded;
+    #class $mod_name kill;
+};
+
+#alias {${mod_name}_help}{
+    #showme <139>模块帮助文档 : ${mod_name}<079>;
+    
+    /* TODO: place your HELP doc here */
+    
+    #showme  ;
+    #showme <139> -> 按任意键继续...<079>;
+    #buffer lock;
+};
+
+#alias {on_mzj_asked} {
+    #alias cb_on_mzj_asked #cr;
+    #alias cb_on_mzj_asked %0;
+    
+    #act {你向孟之经打听有关『job』的消息} {
+        cb_on_mzj_asked;
+    };
+};
+#alias {on_mzj_telled} {
+    #alias cb_on_mzj_telled #cr;
+    #alias cb_on_mzj_telled %0;
+    
+    #act {孟之经说道：「这里人多眼杂，你先到%*等候，我自会通知你。」} {
+        cb_on_mzj_telled;
+    };
+};
+#alias {mzjob} {
+    
+};
+
+#act {孟之经说道：「这里人多眼杂，你先到%*等候，我自会通知你。」} {
+    #var mzj[pos] %1;
+    
+    #buffer get mzj[askline] 1;
+    #regexp {$mzj[askline]} {^%*向孟之经打听有关『job』的消息。} {
+        #var mzj[owner] &1;
+    } {
+        #var mzj[owner] no_one;
+    };
+    
+    #showme $mzj[owner] $mzj[pos];
+};
+
+#class $mod_name close;
+
+${mod_name}_load;

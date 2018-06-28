@@ -1,7 +1,28 @@
+#class $mod_name open;
+
+#alias {${mod_name}_load} {
+    #showme module $mod_name loaded.;
+    #unalias ${mod_name}_load;
+};
+
+#alias {${mod_name}_unload}{
+    #showme module $mod_name unloaded.;
+    #class $mod_name kill;
+};
+
+#alias {chlin}      {w;n;w;s;s;e;e;w;w};
+#alias {chlout}     {e;s;n;w;n;n;e;s;e};
+#alias {chlxl2hxg}  {e;s;w};
+#alias {hzout}      {s;e;n;w;s;s;w;out};
+#alias {meizhuang}  {knock gate 4;knock gate 2;knock gate 5;knock gate 3}
+#alias {tyhzout}    {s;e;n;w;s;s;w;out}
+#alias {mhzout}     {e;n;w;s;w;e;e;e;n;break men;s}
 #alias {gcp}		{e;e;s;s;e;n;e;e}
-#alias {tdhout}		{#4 s;w;n;n;e;n;s;wu;w;w;s;w;n;n;w;w}
-#alias {tdhin}		{knock guancai 3;ed;#3 s;w;e;#4 n}
+#alias {tdhout}		{#4 s;w;n;n;e;n;s}
+#alias {tdhin}		{#3 s;w;e;#4 n}
 #alias {tdh}		{gcp;tdhin}
 #alias {wxdout}		{n;w;n;e;s;u;out}
-#alias {toyangzhou}	{w;w;s;w;gu che;qu yangzhou;#delay {5}{xia che;e;drink;e;n;n}}
-#alias {toluoyang}	{s;s;w;drink;w;gu che;qu luoyang;#delay {5}{xia che;e;n;e;e}}
+
+#class $mod_name close;
+
+${mod_name}_load;

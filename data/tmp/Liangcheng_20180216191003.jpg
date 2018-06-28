@@ -1,0 +1,11 @@
+--2018-02-16 19:12:41--  http://pkuxkx.net/antirobot/b2evo_captcha_tmp/b2evo_captcha_9549EB62118EA5D7EF982684D128A95F.jpg
+正在解析主机 pkuxkx.net (pkuxkx.net)... 182.140.217.111
+正在连接 pkuxkx.net (pkuxkx.net)|182.140.217.111|:80... 已连接。
+已发出 HTTP 请求，正在等待回应... 200 OK
+长度： 7678 (7.5K) [image/jpeg]
+正在保存至: “b2evo_captcha_9549EB62118EA5D7EF982684D128A95F.jpg”
+
+     0K .......                                               100%  685K=0.01s
+
+2018-02-16 19:12:41 (685 KB/s) - 已保存 “b2evo_captcha_9549EB62118EA5D7EF982684D128A95F.jpg” [7678/7678])
+

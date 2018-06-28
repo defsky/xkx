@@ -1,0 +1,94 @@
+#class $mod_name open;
+
+#alias {${mod_name}_load} {
+    #showme Module $mod_name loaded;
+    #unalias ${mod_name}_load;
+};
+
+#alias {${mod_name}_unload}{
+    #showme Module $mod_name unloaded;
+    #class $mod_name kill;
+};
+
+#MACRO {\eOQ}{eat yao};
+#MACRO {\eOR}{yun recover};
+
+
+#alias {pu} {
+    yun powerup;
+};
+#alias {wi} {
+    wield blade;
+};
+#alias {uwi} {
+    unwield blade;
+};
+#alias {lw}{
+    perform zui-quan.lingwu;
+};
+
+#alias {zd}{
+    perform zui-gun.zuida;
+};
+
+#alias {sj} {
+    perform damo-jian.sanjue;
+};
+
+#alias {san}{
+    perform banruo-zhang.san;
+};
+
+#alias {jm}{
+    perform yizhi-chan.jingmo;
+};
+
+#alias {yr}{
+    yun recover;
+};
+#alias {yh}{
+    yun heal;
+};
+#alias {jg}{
+    yun jingang;
+};
+#alias {djg}{
+    perform jingang-quan.jingang;
+};
+#alias {pu}{
+    yun powerup;
+};
+#var cooldown 1;
+
+
+#act {你在攻击中不断积蓄攻势。(气势：%1%%)}{#var status[mo] %1;#var status[flag][fighting] 1;status.set_action 气势$status[mo]%};
+#act {你逐步从之前战斗的紧张气氛中平缓下来。(气势：%1%%)}{#var status[mo] %1;status.set_action 气势$status[mo]%};
+#act {经过一段时间后，你终于完全从紧张地战斗氛围中解脱出来}{#var status[mo] 0;#var status[flag][fighting] 0;status.set_action 气势$status[mo]%};
+#act {你%*大喝一声：看招}{#var status[flag][fighting] 1};
+#act {你慢慢地移动著脚步，伺机出手}{#var status[flag][fighting] 1};
+#act {你战胜了}{#var status[flag][fighting] 0};
+
+#act {^你突然感到精神一振，浑身似乎又充满了力量！} {hpbrief1};
+#act {^( 你似乎有些疲惫，但是仍然十分有活力。 )} {hpbrief1};
+#act {^( 你受了几处伤，不过似乎并不碍事。 )} {hpbrief1};
+#act {^( 你动作似乎开始有点不太灵光，但是仍然有条不紊。 )} {hpbrief1};
+#act {^( 你%*，看起来状况并不太好。 )} {hpbrief1};
+#act {^( 你已经%*，正在勉力支撑著不倒下去。 )} {hpbrief1};
+#act {^( 你看起来已经力不从心了。 )} {hpbrief1};
+#act {^( 你气息粗重，动作开始散乱，看来所受的伤著实不轻。 )} {hpbrief1};
+#act {^( 你似乎十分疲惫，看来需要好好休息了。 )} {hpbrief1};
+#act {^( 你受了相当重的伤，只怕会有生命危险。 )} {hpbrief1};
+#act {^( 你%*，眼看就要倒在地上。 )} {hpbrief1};
+#act {^( 你已经陷入半昏迷状态，随时都可能摔倒晕去。 )} {hpbrief1};
+#act {^( 你受伤过重，已经有如风中残烛，随时都可能断气。 )} {hpbrief1};
+#act {^你深深吸了几口气，脸色看起来好多了。} {hpbrief1};
+#act {^你身子发虚}{hpbrief1};
+#act {你拿起%*咬了几口}{hpbrief1};
+#act {你%*喝了%*}{hpbrief1};
+#act {你全身放松，坐下来开始运功疗伤}{hpbrief1};
+#act {你吃下一包金创药} {hpbrief1};
+#act {^你必须空手才能使用} {unwield all};
+
+#class $mod_name close;
+
+${mod_name}_load;

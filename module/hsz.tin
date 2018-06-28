@@ -1,0 +1,102 @@
+#class $mod_name open;
+
+#alias {${mod_name}_load} {
+    #showme Module $mod_name loaded;
+    #unalias ${mod_name}_load;
+};
+
+#alias {${mod_name}_unload}{
+    #showme Module $mod_name unloaded;
+    #class $mod_name kill;
+};
+
+#act {你心中暗道：就是这里了，于是紧跟着几个形迹可疑的人走去} {
+    #map leave;
+    #act {你已经陷入半昏迷状态，随时都可能摔倒晕去} {
+        #send $hszjob[esc];
+    };
+    #act {^这时，你展开了精心绘制的地区地图，找到了异族奸细的行迹} {
+        #act {http://pkuxkx.net/antirobot/robot.php?filename=%*} {
+            #unact {http://pkuxkx.net/antirobot/robot.php?filename=%*};
+            #system {firefox http://pkuxkx.net/antirobot/robot.php?filename=%%%1};
+        };
+    };
+};
+
+#alias {leave} {
+    #send leave;
+    #map return;
+};
+
+#nop 你向韩世忠打听有关『job』的消息。
+#nop 韩世忠点了点头：好！
+#nop 韩世忠说道：「我听说有一群异族奸细在泉州的巨鲸帮总舵附近出没，你去打探(datan)一下，必须要留下一两个奸细，给他们一个教训。」
+
+#var hszjob[flag] 0;
+#alias {hsz} {
+    #if {"%1" == "job"} {
+        #class hsz_job_inner open;
+        
+        #act {你向韩世忠打听有关『job』的消息} {
+            #var hszjob[flag] 1;
+            #var hszjob[area] {};
+            #var hszjob[room] {};
+        };
+        #act {韩世忠(han shizhong)告诉你：你去休息休息，过段时间再来吧} {
+            #class hsz_job_inner kill;
+        };
+        #act {韩世忠(han shizhong)告诉你：你去江湖中历练一番吧} {
+            #class hsz_job_inner kill;
+        };
+        #act {韩世忠说道：「刚刚已经有人前去了，多谢大师好意。」} {
+            #if {$hszjob[flag] == 1} {
+                #class hsz_job_inner kill;
+            };
+        };
+        #act {韩世忠说道：「我听说有一群异族奸细在%*的%*附近出没，你%*去打探(datan)一下，必须要留下一两个奸细，给他们一个教训。」} {
+            #if {$hszjob[flag] == 1} {
+                dbg %%1 %%2;
+                #var hszjob[area] %%1;
+                #var hszjob[room] %%2;
+                #class hsz_job_inner kill;
+            };
+        };
+                
+        #class hsz_job_inner close;
+        ask han about job;
+    };
+    #elseif {"%1" == "go"} {
+        #switch {"$hszjob[area]"} {
+            #case {"福州"} { #var hszjob[area] 闽南};
+            #case {"杭州"} { #var hszjob[area] 临安府};
+            #case {"杭州提督府"} { #var hszjob[area] 临安提督府};
+            #case {"建康府南城"} { #var hszjob[area] 建康府南};
+            #case {"建康府北城"} { #var hszjob[area] 建康府北};
+            #case {"姑苏慕容"} { #var hszjob[area] 慕容};
+            #case {"西湖梅庄"} { #var hszjob[area] 梅庄};
+            
+        }; 
+        on_there {
+            #delay {1} {datan};
+        };
+        goto $hszjob[room] $hszjob[area];
+        
+    };
+    #elseif {"%1" == "fin"} {
+        #unact {你已经陷入半昏迷状态，随时都可能摔倒晕去};
+        goto 韩世忠;
+        on_there {
+            #delay {1} {ask han about finish;#cr};
+        };
+    };
+    #elseif {"%1" == "fai"} {
+        ask han about fail;
+    };
+    #else {
+        goto 韩世忠;
+    };
+};
+
+#class $mod_name close;
+
+${mod_name}_load;

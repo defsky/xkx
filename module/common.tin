@@ -1,12 +1,68 @@
+#class $mod_name open;
+
+#alias {${mod_name}_load} {
+    #showme module $mod_name loaded.;
+    #unalias ${mod_name}_load;
+};
+
+#alias {${mod_name}_unload} {
+    #showme module $mod_name unloaded.;
+    #class $mod_name kill;
+};
+
+#function {rnd}         {#math {result} {1 d (%2 - %1 + 1) + %1 - 1}};
 #function {eval}		{#math result {%1}};
 #function {trim}		{#format result {%p}{%1}};
-#function {lower} 	{#format result {%l} {%1}};
-#function {upper} 	{#format result {%u} {%1}};
+#function {lower} 	    {#format result {%l} {%1}};
+#function {upper} 	    {#format result {%u} {%1}};
 #function {len} 		{#format result {%L} {%1}};
 #function {screenw} 	{#format result {%C}};
 #function {screenh} 	{#format result {%R}};
 #function {replace} 	{#var result %1;#replace result {%2} {%3}};
-#function {ctd} 		{#math result {@replace{@replace{{0+@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{%1;{零};{*0+}};{十};{*10+}};{百};{*100+}};{千};{*1000+}};{万};{*10000+}};{六};{6}};{一};{1}};{二};{2}};{三};{3}};{四};{4}};{五};{5}};{七};{7}};{八};{8}};{九};{9}}+0};{++};{+}};{+*};{+}}}};
+#function {ctd} 		{#math result {@replace{@replace{{0+@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{%1;{零};{*0+}};{十};{*10+}};{百};{*100+}};{千};{*1000+}};{万};{*10000+}};{甲子};{*60+}};{六};{6}};{一};{1}};{二};{2}};{三};{3}};{四};{4}};{五};{5}};{七};{7}};{八};{8}};{九};{9}}+0};{++};{+}};{+*};{+}}}};
+
+#function {reverse} {
+    #switch {"%1"} {
+        #case {"e"} { #var result w };
+        #case {"s"} { #var result n };
+        #case {"w"} { #var result e };
+        #case {"n"} { #var result s };
+        #case {"ne"} { #var result sw };
+        #case {"nw"} { #var result se };
+        #case {"se"} { #var result nw };
+        #case {"sw"} { #var result ne };
+        #case {"nu"} { #var result sd };
+        #case {"nd"} { #var result su };
+        #case {"su"} { #var result nd };
+        #case {"sd"} { #var result nu };
+        #case {"eu"} { #var result wd };
+        #case {"ed"} { #var result wu };
+        #case {"wu"} { #var result ed };
+        #case {"wd"} { #var result eu };
+        #case {"up"} { #var result down };
+        #case {"down"} { #var result up };
+        #case {"enter"} { #var result out };
+        #case {"out"} { #var result enter };
+        #default { 
+            #var result {};
+        };
+    };    
+};
+#function {isListMember} {
+    #var result 0;
+    
+    #foreach {${%1}[%*]} {m} {
+        #if {"$m" == "%2"} {
+            #var result 1;
+        };
+    };
+    #unvar m;
+};
+#alias {dbg} {
+    #showme <139>->%0<079>;
+    #showme <139>-><079>;
+};
+
 #alias {colorpad}
 {
     #var count 0;
@@ -33,3 +89,67 @@
 	#unvar c3;
 	#unvar count;
 }
+
+#alias {log} {
+    #format nowtime {%t}{%H:%M:%S};
+    #format logstr {%-9s%-13s%s}{$nowtime}{$status[id]}{%0};
+    #system {echo -e "$logstr" >> data/all.log};
+    #unvar logstr;#unvar nowtime;
+};
+
+#alias {on_unbusy} {
+    #alias cb_on_unbusy #cr;
+    #alias cb_on_unbusy %0;
+    
+    #class on_unbusy_inner open;
+    #gag {^你正忙};
+    
+    #act {^你不忙} {
+        #class on_unbusy_inner kill;
+        cb_on_unbusy;
+    };
+    #tic {check_busy} {checkbusy}{1};
+    #class on_unbusy_inner close;
+};
+
+#alias {*} {
+    chat* %0;
+};
+
+#alias {bjd} {
+    give 1 gold to bai;
+    #delay {1} {give %1 to bai};
+};
+#alias {atld} {
+    autoload %1;yes;
+};
+#alias {dsld} {
+    disload %1;yes;
+};
+#alias {s2g} {
+    convert %1 silver to gold;
+};
+#alias {jq} {
+    #act {^jobquery 支持参数} {
+        #unact {^jobquery 支持参数};
+        #buffer lock;
+    };
+    jobquery;
+};
+
+#alias {fm} {
+    #if {"%1" == ""} {
+        #act {http://pkuxkx.net/antirobot/robot.php?filename=%*} {
+            #unact {http://pkuxkx.net/antirobot/robot.php?filename=%*};
+            #system {firefox http://pkuxkx.net/antirobot/robot.php?filename=%%1};
+        };
+        fullme;
+    } {
+        fullme %1;
+    };
+};
+
+#class $mod_name close;
+
+${mod_name}_load;
+
