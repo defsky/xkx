@@ -48,6 +48,8 @@
         };
     };    
 };
+
+#nop ========================= List Utility ===================================;
 #function {isListMember} {
     #var result 0;
     
@@ -62,6 +64,25 @@
     #showme <139>->%0<079>;
     #showme <139>-><079>;
 };
+
+#function {listGetLength} {
+    #list %1 size result;
+};
+#function {listGetHead} {
+    #var result ${%1}[1];
+};
+#function {listEnQueue} {
+    #list %1 add {{%2}};
+};
+#function {listDeQueue} {
+    #var result ${%1}[1];
+    #list %1 delete 1;
+};
+#function {test} {
+    #show %1 %2;
+};
+
+#nop ======================== Misc Utility ====================================;
 
 #alias {colorpad}
 {
