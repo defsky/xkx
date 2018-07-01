@@ -139,18 +139,6 @@
 
 #nop ============ Module alias start ==========================================;
 
-#alias {on_exit_blocked} {
-    #alias cb_on_exit_blocked #cr;
-    #alias cb_on_exit_blocked %0;
-    
-    #act {你的动作还没有完成，不能移动} {
-        cb_on_exit_blocked;
-    };
-    #act {官兵们拦住了你的去路} {
-        cb_on_exit_blocked;
-    };
-};
-
 #alias {map} {
     #switch {"%1"} {
         #case {"load"} {
@@ -455,20 +443,6 @@
     #map exit to%1 COMMAND {qu %1};
 };
 
-#alias {pathwalk} {
-    #class pathwalk_inner open;
-    
-    #act {^%S%s-%s$} {
-        #if {"%%1" !== "马车"} {
-            #path walk;
-        };
-    };
-    
-    #class pathwalk_inner close;
-    
-    #path walk;
-};
-
 #nop 你一进戒律院，...只听几声大喝，如同炸雷般在大殿里回响  #map goto 1466;
 #nop 执法僧兵说道：「戒律院玄痛大师请你去陈述此次下山经过 ！」;
 #nop 你战战兢兢，晃晃悠悠地向对面走去......;
@@ -680,6 +654,13 @@
     
     #alias {back_one_step} {
         #math path_run[list_idx] {$path_run[list_idx] - 1};
+    };
+    #alias {do_rewalk} {
+        #map undo;
+        back_one_step;
+        #delay {1} {
+            go_forward;
+        };
     };
     #alias {go_forward} {
         
@@ -1011,13 +992,23 @@
     #map goto $current_room_id;
     #unvar current_room_id;
 };
+
+#nop =========================== 遍历 =========================================;
+
 #alias {on_get_exits} {
     #alias cb_on_get_exits #cr;
     #alias cb_on_get_exits %0;
     
     #act {^%s这里%*{方向|出口}{是|有}%*} {
         #unact {^%s这里%*{方向|出口}{是|有}%*};
-        #var map[trvs][leaf] @format_exits{%%5};
+        #nop #var map[trvs][leaf] @format_exits{%%5};
+        #var trvs[exits] %%5;
+        #replace {trvs[exits]} {。} {};
+	    #replace {trvs[exits]} { } {};
+	    #replace {trvs[exits]} {和} { };
+	    #replace {trvs[exits]} {、} { };
+	    
+	    #list 
         cb_on_get_exits;
     };
     look;
@@ -1051,6 +1042,10 @@
     };
     #class traverse_inner close;
 };
+
+
+
+#nop ================================== 常用行走别名 ===========================;
 
 #alias {rbz} {
     goto 荣宝斋;
