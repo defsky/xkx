@@ -27,6 +27,10 @@
 #event {VARIABLE UPDATE gchar} {
     #var murong[pos] %1;
     gotowork %1;
+    on_there {
+        bfs 10;
+        trvs.step;
+    };
 };
 
 #var murong[start] 0;
@@ -42,10 +46,26 @@
     goto 茶馆 苏州;
 };
 #alias {mrfin} {
-    on_there {
+    #map get roomvnum murong[vnum];
+    #if {$murong[vnum] == 433} {
         give xin to pu ren;
+    } {
+        on_there {
+            give xin to pu ren;
+        };
+        goto 茶馆 苏州;
     };
-    goto 茶馆 苏州;
+};
+#alias {mrfai} {
+    #map get roomvnum murong[vnum];
+    #if {$murong[vnum] == 433} {
+        ask pu about fail;
+    } {
+        mr;
+        on_there {
+            mrfai;
+        };
+    };
 };
 #alias {mrstop} {
     #var murong[start] 0;
@@ -59,6 +79,49 @@
 #alias {mrjob} {
     ask pu ren about job;
 };
+#alias {search_jiazei} {
+    #class on_found_jiazei_inner open;
+    
+    #act {$status[name]发现的 慕容世家{家贼|内鬼}($status[id]'s murong jiazei)} {
+        _mrmsg 发现家贼;
+        #undelay {dl_search_jiazei};
+        kill jiazei;
+    };
+    #act {^慕容世家{家贼|内鬼}%*，身穿布衣走了过来} {
+        #undelay {dl_search_jiazei};
+        kill jiazei;
+    };
+    #act {^这里{不能|禁止}战斗} {
+        ask jiazei about fight;
+    };
+    #act {^慕容世家{家贼|内鬼}往%*离开} {
+        #unact {^慕容世家{家贼|内鬼}往%*离开};
+        #undelay {dl_search_jiazei};
+        $direction[cn][%%2];
+    };
+    #act {^遍历路径行走完成} {
+        #delay {dl_search_jiazei} { mrfai } {3};
+    };
+    #act {^这个方向没有出路} {
+        on_map_pad {
+            bfs 10;
+        };
+    };
+    
+    #class on_found_jiazei_inner close;
+    
+    look;
+    
+    #delay {dl_search_jiazei} {
+        #class on_found_jiazei_inner open;
+        #act {^%s这里%*{方向|出口}{是|有}%*} {
+            #delay {dl_search_jiazei} { trvs.step } {1.5};
+        };
+        #class on_found_jiazei_inner close;
+        bfs 10;
+    } {2};
+};
+
 #act {^仆人叹道：家贼难防，有人偷走了少爷的信件，据传曾在以下地点附近出现，你去把它找回来吧} {
     #act {http://pkuxkx.net/antirobot/robot.php?filename=%*} {
         #unact {http://pkuxkx.net/antirobot/robot.php?filename=%*};
@@ -70,22 +133,19 @@
     #var murong[pos1] %1;
     #system {echo "%1">>data/murong.log};
     #if {"$murong[pos1]" == "神龙岛花园"} {
-        #var murong[pos1] 神龙岛海滩;
+        mrfai;
+    } {;
+        mrgo;
+        on_there {
+            search_jiazei;
+        };
     };
-    gotowork $murong[pos1];
+    
 };
-#act {$status[name]发现的 慕容世家{家贼|内鬼}($status[id]'s murong jiazei)} {
-    _mrmsg 发现家贼，干他;
-    goto_stop;
-    @reverse{$path_run[list][$path_run[list_idx]]};
-    kill jiazei;
-    pu;
-};
-#act {^慕容世家{家贼|内鬼}%*，身穿布衣走了过来} {
-    look;
-};
+
 #act {^慕容世家{家贼|内鬼}死了} {
     _mrmsg 家贼挂了，拿信;
+    #class on_found_jiazei_inner kill;
     #delay {2} {gc};
 };
 #act {^你从慕容世家{家贼|内鬼}的尸体身上搜出一封信件} {
