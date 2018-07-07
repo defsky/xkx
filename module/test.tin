@@ -109,7 +109,7 @@
 };
 
 #act {你需要先接受张三的挑战} {
-    log 张三挑战;
+    log zhangsan_come;
     accept;
 };
 
@@ -136,6 +136,8 @@
     #var bfs[nodes_v] {};
     #var bfs[nodes_e] {};
     
+    #var bfs[disabled_vnum] {{vnum}{name}};
+    
     #map get roomvnum bfs[start_pos];
     #map get roomarea bfs[area];
     
@@ -148,22 +150,24 @@
         
         #foreach {$bfs[q1][]} {bfs[q1_k]} {
             
-            #map goto $bfs[q1_k];
-            
-            #map get roomarea bfs[next_node][area];
-            
-            #if {"$bfs[area]" == "" ||
-                 "$bfs[next_node][area]" == "" ||
-                 "$bfs[area]" == "$bfs[next_node][area]"} {
+            #if {&bfs[disabled_vnum][$bfs[q1_k]] == 0} {
+                #map goto $bfs[q1_k];
                 
-                #map get roomname bfs[next_node][name];
-                #map get roomexits bfs[next_node][exits];
+                #map get roomarea bfs[next_node][area];
                 
-                #var bfs[nodes_v][$bfs[q1_k]] $bfs[next_node][name];
-                #var bfs[nodes_e][$bfs[q1_k]] {$bfs[next_node][exits]};
-                
-                #foreach {$bfs[next_node][exits][%*]}{bfs[v]} {
-                    #var bfs[q2][$bfs[v]] {};
+                #if {"$bfs[area]" == "" ||
+                     "$bfs[next_node][area]" == "" ||
+                     "$bfs[area]" == "$bfs[next_node][area]"} {
+                    
+                    #map get roomname bfs[next_node][name];
+                    #map get roomexits bfs[next_node][exits];
+                    
+                    #var bfs[nodes_v][$bfs[q1_k]] $bfs[next_node][name];
+                    #var bfs[nodes_e][$bfs[q1_k]] {$bfs[next_node][exits]};
+                    
+                    #foreach {$bfs[next_node][exits][%*]}{bfs[v]} {
+                        #var bfs[q2][$bfs[v]] {};
+                    };
                 };
             };
         };
@@ -178,6 +182,94 @@
     #unvar bfs[v];
     
     #map goto $bfs[start_pos];
+};
+
+#alias {mst} {
+    #var mst[start] %1;
+    #var mst[v] ${%2};
+    #var mst[e] ${%3};
+    
+    #var mst[path] {};
+    #var mst[visited] {};
+    
+    #var mst[buffer] {};
+    
+    #var mst[buffer][vnum] $mst[start];
+    
+    #var mst[visited][$mst[buffer][vnum]] $mst[v][$mst[buffer][vnum]];
+    #unvar mst[v][$mst[buffer][vnum]];
+    
+    #var mst[buffer][last_vnum] 0;
+    #list mst[buffer][stack] add $mst[buffer][vnum];
+    
+    #while {&mst[v][] != 0} {
+        #var mst[buffer][path] {};
+        #var mst[buffer][r_path] {};
+        #var mst[buffer][exits] $mst[e][$mst[buffer][vnum]];
+        
+        #foreach {$mst[buffer][exits][]} {mst[buffer][exit]} {
+        
+            #if {&mst[e][$mst[buffer][exits][$mst[buffer][exit]]] != 0} {
+            
+                #if {&mst[visited][$mst[buffer][exits][$mst[buffer][exit]]] == 0} {
+                    #var mst[buffer][path] $mst[buffer][exit];
+                    #break;
+                };
+            };
+        };
+        
+        #if {"$mst[buffer][path]" == ""} {
+            #if {$mst[buffer][vnum] != $mst[start]} {
+            
+                #var mst[buffer][last_vnum] $mst[buffer][stack][-1];
+                #list mst[buffer][stack] delete -1;
+                
+                #foreach {$mst[buffer][exits][]}{mst[buffer][exit]}{
+                    #if {$mst[buffer][exits][$mst[buffer][exit]] == $mst[buffer][last_vnum]} {
+                        #var mst[buffer][path] $mst[buffer][exit];
+                        #break;
+                    };
+                };
+                
+                #if {"$mst[buffer][path]" == ""} {
+                    #show 遍历完成,没有返回路径;
+                    #break;
+                };
+            } {
+                #show 遍历完成,回到起点;
+                #break;
+            };
+        } {
+            #list mst[buffer][stack] add $mst[buffer][vnum];
+            #unvar mst[v][$mst[buffer][vnum]];
+        };
+        
+        #list mst[path] add $mst[buffer][path];
+        
+        #var mst[buffer][vnum] $mst[buffer][exits][$mst[buffer][path]];
+        #var mst[visited][$mst[buffer][vnum]] $mst[v][$mst[buffer][vnum]];
+        
+    };
+    
+    #show complete;
+    
+    #show 遍历路径:$mst[path];
+};
+#alias {trvs} {
+    #if {"%1" != ""} {
+        #var trvs[path] ${%1};
+        #var trvs[idx] 1;
+    };
+    #if {"$trvs[path]" != ""} {
+        #if {&trvs[path][$trvs[idx]] != 0} {
+            $trvs[path][$trvs[idx]];
+            #math trvs[idx] {$trvs[idx] + 1};
+        } {
+            #show 路径走完了;
+        };
+    } {
+        #show 没有路径;
+    };
 };
 
 #class $mod_name close;
