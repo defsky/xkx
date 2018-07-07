@@ -113,6 +113,18 @@
     accept;
 };
 
+#alias {get_time} {
+    #act {现在现实中的时间是北京时间 %*} {
+        #unact {现在现实中的时间是北京时间 %*};
+        #var baowei[time] %%1;
+        #show $baowei[time];
+        
+        #unvar baowei;
+        #nop #system {echo -e "第$baowei[round]轮 $baowei[time]" >> data/baowei.log};
+    };
+    time;
+};
+
 #alias {bfs} {
     #var bfs[target_level] 1;
     #var bfs[target_level] %1;
