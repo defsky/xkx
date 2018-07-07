@@ -1196,9 +1196,14 @@
     
     #if {"$map[trvs][path]" != ""} {
         #if {&map[trvs][path][$map[trvs][idx]] != 0} {
+            #act {^ÄãÌÓÅÜÊ§°Ü} {
+                #unact {^ÄãÌÓÅÜÊ§°Ü};
+                #math map[trvs][idx] {$map[trvs][idx] - 1};
+            };
             $map[trvs][path][$map[trvs][idx]];
             #math map[trvs][idx] {$map[trvs][idx] + 1};
         } {
+            #unact {^ÄãÌÓÅÜÊ§°Ü};
             #show ±éÀúÂ·¾¶ĞĞ×ßÍê³É;
         };
     } {

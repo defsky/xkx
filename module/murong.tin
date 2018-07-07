@@ -103,6 +103,7 @@
         $direction[cn][%%2];
     };
     #act {^遍历路径行走完成} {
+        #class on_found_jiazei_inner kill;
         #delay {dl_search_jiazei} { mrfai } {3};
     };
     #act {^这个方向没有出路} {
