@@ -1221,6 +1221,11 @@
 #alias {wm} {
     goto Œ‰√Ì;
 };
+#alias {bw} {
+    gt Àß∏Æ¥ÛÃ¸;
+};
+
+
 #class $mod_name close;
 
 ${mod_name}_load;

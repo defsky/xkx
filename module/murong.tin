@@ -24,15 +24,6 @@
     #showme <139>murong : %0<079>;
 };
 
-#event {VARIABLE UPDATE gchar} {
-    #var murong[pos] %1;
-    gotowork %1;
-    on_there {
-        bfs 10;
-        trvs.step;
-    };
-};
-
 #var murong[start] 0;
 
 #alias {mr} {
@@ -71,19 +62,31 @@
     #var murong[start] 0;
 };
 #alias {mrpos} {
-    #var gchar %1;
+    #var murong[room] %2;
+    #var murong[area] %1;
+    log $murong[area] $murong[room];
+    mrgo;
+    on_there {
+        zhaojz;
+    };
 };
 #alias {mrgo} {
-    gotowork $murong[pos1];
+    #if {"$murong[mode]" == "text"} {
+        gotowork $murong[pos1];
+    };
+    #if {"$murong[mode]" == "image"} {
+        gt $murong[room] $murong[area];
+    };
 };
 #alias {mrjob} {
     ask pu ren about job;
 };
-#alias {search_jiazei} {
+#alias {zhaojz} {
     #class on_found_jiazei_inner open;
     
     #act {$status[name]发现的 慕容世家{家贼|内鬼}($status[id]'s murong jiazei)} {
         _mrmsg 发现家贼;
+        yun powerup;
         #undelay {dl_search_jiazei};
         kill jiazei;
     };
@@ -103,14 +106,13 @@
         #delay {dl_search_jiazei} { mrfai } {3};
     };
     #act {^这个方向没有出路} {
+        #class on_found_jiazei_inner kill;
         on_map_pad {
             bfs 10;
         };
     };
     
     #class on_found_jiazei_inner close;
-    
-    look;
     
     #delay {dl_search_jiazei} {
         #class on_found_jiazei_inner open;
@@ -120,6 +122,8 @@
         #class on_found_jiazei_inner close;
         bfs 10;
     } {2};
+    
+    look;
 };
 
 #act {^仆人叹道：家贼难防，有人偷走了少爷的信件，据传曾在以下地点附近出现，你去把它找回来吧} {
@@ -127,8 +131,10 @@
         #unact {http://pkuxkx.net/antirobot/robot.php?filename=%*};
         #system {firefox http://pkuxkx.net/antirobot/robot.php?filename=%%1};
     };
+    #var murong[mode] image;
 };
 #act {^仆人叹道：家贼难防，有人偷走了少爷的信件，据传曾在『%*』附近出现，你去把它找回来吧} {
+    #var murong[mode] text;
     #var murong[pos] %1;
     #var murong[pos1] %1;
     #system {echo "%1">>data/murong.log};
@@ -137,7 +143,7 @@
     } {;
         mrgo;
         on_there {
-            search_jiazei;
+            zhaojz;
         };
     };
     
