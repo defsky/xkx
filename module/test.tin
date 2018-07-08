@@ -109,7 +109,7 @@
 };
 
 #act {你需要先接受张三的挑战} {
-    log 张三挑战;
+    log zhangsan_come;
     accept;
 };
 
@@ -125,60 +125,6 @@
     time;
 };
 
-#alias {bfs} {
-    #var bfs[target_level] 1;
-    #var bfs[target_level] %1;
-    #var bfs[level] -1;
-    
-    #var bfs[q1] {};
-    #var bfs[q2] {};
-        
-    #var bfs[nodes_v] {};
-    #var bfs[nodes_e] {};
-    
-    #map get roomvnum bfs[start_pos];
-    #map get roomarea bfs[area];
-    
-    #var bfs[q2][$bfs[start_pos]] {};
-    
-    #while {$bfs[level] < $bfs[target_level]} {
-    
-        #var bfs[q1] $bfs[q2];
-        #var bfs[q2] {};
-        
-        #foreach {$bfs[q1][]} {bfs[q1_k]} {
-            
-            #map goto $bfs[q1_k];
-            
-            #map get roomarea bfs[next_node][area];
-            
-            #if {"$bfs[area]" == "" ||
-                 "$bfs[next_node][area]" == "" ||
-                 "$bfs[area]" == "$bfs[next_node][area]"} {
-                
-                #map get roomname bfs[next_node][name];
-                #map get roomexits bfs[next_node][exits];
-                
-                #var bfs[nodes_v][$bfs[q1_k]] $bfs[next_node][name];
-                #var bfs[nodes_e][$bfs[q1_k]] {$bfs[next_node][exits]};
-                
-                #foreach {$bfs[next_node][exits][%*]}{bfs[v]} {
-                    #var bfs[q2][$bfs[v]] {};
-                };
-            };
-        };
-        
-        #math bfs[level] {$bfs[level] + 1};
-    };
-    
-    #unvar bfs[q1];
-    #unvar bfs[q2];
-    #unvar bfs[next_node];
-    #unvar bfs[q1_k];
-    #unvar bfs[v];
-    
-    #map goto $bfs[start_pos];
-};
 
 #class $mod_name close;
 

@@ -49,6 +49,10 @@
     };    
 };
 
+#var direction[brief] {};
+#var direction[full] {};
+#var direction[cn] {{东}{e}{南}{s}{西}{w}{北}{n}{东南}{se}{东北}{ne}{西南}{sw}{西北}{nw}{东上}{eu}{东下}{ed}{西上}{wu}{西下}{wd}{南上}{su}{南下}{sd}{北上}{nu}{北下}{nd}{里}{enter}{外}{out}{下}{down}{上}{up}};
+
 #nop ========================= List Utility ===================================;
 #function {isListMember} {
     #var result 0;

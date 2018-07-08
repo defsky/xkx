@@ -1,3 +1,11 @@
+#act {$status[name]发现的 慕容世家{家贼|内鬼}($status[id]'s murong jiazei)} {
+    _mrmsg 发现家贼，干他;
+    goto_stop;
+    @reverse{$path_run[list][$path_run[list_idx]]};
+    kill jiazei;
+    pu;
+};
+
 #alias {pathwalk} {
     #class pathwalk_inner open;
     
