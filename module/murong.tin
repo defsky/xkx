@@ -25,6 +25,7 @@
 };
 
 #var murong[start] 0;
+#var murong[trvs_level] 6;
 
 #alias {mr} {
     goto 茶馆 苏州;
@@ -82,10 +83,12 @@
     ask pu ren about job;
 };
 #alias {zhaojz} {
+    log 开始寻找家贼;
     #class on_found_jiazei_inner open;
     
     #act {$status[name]发现的 慕容世家{家贼|内鬼}($status[id]'s murong jiazei)} {
         _mrmsg 发现家贼;
+        follow jiazei;
         yun powerup;
         #undelay {dl_search_jiazei};
         kill jiazei;
@@ -94,7 +97,7 @@
         #undelay {dl_search_jiazei};
         kill jiazei;
     };
-    #act {^这里{不能|禁止}战斗} {
+    #act {^这里{不能|禁止|不准}战斗} {
         ask jiazei about fight;
     };
     #act {^慕容世家{家贼|内鬼}往%*离开} {
@@ -104,12 +107,15 @@
     };
     #act {^遍历路径行走完成} {
         #class on_found_jiazei_inner kill;
-        #delay {dl_search_jiazei} { mrfai } {3};
+        #nop #delay {dl_search_jiazei} { mrfai } {3};
     };
     #act {^这个方向没有出路} {
         #class on_found_jiazei_inner kill;
         on_map_pad {
-            bfs 10;
+            on_there {
+                zhaojz;
+            };
+            mrgo;
         };
     };
     
@@ -121,7 +127,7 @@
             #delay {dl_search_jiazei} { trvs.step } {1.5};
         };
         #class on_found_jiazei_inner close;
-        bfs 10;
+        bfs $murong[trvs_level];
     } {2};
     
     look;

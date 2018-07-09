@@ -1076,7 +1076,9 @@
                 #map get roomarea bfs[next_node][area];
                 
                 #map get roomname bfs[next_node][name];
-                #if {"$bfs[next_node][name]" != "马车"} {
+                #if {"$bfs[next_node][name]" != "马车" &&
+                    "$bfs[next_node][name]" != "小船"} {
+                    
                     #if {"$bfs[area]" == "" ||
                          "$bfs[next_node][area]" == "" ||
                          "$bfs[area]" == "$bfs[next_node][area]"} {

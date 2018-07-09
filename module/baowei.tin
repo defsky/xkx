@@ -121,7 +121,7 @@
     };
     #elseif {$baowei[status] == 1} {
         #if {$baowei[digging] == 0} {
-            #if {$baowei[shield] < $baowei[shield_max]} {
+            #if {$baowei[shield] < @eval{$baowei[shield_max] - 1}} {
                 _bwmsg 这里需要加固;
                 dig;
             } {

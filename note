@@ -1,3 +1,24 @@
+经过一段时间后，你终于完全从紧张地战斗氛围中解脱出来
+
+目前权限：(player)
+＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝ 
+
+			欢迎来到北大侠客行！
+
+	※	连接速度慢的请参考pkuxkx.net上的连接方法总结
+	※	新手建议使用北侠专用的Zmud进行游戏，并加入QQ群
+	※	pkuxkx.net网站诚邀美工，有意者请与pal@pkuxkx.net联系
+
+＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
+
+
+即将开始检测你的客户端对MXP的支持程度。如果5s中之内没有反应，代表你使用的客户端完全不支持MXP,请按回车进入普通模式。
+推荐使用Zmud,CMud和MushClient。请访问http://pkuxkx.net/forum/thread-9684-1-1.html学习如何配置MXP客户端。
+<SUPPORT>
+
+你的客户端不支持MXP功能，使用普通文本模式。
+
+
 #act {$status[name]发现的 慕容世家{家贼|内鬼}($status[id]'s murong jiazei)} {
     _mrmsg 发现家贼，干他;
     goto_stop;
