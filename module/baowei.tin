@@ -83,8 +83,8 @@
         };
     };
 };
-#act {^郭靖说道：「蒙古兵大军来袭，这位英雄预要参加襄阳保卫战，可以在我这里报名（join）。」} {
-    #unact {^郭靖说道：「蒙古兵大军来袭，这位英雄预要参加襄阳保卫战，可以在我这里报名（join）。」};
+#act {^【任务】襄阳保卫战开启，请大家踊跃从军，到襄阳的郭靖处报名（ask guojing about 襄阳保卫）} {
+    #unact {^【任务】襄阳保卫战开启，请大家踊跃从军，到襄阳的郭靖处报名（ask guojing about 襄阳保卫）};
     bw;
     #delay {0.5} {
         join 3;
@@ -136,6 +136,7 @@
 };
 #act {    郭夫人「桃花仙子」黄蓉(Huang rong)} {
     _bwmsg 发现黄蓉;
+    ask huang about 工事;
 };
 #act {    %*(Menggu bing)} {
     _bwmsg 发现蒙古兵;
@@ -183,20 +184,7 @@
     time;
 };
 #act {蒙古发兵攻打襄阳%*门} {
-    #switch {"%1"} {
-        #case {"北"} {
-        
-        };
-        #case {"南"} {
-        
-        };
-        #case {"西"} {
-        
-        };
-        #case {"东"} {
-        
-        };
-    };
+    #system {echo -e "%1" >> data/baowei.log};
 };
 #act {{各位可以到郭靖处领奖|襄阳保卫战已经全部结束|襄阳保卫战取得胜利}} {
     #var baowei[status] 0;    

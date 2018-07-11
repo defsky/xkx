@@ -442,6 +442,7 @@
             #act {    郭夫人「桃花仙子」黄蓉(Huang rong)} {
                 #unact {    郭夫人「桃花仙子」黄蓉(Huang rong)};
                 #show 发现黄蓉;
+                ask huang about 工事;
                 #delay {2} {#2 n;#7 w};
             };
             #delay {1} {join 3};
@@ -498,28 +499,115 @@
         #class fish_on_inner kill;
     };
 };
-#alias {bw.wait} {
+
+#nop >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> baowei start >>>>>>>>>>>>>>>>>>>>>>>>>>>>;
+
+#alias {bw.start} {
+    #class bw.start.inner open;
+    
     #act {^【任务】襄阳保卫战开启，请大家踊跃从军，到襄阳的郭靖处报名（ask guojing about 襄阳保卫）} {
-        ask guo about 襄阳保卫;
+        #class bw.start.inner open;
+        
         #act {    郭夫人「桃花仙子」黄蓉(Huang rong)} {
-            #unact {    郭夫人「桃花仙子」黄蓉(Huang rong)};
-            #show 发现黄蓉;
-            #delay {2} {#2 n;#7 w};
+            #nop #unact {    郭夫人「桃花仙子」黄蓉(Huang rong)};
+            ask huang about 工事;
+            
+            #delay {2} {
+                on_center { bw.dig n 2};
+                #2 n;#2 e;
+            };
+            #nop #class bw.start.inner kill;
         };
-        #delay {1} {join 3};
+        #act {郭靖吩咐下面兵士将你带到襄阳保卫战的前线} {
+        
+        };
+        
+        #class bw.start.inner close;
+        
         timer.set 150;
         timer.hnd timer_handler;
         timer.reset;
+        
+        ask guo about 襄阳保卫;
+        #delay {1} {join 3};
+    };
+    #act {到达保卫准备地点} {
+        
+    };
+    
+    #class bw.start.inner close;
+};
+
+#var bw[dig][depth] 5;
+
+#alias {bw.dig} {
+    #var bw[dig][walk] %1;
+    #var bw[dig][req_cnt] %2;
+    
+    #var bw[dig][count] 0;
+    #var bw[dig][level] 0;
+    
+    #class bw.dig.inner open;
+    
+    #act {位置：%S  性质：%S  防御值：%d/%d} {
+        #var bw[shield] %%3;
+        #var bw[shield_max] %%4;
+        
+        #if {$bw[shield] < @eval{$bw[shield_max] - 1}} {
+            dig;
+            on_dig_ok {
+                bw.dig.next;
+            };
+        } {
+            bw.dig.next;
+        };
+    };
+    
+    #class bw.dig.inner close;
+    
+    bw.dig.next;
+};
+#alias {bw.dig.next} {
+    #if {$bw[dig][count] >= $bw[dig][req_cnt]} {
+        #class bw.dig.inner kill;
+        on_center {
+            #show dig complete;
+        };
+        #5 @reverse{$bw[dig][walk]};
+    };
+    #elseif {$bw[dig][level] >= $bw[dig][depth]} {
+        #class bw.dig.inner kill;
+        on_center {
+            #show dig complete;
+        };
+        #5 @reverse{$bw[dig][walk]};
+    };
+    #else {
+        $bw[dig][walk];
+        #math {bw[dig][level]} {$bw[dig][level] + 1};
+    };
+};
+#alias {on_center} {
+    #alias cb_on_center #cr;
+    #alias cb_on_center %0;
+    
+    #act {^城中心 - } {
+        #unact {^城中心 - };
+        cb_on_center;
+    };
+};
+#alias {on_dig_ok} {
+    #alias cb_on_dig_ok #cr;
+    #alias cb_on_dig_ok %0;
+    
+    #act {^你直起身来，看看已具规模的工事，擦了擦汗，停下来歇一歇} {
+        #unact {^你直起身来，看看已具规模的工事，擦了擦汗，停下来歇一歇};
+        #math {bw[dig][count]} {$bw[dig][count] + 1};
+        cb_on_dig_ok;
     };
 };
 
-#alias {dig2} {
-    #act {^你直起身来，看看已具规模的工事，擦了擦汗，停下来歇一歇} {
-        #unact {^你直起身来，看看已具规模的工事，擦了擦汗，停下来歇一歇};
-        dig;
-    };
-    dig;
-};
+#nop <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< baowei   end <<<<<<<<<<<<<<<<<<<<<<<<<<<<;
 
 #alias {dztn} {
     mod dazuo reload;
@@ -575,6 +663,9 @@
         eat liang;he jiudai;
         #delay {1} {pingdiao};
     };
+    #tic {tk_pd} {
+        pingdiao;
+    }{300};
     
     #class pd.start.inner close;
     
@@ -650,7 +741,7 @@
     };
     #act {^突然，一股暗流把你推到一个洞口，你终于可以走到洞里，感觉轻松多了...} {
         log 第$enterhole_count次尝失成功了！;
-        status.set_action 空闲;
+        zuandong.stop;
     };
     #act {^你取出火折，轻轻一纵，跃入古洞之中} {
         status.set_action 钻洞;
