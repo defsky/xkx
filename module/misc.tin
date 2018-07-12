@@ -428,14 +428,14 @@
     status.set_action 空闲;
 };
 
+#alias {timer_handler} {
+    status.set_action $timer.value;
+};
 #alias {fish} {
     #if {"%1" == "on"} {
         
         #class fish_on_inner open;
         
-        #alias {timer_handler} {
-            status.set_action $timer.value;
-        };
         
         #act {^【任务】襄阳保卫战开启，请大家踊跃从军，到襄阳的郭靖处报名（ask guojing about 襄阳保卫）} {
             ask guo about 襄阳保卫;
@@ -505,7 +505,7 @@
     #class bw.start.inner open;
     
     #act {^【任务】襄阳保卫战开启，请大家踊跃从军，到襄阳的郭靖处报名（ask guojing about 襄阳保卫）} {
-        #class bw.start.inner open;
+        #class bw.start.inner1 open;
         
         #act {    郭夫人「桃花仙子」黄蓉(Huang rong)} {
             #nop #unact {    郭夫人「桃花仙子」黄蓉(Huang rong)};
@@ -565,19 +565,23 @@
             };
         };
         #act {^郭靖双手抱拳，讨好地对你说道：} {
-            #class bw.start.inner kill;
+            #class bw.start.inner1 kill;
         };
-        #class bw.start.inner close;
+        #class bw.start.inner1 close;
         
         timer.set 150;
-        #nop timer.hnd timer_handler;
+        timer.hnd timer_handler;
         timer.reset;
         
         ask guo about 襄阳保卫;
-        #delay {1} {join 3};
+        #delay {0.5} {join 3};
     };
     
     #class bw.start.inner close;
+};
+#alias {bw.stop} {
+    #class bw.start.inner kill;
+    #unvar bw;
 };
 
 #var bw[status][gate][threshold] 95;
@@ -738,7 +742,7 @@
     #class bw.guard.inner open;
     
     #tic {tk_bw_fish} {
-        kill bing;
+        kill menggu bing;
     }{1};
     
     #act {^%s%S(%w %w) <昏迷不醒>} {
