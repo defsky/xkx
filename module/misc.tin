@@ -545,9 +545,9 @@
     };
     #act {襄阳保卫战正在进行中，现在是蒙古兵第%*轮发兵} {
         timer.reset;
-        bw.guard ${bw[status][attack][1]};
+        bw.guard.first;
         on_guard_complete {
-            bw.guard ${bw[status][attack][-1]};
+            bw.guard.last;
             on_guard_complete {
                 #var bw[status][attack] {};
                 bw.lookgate w;
@@ -575,6 +575,7 @@
             #unact {^帅府大厅 - };
             ask guo about 奖励;
         };
+        #2 w;#2 s;
     };
     #act {^郭靖双手抱拳，讨好地对你说道：} {
         #nop #class bw.start.inner kill;
@@ -749,6 +750,12 @@
     };
     #${bw[status][guard][steps][$bw[status][guard][walk]]} ${bw[status][guard][walk]};
 };
+#alias {bw.guard.first} {
+    bw.guard $bw[status][attack][1];
+};
+#alias {bw.guard.last} {
+    bw.guard $bw[status][attack][-1];
+};
 #alias {bw.guard.start} {
     
     #class bw.guard.inner open;
@@ -769,7 +776,7 @@
         };
     };
     #act {一个蒙古奸细走了过来} {
-    
+        kill menggu jianxi;
     };
     #act {^看起来%*想杀死你} {
         #unact {^看起来%*想杀死你};
@@ -812,7 +819,8 @@
         #var bw[dig][shield] %%3;
         #var bw[dig][shield_max] %%4;
         
-        #if {$bw[dig][shield] < @eval{$bw[dig][shield_max] - 1}} {
+        #if {$bw[dig][count] < $bw[dig][req_cnt] && 
+            $bw[dig][shield] < @eval{$bw[dig][shield_max] - 1}} {
             dig;
             on_dig_ok {
                 look;
