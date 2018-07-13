@@ -641,7 +641,11 @@
     };
     
 };
-
+#alias {hire_boat} {
+    ask shao gong about 过河;
+    ask shao gong about 过江;
+    enter;
+};
 #alias {_path_run} {
     status.set_action 走路中;
     
