@@ -501,73 +501,15 @@
 };
 
 #nop >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> baowei start >>>>>>>>>>>>>>>>>>>>>>>>>>>>;
+
 #alias {bw.start} {
+    tune fb;
+    
+    #list bw[status][attack] create {};
+
     #class bw.start.inner open;
     
     #act {^【任务】襄阳保卫战开启，请大家踊跃从军，到襄阳的郭靖处报名（ask guojing about 襄阳保卫）} {
-        #class bw.start.inner1 open;
-        
-        #act {    郭夫人「桃花仙子」黄蓉(Huang rong)} {
-            #nop #unact {    郭夫人「桃花仙子」黄蓉(Huang rong)};
-            #act {^郭靖令手下军士给你一把铁锹} {
-                #unact {^郭靖令手下军士给你一把铁锹};
-                #delay {0.5} {
-                    on_center {
-                        bw.dig 2;
-                        on_dig_complete {
-                            #delay {3} {jg}; 
-                            #delay {5} {pu};
-                            #delay {7} {jiali max};
-                            #delay {9} {yun qi};
-                        };
-                    };
-                    #2 n;#2 e;
-                };
-            };
-            ask huang about 工事;
-            
-            #nop #class bw.start.inner kill;
-        };
-        #act {郭靖吩咐下面兵士将你带到襄阳保卫战的前线} {
-        
-        };
-        #act {襄阳保卫战正在进行中，现在是蒙古兵第%*轮发兵} {
-            timer.reset;
-            bw.guard ${bw[status][attack][1]};
-            on_guard_complete {
-                bw.guard ${bw[status][attack][-1]};
-                on_guard_complete {
-                    #var bw[status][attack] {};
-                    bw.lookgate w;
-                    on_lookgate_ok {
-                        bw.lookgate e;
-                        on_lookgate_ok {
-                            bw.lookgate s;
-                            on_lookgate_ok {
-                                bw.lookgate n;
-                                on_lookgate_ok {
-                                    show_gate_state chat;
-                                    bw.check;
-                                };
-                            };
-                        };
-                    };
-                };
-            };
-        };
-        #act {蒙古发兵攻打襄阳%*门} {
-            #list bw[status][attack] add $direction[cn][%%%1];
-        };
-        #act {各位可以到郭靖处领奖} {
-            #act {^帅府大厅 - } {
-                #unact {^帅府大厅 - };
-                ask guo about 奖励;
-            };
-        };
-        #act {^郭靖双手抱拳，讨好地对你说道：} {
-            #class bw.start.inner1 kill;
-        };
-        #class bw.start.inner1 close;
         
         timer.set 150;
         timer.hnd timer_handler;
@@ -577,11 +519,82 @@
         #delay {0.5} {join 3};
     };
     
+    #act {    郭夫人「桃花仙子」黄蓉(Huang rong)} {
+        #unact {    郭夫人「桃花仙子」黄蓉(Huang rong)};
+        #act {^郭靖令手下军士给你一把铁锹} {
+            #unact {^郭靖令手下军士给你一把铁锹};
+            #delay {0.5} {
+                on_center {
+                    bw.dig 2;
+                    on_dig_complete {
+                        #delay {2} {jg}; 
+                        #delay {4} {pu};
+                        #delay {6} {jiali max};
+                        #delay {8} {yun qi};
+                    };
+                };
+                #2 n;#2 e;
+            };
+        };
+        ask huang about 工事;
+        
+        #nop #class bw.start.inner kill;
+    };
+    #act {郭靖吩咐下面兵士将你带到襄阳保卫战的前线} {
+    
+    };
+    #act {襄阳保卫战正在进行中，现在是蒙古兵第%*轮发兵} {
+        timer.reset;
+        bw.guard ${bw[status][attack][1]};
+        on_guard_complete {
+            bw.guard ${bw[status][attack][-1]};
+            on_guard_complete {
+                #var bw[status][attack] {};
+                bw.lookgate w;
+                on_lookgate_ok {
+                    bw.lookgate e;
+                    on_lookgate_ok {
+                        bw.lookgate s;
+                        on_lookgate_ok {
+                            bw.lookgate n;
+                            on_lookgate_ok {
+                                show_gate_state chat;
+                                bw.check;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+    };
+    #act {蒙古发兵攻打襄阳%*门} {
+        #list bw[status][attack] add $direction[cn][%%1];
+    };
+    #act {各位可以到郭靖处领奖} {
+        #act {^帅府大厅 - } {
+            #unact {^帅府大厅 - };
+            ask guo about 奖励;
+        };
+    };
+    #act {^郭靖双手抱拳，讨好地对你说道：} {
+        #nop #class bw.start.inner kill;
+    };
+    
     #class bw.start.inner close;
 };
 #alias {bw.stop} {
     #class bw.start.inner kill;
-    #unvar bw;
+    #class bw.guard.inner kill;
+    #class bw.dig.inner kill;
+    
+    #unalias cb_on_dig_ok;
+    #unalias cb_on_dig_complete;
+    #unalias cb_on_dazuo_complete;
+    #unalias cb_on_lookgate_ok;
+    #unalias cb_on_guard_complete;
+    #unalias cb_on_center;
+    
+    #nop #unvar bw;
 };
 
 #var bw[status][gate][threshold] 95;
@@ -662,7 +675,7 @@
     #act {^{你减缓真气运行|你运功完毕}} {
         #unact {^{你减缓真气运行|你运功完毕}};
         cb_on_dazuo_complete;
-        #unalias cb_on_dazuo_complete;
+        
     };
 };
 #alias {bw.checkgate} {
@@ -711,7 +724,6 @@
     
     #act {^gate check complete} {
         cb_on_lookgate_ok;
-        #nop #unalias cb_on_lookgate_ok;
     };
 };
 
@@ -756,8 +768,12 @@
             kill @lower{$fish_target};
         };
     };
-    #act {看起来想杀死你} {
-        #unact {看起来想杀死你};
+    #act {一个蒙古奸细走了过来} {
+    
+    };
+    #act {^看起来%*想杀死你} {
+        #unact {^看起来%*想杀死你};
+        
         #class bw.guard.inner open;
         #act {这里没有这个人} {
             $bw[status][guard][walk_back];
@@ -778,7 +794,7 @@
 
 #list bw[dig][queue] create n s e w;
 #var bw[dig][depth] 5;
-
+    
 #alias {bw.dig} {
     #var bw[dig][walk] $bw[dig][queue][1];
     #list bw[dig][queue] delete 1;
@@ -787,14 +803,16 @@
     #var bw[dig][req_cnt] %1;
     #var bw[dig][count] 0;
     #var bw[dig][level] 0;
+    #var bw[dig][shield] 0;
+    #var bw[dig][shield_max] 0;
     
     #class bw.dig.inner open;
     
     #act {位置：%S  性质：%S  防御值：%d/%d} {
-        #var bw[shield] %%3;
-        #var bw[shield_max] %%4;
+        #var bw[dig][shield] %%3;
+        #var bw[dig][shield_max] %%4;
         
-        #if {$bw[shield] < @eval{$bw[shield_max] - 1}} {
+        #if {$bw[dig][shield] < @eval{$bw[dig][shield_max] - 1}} {
             dig;
             on_dig_ok {
                 look;
@@ -817,19 +835,8 @@
         };
         #${bw[dig][level]} @reverse{$bw[dig][walk]};
     } {
-
         $bw[dig][walk];
         #math {bw[dig][level]} {$bw[dig][level] + 1};
-    };
-};
-#alias {on_center} {
-    #alias cb_on_center #cr;
-    #alias cb_on_center %0;
-    
-    #act {^城中心 - } {
-        #unact {^城中心 - };
-        cb_on_center;
-        #unalias cb_on_center;
     };
 };
 #alias {on_dig_ok} {
@@ -840,7 +847,7 @@
         #unact {^你直起身来，看看已具规模的工事，擦了擦汗，停下来歇一歇};
         #math {bw[dig][count]} {$bw[dig][count] + 1};
         cb_on_dig_ok;
-        #unalias cb_on_dig_ok;
+        
     };
 };
 #alias {on_dig_complete} {
@@ -850,7 +857,17 @@
     #act {dig complete} {
         #unact {dig complete};
         cb_on_dig_complete;
-        #unalias cb_on_dig_complete;
+        
+    };
+};
+#alias {on_center} {
+    #alias cb_on_center #cr;
+    #alias cb_on_center %0;
+    
+    #act {^城中心 - } {
+        #unact {^城中心 - };
+        cb_on_center;
+        
     };
 };
 
@@ -1072,7 +1089,7 @@
         #if {$xiul[count] <= 0} {
             log 修炼完毕 $xiul[target];
             
-            #unact {^你从玄幻之境回过神来，顿觉内功修为增进不小};
+            #class xiul_inner kill;
         } {
             log 还要修炼 $xiul[count] 次 $xiul[target];
             xiulian $xiul[target];
