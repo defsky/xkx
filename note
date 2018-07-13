@@ -1,3 +1,12 @@
+
+#foreach {$chat_filter_list[%*]} {s} {
+    #act {$s} {
+        #cr;
+        #buffer get chat[buffer] 1;
+        #system {echo -e '[@nowtime{}]$chat[buffer]' >> data/chatlog};
+    };
+};
+
 你向余航打听有关『过江』的消息。
 余航接过你递给的船资一两白银八十文铜板。
 余航右手拚命摇着小旗，左手拿着喇叭，声音哽咽地向着你喊道：「欢迎欢迎！热烈欢迎！」

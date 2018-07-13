@@ -509,6 +509,16 @@
 
     #class bw.start.inner open;
     
+    #alias {on_walked} {
+        #alias cb_on_walked #cr;
+        #alias cb_on_walked %%0;
+        
+        #act {^%S%s-%s$} {
+            #unact {^%S%s-%s$};
+            cb_on_walked;
+        }{6};
+    };
+    
     #act {^【任务】襄阳保卫战开启，请大家踊跃从军，到襄阳的郭靖处报名（ask guojing about 襄阳保卫）} {
         
         timer.set 150;
@@ -520,25 +530,26 @@
     };
     
     #act {    郭夫人「桃花仙子」黄蓉(Huang rong)} {
-        #unact {    郭夫人「桃花仙子」黄蓉(Huang rong)};
-        #act {^郭靖令手下军士给你一把铁锹} {
-            #unact {^郭靖令手下军士给你一把铁锹};
-            #delay {0.5} {
-                on_center {
-                    bw.dig 2;
-                    on_dig_complete {
-                        #delay {2} {jg}; 
-                        #delay {4} {pu};
-                        #delay {6} {jiali max};
-                        #delay {8} {yun qi};
-                    };
-                };
-                #2 n;#2 e;
-            };
-        };
+        #nop #unact {    郭夫人「桃花仙子」黄蓉(Huang rong)};
+        
         ask huang about 工事;
         
         #nop #class bw.start.inner kill;
+    };
+    #act {^郭靖令手下军士给你一把铁锹} {
+        #nop #unact {^郭靖令手下军士给你一把铁锹};
+        #delay {0.5} {
+            on_center {
+                bw.dig 2;
+                on_dig_complete {
+                    #delay {2} {jg}; 
+                    #delay {4} {pu};
+                    #delay {6} {jiali max};
+                    #delay {8} {yun qi};
+                };
+            };
+            #2 n;#2 e;
+        };
     };
     #act {郭靖吩咐下面兵士将你带到襄阳保卫战的前线} {
     
@@ -602,16 +613,16 @@
 
 #alias {show_gate_state} {
     #if {$bw[status][gate][e][shield] < $bw[status][gate][threshold]} {
-        %1 东门 $bw[status][gate][e][shield]/$bw[status][gate][e][shield_max];
+        %1 东门 $bw[status][gate][e][shield];
     };
     #if {$bw[status][gate][s][shield] < $bw[status][gate][threshold]} {
-        %1 南门 $bw[status][gate][s][shield]/$bw[status][gate][s][shield_max];
+        %1 南门 $bw[status][gate][s][shield];
     };
     #if {$bw[status][gate][w][shield] < $bw[status][gate][threshold]} {
-        %1 西门 $bw[status][gate][w][shield]/$bw[status][gate][w][shield_max];
+        %1 西门 $bw[status][gate][w][shield];
     };
     #if {$bw[status][gate][n][shield] < $bw[status][gate][threshold]} {
-        %1 北门 $bw[status][gate][n][shield]/$bw[status][gate][n][shield_max];
+        %1 北门 $bw[status][gate][n][shield];
     };
 };
 #alias {check_door} {
@@ -744,10 +755,15 @@
     #var bw[status][guard][walk] %1;
     #var bw[status][guard][walk_back] @reverse{%1};
     
+    #class bw.guard.inner open;
+    
     #act {^${bw[status][guard][room][$bw[status][guard][walk]]} - } {
-        #unact {^${bw[status][guard][room][$bw[status][guard][walk]]} - };
+        #class bw.guard.inner kill;
         bw.guard.start;
     };
+    
+    #class bw.guard.inner close;
+    
     #${bw[status][guard][steps][$bw[status][guard][walk]]} ${bw[status][guard][walk]};
 };
 #alias {bw.guard.first} {
@@ -758,7 +774,7 @@
 };
 #alias {bw.guard.start} {
     
-    #class bw.guard.inner open;
+    #class bw.guard.start.inner open;
     
     #tic {tk_bw_fish} {
         kill menggu bing;
@@ -781,18 +797,33 @@
     #act {^看起来%*想杀死你} {
         #unact {^看起来%*想杀死你};
         
-        #class bw.guard.inner open;
-        #act {这里没有这个人} {
-            $bw[status][guard][walk_back];
+        on_no_bing {
+            bw.guard.back;
         };
-        #class bw.guard.inner close;
     };
     
-    #class bw.guard.inner close;
+    #class bw.guard.start.inner close;
     
     on_center {
-        #class bw.guard.inner kill;
+        #class bw.guard.start.inner kill;
         #show guard complete;
+    };
+};
+#alias {bw.guard.back} {
+    on_walked {
+        on_no_bing {
+            bw.guard.back;
+        };
+    };
+    $bw[status][guard][walk_back];
+};
+#alias {on_no_bing} {
+    #alias cb_on_no_bing #cr;
+    #alias cb_on_no_bing %0;
+    
+    #act {这里没有这个人} {
+        #unact {这里没有这个人};
+        cb_on_no_bing;
     };
 };
 #alias {bw.guard.stop} {
@@ -801,7 +832,8 @@
 
 #list bw[dig][queue] create n s e w;
 #var bw[dig][depth] 5;
-    
+#var bw[dig][req_cnt] 0;
+
 #alias {bw.dig} {
     #var bw[dig][walk] $bw[dig][queue][1];
     #list bw[dig][queue] delete 1;
@@ -829,7 +861,7 @@
             bw.dig.next;
         };
     };
-    
+     
     #class bw.dig.inner close;
     
     bw.dig.next;
