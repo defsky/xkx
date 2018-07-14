@@ -540,7 +540,7 @@
         #nop #unact {^郭靖令手下军士给你一把铁锹};
         #delay {0.5} {
             on_center {
-                bw.dig 2;
+                bw.dig 3;
                 on_dig_complete {
                     #delay {2} {jg}; 
                     #delay {4} {pu};
@@ -556,6 +556,8 @@
     };
     #act {襄阳保卫战正在进行中，现在是蒙古兵第%*轮发兵} {
         timer.reset;
+        #var bw[status][round] %%1;
+        
         bw.guard.first;
         on_guard_complete {
             bw.guard.last;
@@ -595,6 +597,8 @@
     #class bw.start.inner close;
 };
 #alias {bw.stop} {
+    tune fb;
+    
     #class bw.start.inner kill;
     #class bw.guard.inner kill;
     #class bw.dig.inner kill;
@@ -609,20 +613,33 @@
     #nop #unvar bw;
 };
 
-#var bw[status][gate][threshold] 95;
+#var bw[status][gate][threshold] 100;
 
 #alias {show_gate_state} {
+    %1 防御简报 第$bw[status][round]轮：;
+    
+    #var bw[status][reported] 0;
+    
     #if {$bw[status][gate][e][shield] < $bw[status][gate][threshold]} {
         %1 东门 $bw[status][gate][e][shield];
+        #math {bw[status][reported]} {$bw[status][reported] + 1};
     };
     #if {$bw[status][gate][s][shield] < $bw[status][gate][threshold]} {
         %1 南门 $bw[status][gate][s][shield];
+        #math {bw[status][reported]} {$bw[status][reported] + 1};
     };
     #if {$bw[status][gate][w][shield] < $bw[status][gate][threshold]} {
         %1 西门 $bw[status][gate][w][shield];
+        #math {bw[status][reported]} {$bw[status][reported] + 1};
     };
     #if {$bw[status][gate][n][shield] < $bw[status][gate][threshold]} {
         %1 北门 $bw[status][gate][n][shield];
+        #math {bw[status][reported]} {$bw[status][reported] + 1};
+    };
+    #if {$bw[status][reported] == 0} {
+        %1 各处城门均完好无损。;
+    } {
+        #nop %1 共计 $bw[status][reported] 处城门受损。;
     };
 };
 #alias {check_door} {
@@ -640,15 +657,18 @@
         };
     };
 };
+#alias {bw.prepare} {
+    halt;
+    #delay {1} {pu};
+    #delay {3} {yun qi};
+    #delay {4} {jg}; 
+    #delay {5} {jiali max};
+};
 #alias {bw.check} {
     #if {$status[force] > @eval{$status[force_max] * 1.7}} {
         #var bw[dig][need_count] 0;
         #if {$timer[value] < 12} {
-            halt;
-            #delay {1} {jg}; 
-            #delay {3} {pu};
-            #delay {4} {jiali max};
-            #delay {5} {yun qi};
+            bw.prepare;
         };
         #elseif {$timer[value] >= 44 && $timer[value] < 73} {
             #var bw[dig][need_count] 1;
@@ -673,8 +693,15 @@
         };
     } {
         dazuo max;
-
+        #tic {tk_bw_dazuo} {
+            #if {$timer[value] < 10} {
+                #alias cb_on_dazuo_complete #cr;
+                #untic {tk_bw_dazuo};
+                bw.prepare;
+            };
+        }{2};
         on_dazuo_complete {
+            #untic {tk_bw_dazuo};
             bw.check;
         };
     };
@@ -682,7 +709,7 @@
 
 #alias {on_dazuo_complete} {
     #alias cb_on_dazuo_complete #cr;
-    #alias cb_on_dazuo_complete #cr;
+    #alias cb_on_dazuo_complete %0;
     
     #act {^{你减缓真气运行|你运功完毕}} {
         #unact {^{你减缓真气运行|你运功完毕}};
@@ -815,7 +842,7 @@
             bw.guard.back;
         };
     };
-    $bw[status][guard][walk_back];
+    #delay {1} {$bw[status][guard][walk_back]};
 };
 #alias {on_no_bing} {
     #alias cb_on_no_bing #cr;

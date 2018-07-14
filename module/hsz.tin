@@ -12,6 +12,10 @@
 
 #act {你心中暗道：就是这里了，于是紧跟着几个形迹可疑的人走去} {
     #map leave;
+    #act {^你离开了这一片奸细出没的区域} {
+    #unact {^你离开了这一片奸细出没的区域};
+        map pad;
+    };
     #act {你已经陷入半昏迷状态，随时都可能摔倒晕去} {
         #send $hszjob[esc];
     };
@@ -105,7 +109,6 @@
             log $hszjob[owner] $hszjob[area] $hszjob[room];
             #system {echo -e "$hszjob[owner] $hszjob[area] $hszjob[room]" >> data/hsz.log};
         };
-                
         #class hsz_job_inner close;
         ask han about job;
     };
@@ -128,9 +131,18 @@
     };
     #elseif {"%1" == "fin"} {
         #unact {你已经陷入半昏迷状态，随时都可能摔倒晕去};
-        goto 韩世忠;
-        on_there {
-            #delay {1} {ask han about finish;#cr};
+        #act {你获得了%*火铜} {
+            #unact {你获得了%*火铜};
+            drop huo tong;
+        };
+        #map get roomvnum hszjob[vnum];
+        #if {$hszjob[vnum] == 29} {
+            ask han about finish;#cr;
+        } {
+            goto 韩世忠;
+            on_there {
+                #delay {1} {ask han about finish;#cr};
+            };
         };
     };
     #elseif {"%1" == "fai"} {
@@ -139,6 +151,25 @@
     #else {
         goto 韩世忠;
     };
+};
+
+#alias {hszpath} {
+    #list hszjob[maze_path] create %0;
+    
+    #var hszjob[esc] @reverse{$hszjob[maze_path][-1]};
+    #foreach {$hszjob[maze_path][%*]} {tmp} {
+        #var hszjob[img_path] {$hszjob[img_path];$tmp}
+    };
+    #unvar tmp;
+    #path load $hszjob[img_path];
+    #path show;
+    pu;
+    #delay {1} {jg};
+    #delay {2} {jiali max};
+    #delay {3} {#path run {1.5}};
+};
+#alias {hszfind} {
+
 };
 
 #class $mod_name close;

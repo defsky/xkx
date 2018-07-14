@@ -1206,6 +1206,22 @@
 #alias {trvs.reset} {
     #var map[trvs][idx] 1;
 };
+#alias {trvs.start} {
+    #class trvs.inner open;
+    
+    #var on_trvs_complete_handler %1;
+    
+    #act {^%s这里%*{方向|出口}{是|有}%*} {
+        #delay {dl_trvs_step} { trvs.step } {1.5};
+    };
+    
+    #class trvs.inner close;
+    
+    $on_trvs_complete_handler {
+        trvs.stop;
+    };
+    trvs.step;
+};
 #alias {trvs.step} {
     
     #if {"$map[trvs][path]" != ""} {
@@ -1217,6 +1233,7 @@
             $map[trvs][path][$map[trvs][idx]];
             #math map[trvs][idx] {$map[trvs][idx] + 1};
         } {
+            trvs.stop;
             #unact {^你逃跑失败};
             #show 遍历路径行走完成;
         };
@@ -1224,7 +1241,9 @@
         #show 遍历路径为空;
     };
 };
-
+#alias {trvs.stop} {
+    #class trvs.inner kill;
+};
 
 #nop ================================== 常用行走别名 ===========================;
 
@@ -1243,7 +1262,9 @@
 #alias {bw} {
     gt 帅府大厅;
 };
-
+#alias {pad} {
+    map pad;
+};
 
 #class $mod_name close;
 
