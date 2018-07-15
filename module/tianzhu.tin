@@ -135,6 +135,7 @@
             yun qi;
             #delay {1} {jg};
             #delay {2} {pu};
+            #delay {3} {jiali max};
         };
         #tic {tk_tz} {look} {1};
     };

@@ -1220,6 +1220,7 @@
     $on_trvs_complete_handler {
         trvs.stop;
     };
+    trvs.reset;
     trvs.step;
 };
 #alias {trvs.step} {
@@ -1238,6 +1239,7 @@
             #show 遍历路径行走完成;
         };
     } {
+        trvs.stop;
         #show 遍历路径为空;
     };
 };
@@ -1264,6 +1266,12 @@
 };
 #alias {pad} {
     map pad;
+};
+#alias {gohome} {
+    goto 盛昌;
+    on_there {
+        enter @lower{$status[id]};
+    };
 };
 
 #class $mod_name close;

@@ -610,6 +610,9 @@
     #unalias cb_on_guard_complete;
     #unalias cb_on_center;
     
+    #untic {tk_bw_dazuo};
+    #untic {tk_bw_fish};
+    
     #nop #unvar bw;
 };
 
@@ -617,30 +620,11 @@
 
 #alias {show_gate_state} {
     %1 防御简报 第$bw[status][round]轮：;
-    
-    #var bw[status][reported] 0;
-    
-    #if {$bw[status][gate][e][shield] < $bw[status][gate][threshold]} {
-        %1 东门 $bw[status][gate][e][shield];
-        #math {bw[status][reported]} {$bw[status][reported] + 1};
-    };
-    #if {$bw[status][gate][s][shield] < $bw[status][gate][threshold]} {
-        %1 南门 $bw[status][gate][s][shield];
-        #math {bw[status][reported]} {$bw[status][reported] + 1};
-    };
-    #if {$bw[status][gate][w][shield] < $bw[status][gate][threshold]} {
-        %1 西门 $bw[status][gate][w][shield];
-        #math {bw[status][reported]} {$bw[status][reported] + 1};
-    };
-    #if {$bw[status][gate][n][shield] < $bw[status][gate][threshold]} {
-        %1 北门 $bw[status][gate][n][shield];
-        #math {bw[status][reported]} {$bw[status][reported] + 1};
-    };
-    #if {$bw[status][reported] == 0} {
-        %1 各处城门均完好无损。;
-    } {
-        #nop %1 共计 $bw[status][reported] 处城门受损。;
-    };
+
+    %1 东门 $bw[status][gate][e][shield]/$bw[status][gate][e][shield_max];
+    %1 南门 $bw[status][gate][s][shield]/$bw[status][gate][s][shield_max];
+    %1 西门 $bw[status][gate][w][shield]/$bw[status][gate][w][shield_max];
+    %1 北门 $bw[status][gate][n][shield]/$bw[status][gate][n][shield_max];
 };
 #alias {check_door} {
     bw.lookgate w;
@@ -660,14 +644,14 @@
 #alias {bw.prepare} {
     halt;
     #delay {1} {pu};
-    #delay {3} {yun qi};
-    #delay {4} {jg}; 
-    #delay {5} {jiali max};
+    #delay {2} {yun qi};
+    #delay {3} {jg}; 
+    #delay {4} {jiali max};
 };
 #alias {bw.check} {
     #if {$status[force] > @eval{$status[force_max] * 1.7}} {
         #var bw[dig][need_count] 0;
-        #if {$timer[value] < 12} {
+        #if {$timer[value] < 15} {
             bw.prepare;
         };
         #elseif {$timer[value] >= 44 && $timer[value] < 73} {
@@ -694,7 +678,7 @@
     } {
         dazuo max;
         #tic {tk_bw_dazuo} {
-            #if {$timer[value] < 10} {
+            #if {$timer[value] < 14} {
                 #alias cb_on_dazuo_complete #cr;
                 #untic {tk_bw_dazuo};
                 bw.prepare;
