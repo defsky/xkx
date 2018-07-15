@@ -402,18 +402,53 @@
     };
 };
 
+#alias {timer.set} {
+    #var timer[setValue] %1;
+};
+#alias {timer.hnd} {
+    #var timer[handler] %1;
+};
+#alias {timer.reset} {
+    #untic {tk_timer_processer};
+    #var timer[value] $timer[setValue];
+    #tic {tk_timer_processer} {
+        #math {timer[value]}{$timer[value] - 1};
+        #if {$timer[value] <= 0} {
+            timer.stop;
+        } {
+            #if {&timer[handler] != 0} {
+                $timer.handler;
+            };
+        };
+    }{1};
+};
+#alias {timer.stop} {
+    #show <139>Timer Stopped<079>;
+    #untic {tk_timer_processer};
+    status.set_action 空闲;
+};
+
+#alias {timer_handler} {
+    status.set_action $timer.value;
+};
 #alias {fish} {
     #if {"%1" == "on"} {
+        
         #class fish_on_inner open;
+        
         
         #act {^【任务】襄阳保卫战开启，请大家踊跃从军，到襄阳的郭靖处报名（ask guojing about 襄阳保卫）} {
             ask guo about 襄阳保卫;
             #act {    郭夫人「桃花仙子」黄蓉(Huang rong)} {
                 #unact {    郭夫人「桃花仙子」黄蓉(Huang rong)};
                 #show 发现黄蓉;
+                ask huang about 工事;
                 #delay {2} {#2 n;#7 w};
             };
             #delay {1} {join 3};
+            timer.set 150;
+            timer.hnd timer_handler;
+            timer.reset;
         };
         #act {^%s%S(%w %w) <昏迷不醒>} {
             #show <139>有人昏了 : %%3 %%4<079>;
@@ -427,6 +462,7 @@
             };
         };
         #act {襄阳保卫战正在进行中，现在是蒙古兵第%*轮发兵} {
+            timer.reset;
             halt;
             #tic {fish_look} {look}{2};
             #delay {60}{#untic fish_look};
@@ -464,13 +500,429 @@
     };
 };
 
-#alias {dig2} {
+#nop >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> baowei start >>>>>>>>>>>>>>>>>>>>>>>>>>>>;
+
+#alias {bw.start} {
+    tune fb;
+    
+    #list bw[status][attack] create {};
+
+    #class bw.start.inner open;
+    
+    #alias {on_walked} {
+        #alias cb_on_walked #cr;
+        #alias cb_on_walked %%0;
+        
+        #act {^%S%s-%s$} {
+            #unact {^%S%s-%s$};
+            cb_on_walked;
+        }{6};
+    };
+    
+    #act {^【任务】襄阳保卫战开启，请大家踊跃从军，到襄阳的郭靖处报名（ask guojing about 襄阳保卫）} {
+        
+        timer.set 150;
+        timer.hnd timer_handler;
+        timer.reset;
+        
+        ask guo about 襄阳保卫;
+        #delay {0.5} {join 3};
+    };
+    
+    #act {    郭夫人「桃花仙子」黄蓉(Huang rong)} {
+        #nop #unact {    郭夫人「桃花仙子」黄蓉(Huang rong)};
+        
+        ask huang about 工事;
+        
+        #nop #class bw.start.inner kill;
+    };
+    #act {^郭靖令手下军士给你一把铁锹} {
+        #nop #unact {^郭靖令手下军士给你一把铁锹};
+        #delay {0.5} {
+            on_center {
+                bw.dig 3;
+                on_dig_complete {
+                    #delay {2} {jg}; 
+                    #delay {4} {pu};
+                    #delay {6} {jiali max};
+                    #delay {8} {yun qi};
+                };
+            };
+            #2 n;#2 e;
+        };
+    };
+    #act {郭靖吩咐下面兵士将你带到襄阳保卫战的前线} {
+    
+    };
+    #act {襄阳保卫战正在进行中，现在是蒙古兵第%*轮发兵} {
+        timer.reset;
+        #var bw[status][round] %%1;
+        
+        bw.guard.first;
+        on_guard_complete {
+            bw.guard.last;
+            on_guard_complete {
+                #var bw[status][attack] {};
+                bw.lookgate w;
+                on_lookgate_ok {
+                    bw.lookgate e;
+                    on_lookgate_ok {
+                        bw.lookgate s;
+                        on_lookgate_ok {
+                            bw.lookgate n;
+                            on_lookgate_ok {
+                                show_gate_state chat;
+                                bw.check;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+    };
+    #act {蒙古发兵攻打襄阳%*门} {
+        #list bw[status][attack] add $direction[cn][%%1];
+    };
+    #act {各位可以到郭靖处领奖} {
+        #act {^帅府大厅 - } {
+            #unact {^帅府大厅 - };
+            ask guo about 奖励;
+        };
+        #2 w;#2 s;
+    };
+    #act {^郭靖双手抱拳，讨好地对你说道：} {
+        #nop #class bw.start.inner kill;
+    };
+    
+    #class bw.start.inner close;
+};
+#alias {bw.stop} {
+    tune fb;
+    
+    #class bw.start.inner kill;
+    #class bw.guard.inner kill;
+    #class bw.dig.inner kill;
+    
+    #unalias cb_on_dig_ok;
+    #unalias cb_on_dig_complete;
+    #unalias cb_on_dazuo_complete;
+    #unalias cb_on_lookgate_ok;
+    #unalias cb_on_guard_complete;
+    #unalias cb_on_center;
+    
+    #untic {tk_bw_dazuo};
+    #untic {tk_bw_fish};
+    
+    #nop #unvar bw;
+};
+
+#var bw[status][gate][threshold] 100;
+
+#alias {show_gate_state} {
+    %1 防御简报 第$bw[status][round]轮：;
+
+    %1 东门 $bw[status][gate][e][shield]/$bw[status][gate][e][shield_max];
+    %1 南门 $bw[status][gate][s][shield]/$bw[status][gate][s][shield_max];
+    %1 西门 $bw[status][gate][w][shield]/$bw[status][gate][w][shield_max];
+    %1 北门 $bw[status][gate][n][shield]/$bw[status][gate][n][shield_max];
+};
+#alias {check_door} {
+    bw.lookgate w;
+    on_lookgate_ok {
+        bw.lookgate e;
+        on_lookgate_ok {
+            bw.lookgate s;
+            on_lookgate_ok {
+                bw.lookgate n;
+                on_lookgate_ok {
+                    show_gate_state chat;
+                };
+            };
+        };
+    };
+};
+#alias {bw.prepare} {
+    halt;
+    #delay {1} {pu};
+    #delay {2} {yun qi};
+    #delay {3} {jg}; 
+    #delay {4} {jiali max};
+};
+#alias {bw.check} {
+    #if {$status[force] > @eval{$status[force_max] * 1.7}} {
+        #var bw[dig][need_count] 0;
+        #if {$timer[value] < 15} {
+            bw.prepare;
+        };
+        #elseif {$timer[value] >= 44 && $timer[value] < 73} {
+            #var bw[dig][need_count] 1;
+        };
+        #elseif {$timer[value] >= 74 && $timer[value] < 90} {
+            #var bw[dig][need_count] 2;
+        };
+        #elseif {$timer[value] >= 105} {
+            #var bw[dig][need_count] 3;
+        };
+        #else {
+            #delay {2} {
+                bw.check;
+            };
+        };
+        
+        #if {$bw[dig][need_count] > 0} {
+            bw.dig $bw[dig][need_count];
+            on_dig_complete {
+                bw.check;
+            };
+        };
+    } {
+        dazuo max;
+        #tic {tk_bw_dazuo} {
+            #if {$timer[value] < 14} {
+                #alias cb_on_dazuo_complete #cr;
+                #untic {tk_bw_dazuo};
+                bw.prepare;
+            };
+        }{2};
+        on_dazuo_complete {
+            #untic {tk_bw_dazuo};
+            bw.check;
+        };
+    };
+};
+
+#alias {on_dazuo_complete} {
+    #alias cb_on_dazuo_complete #cr;
+    #alias cb_on_dazuo_complete %0;
+    
+    #act {^{你减缓真气运行|你运功完毕}} {
+        #unact {^{你减缓真气运行|你运功完毕}};
+        cb_on_dazuo_complete;
+        
+    };
+};
+#alias {bw.checkgate} {
+    #act {位置：%S  性质：%S  防御值：%d/%d} {
+        #unact {位置：%S  性质：%S  防御值：%d/%d};
+        #var bw[status][gate][%1][shield] %%3;
+        #var bw[status][gate][%1][shield_max] %%4;
+        #4 @reverse{%1};
+        on_center {
+            #show gate check complete;
+        };
+    };
+    look;
+};
+#alias {bw.lookgate} {
+    #if {"%1" == "w"} {
+        #act {^襄阳西门 - } {
+            #unact {^襄阳西门 - };
+            bw.checkgate w;
+        };
+    };
+    #if {"%1" == "e"} {
+        #act {^襄阳东门 - } {
+            #unact {^襄阳东门 - };
+            bw.checkgate e;
+        };
+    };
+    #if {"%1" == "s"} {
+        #act {^襄阳南门 - } {
+            #unact {^襄阳南门 - };
+            bw.checkgate s;
+        };
+    };
+    #if {"%1" == "n"} {
+        #act {^襄阳北门 - } {
+            #unact {^襄阳北门 - };
+            bw.checkgate n;
+        };
+    };
+    
+    #4 %1;
+};
+#alias {on_lookgate_ok} {
+    #alias cb_on_lookgate_ok #cr;
+    #alias cb_on_lookgate_ok %0;
+    
+    #act {^gate check complete} {
+        cb_on_lookgate_ok;
+    };
+};
+
+#var bw[status][guard][steps] {{w}{9}{e}{6}{s}{9}{n}{8}};
+#var bw[status][guard][room] {{w}{雪峰脚下}{e}{菜园}{s}{荆门}{n}{荒原}};
+
+#alias {on_guard_complete} {
+    #alias cb_on_guard_complete #cr;
+    #alias cb_on_guard_complete %0;
+    
+    #act {^guard complete} {
+        #unact {^guard complete};
+        cb_on_guard_complete
+    };
+};
+#alias {bw.guard} {
+    #var bw[status][guard][walk] %1;
+    #var bw[status][guard][walk_back] @reverse{%1};
+    
+    #class bw.guard.inner open;
+    
+    #act {^${bw[status][guard][room][$bw[status][guard][walk]]} - } {
+        #class bw.guard.inner kill;
+        bw.guard.start;
+    };
+    
+    #class bw.guard.inner close;
+    
+    #${bw[status][guard][steps][$bw[status][guard][walk]]} ${bw[status][guard][walk]};
+};
+#alias {bw.guard.first} {
+    bw.guard $bw[status][attack][1];
+};
+#alias {bw.guard.last} {
+    bw.guard $bw[status][attack][-1];
+};
+#alias {bw.guard.start} {
+    
+    #class bw.guard.start.inner open;
+    
+    #tic {tk_bw_fish} {
+        kill menggu bing;
+    }{1};
+    
+    #act {^%s%S(%w %w) <昏迷不醒>} {
+        #show <139>有人昏了 : %%3 %%4<079>;
+        #var fish_target {%%3 %%4};
+        #if {"$fish_target" == "Menggu bing" ||
+            "$fish_target" == "Qianhu zhang" ||
+            "$fish_target" == "Qianfu zhang" ||
+            "$fish_target" == "Menggu jianxi" } {
+            
+            kill @lower{$fish_target};
+        };
+    };
+    #act {一个蒙古奸细走了过来} {
+        kill menggu jianxi;
+    };
+    #act {^看起来%*想杀死你} {
+        #unact {^看起来%*想杀死你};
+        
+        on_no_bing {
+            bw.guard.back;
+        };
+    };
+    
+    #class bw.guard.start.inner close;
+    
+    on_center {
+        #class bw.guard.start.inner kill;
+        #show guard complete;
+    };
+};
+#alias {bw.guard.back} {
+    on_walked {
+        on_no_bing {
+            bw.guard.back;
+        };
+    };
+    #delay {1} {$bw[status][guard][walk_back]};
+};
+#alias {on_no_bing} {
+    #alias cb_on_no_bing #cr;
+    #alias cb_on_no_bing %0;
+    
+    #act {这里没有这个人} {
+        #unact {这里没有这个人};
+        cb_on_no_bing;
+    };
+};
+#alias {bw.guard.stop} {
+
+};
+
+#list bw[dig][queue] create n s e w;
+#var bw[dig][depth] 5;
+#var bw[dig][req_cnt] 0;
+
+#alias {bw.dig} {
+    #var bw[dig][walk] $bw[dig][queue][1];
+    #list bw[dig][queue] delete 1;
+    #list bw[dig][queue] add $bw[dig][walk];
+    
+    #var bw[dig][req_cnt] %1;
+    #var bw[dig][count] 0;
+    #var bw[dig][level] 0;
+    #var bw[dig][shield] 0;
+    #var bw[dig][shield_max] 0;
+    
+    #class bw.dig.inner open;
+    
+    #act {位置：%S  性质：%S  防御值：%d/%d} {
+        #var bw[dig][shield] %%3;
+        #var bw[dig][shield_max] %%4;
+        
+        #if {$bw[dig][count] < $bw[dig][req_cnt] && 
+            $bw[dig][shield] < @eval{$bw[dig][shield_max] - 1}} {
+            dig;
+            on_dig_ok {
+                look;
+            };
+        } {
+            bw.dig.next;
+        };
+    };
+     
+    #class bw.dig.inner close;
+    
+    bw.dig.next;
+};
+#alias {bw.dig.next} {
+    #if {$bw[dig][count] >= $bw[dig][req_cnt] || $bw[dig][level] >= $bw[dig][depth]} {
+        #class bw.dig.inner kill;
+        
+        on_center {
+            #show dig complete;
+        };
+        #${bw[dig][level]} @reverse{$bw[dig][walk]};
+    } {
+        $bw[dig][walk];
+        #math {bw[dig][level]} {$bw[dig][level] + 1};
+    };
+};
+#alias {on_dig_ok} {
+    #alias cb_on_dig_ok #cr;
+    #alias cb_on_dig_ok %0;
+    
     #act {^你直起身来，看看已具规模的工事，擦了擦汗，停下来歇一歇} {
         #unact {^你直起身来，看看已具规模的工事，擦了擦汗，停下来歇一歇};
-        dig;
+        #math {bw[dig][count]} {$bw[dig][count] + 1};
+        cb_on_dig_ok;
+        
     };
-    dig;
 };
+#alias {on_dig_complete} {
+    #alias cb_on_dig_complete #cr;
+    #alias cb_on_dig_complete %0;
+    
+    #act {dig complete} {
+        #unact {dig complete};
+        cb_on_dig_complete;
+        
+    };
+};
+#alias {on_center} {
+    #alias cb_on_center #cr;
+    #alias cb_on_center %0;
+    
+    #act {^城中心 - } {
+        #unact {^城中心 - };
+        cb_on_center;
+        
+    };
+};
+
+#nop <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< baowei   end <<<<<<<<<<<<<<<<<<<<<<<<<<<<;
 
 #alias {dztn} {
     mod dazuo reload;
@@ -526,6 +978,9 @@
         eat liang;he jiudai;
         #delay {1} {pingdiao};
     };
+    #tic {tk_pd} {
+        pingdiao;
+    }{300};
     
     #class pd.start.inner close;
     
@@ -601,7 +1056,7 @@
     };
     #act {^突然，一股暗流把你推到一个洞口，你终于可以走到洞里，感觉轻松多了...} {
         log 第$enterhole_count次尝失成功了！;
-        status.set_action 空闲;
+        zuandong.stop;
     };
     #act {^你取出火折，轻轻一纵，跃入古洞之中} {
         status.set_action 钻洞;
@@ -685,7 +1140,7 @@
         #if {$xiul[count] <= 0} {
             log 修炼完毕 $xiul[target];
             
-            #unact {^你从玄幻之境回过神来，顿觉内功修为增进不小};
+            #class xiul_inner kill;
         } {
             log 还要修炼 $xiul[count] 次 $xiul[target];
             xiulian $xiul[target];

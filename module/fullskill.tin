@@ -121,6 +121,31 @@
     #unvar line_str;
 };
 
+#alias {get_skbrief} {
+    #alias cb_get_skbrief #cr;
+    #aiias cb_get_skbrief %0;
+    
+    #act {^#%*/%*} {
+        #unact {^#%*/%*};
+        #var fsk[status][level] %%1;
+        cb_on_skbrief;
+        #unaiias cb_get_skbrief;
+    };
+    skbrief $fsk[status][base];
+};
+#alias {on_skill_fulled} {
+    #alias cb_on_skill_fulled #cr;
+    #alias cb_on_skill_fulled %0;
+    
+    #if {$fsk[status][level] >= $fsk[config][limit]} {
+        _fskmsg 当前技能达到上限;
+        log 当前技能达到上限 : $fsk[status][base] $fsk[status][special];
+        
+        cb_on_skill_fulled;
+    };
+    
+    #unalias cb_on_skill_fulled;
+};
 #alias on_next_skill {
     #alias cb_on_next_skill #cr;
     #alias cb_on_next_skill %0;
@@ -279,7 +304,22 @@
     
     #class lingw_inner close;
     
-    #delay {1.5}{_lingwu};
+    #act {^#%*/%*} {
+        #unact {^#%*/%*};
+        #var fsk[status][level] %%1;
+        
+        #if {$fsk[status][level] >= $fsk[config][limit]} {
+            _fskmsg 当前技能达到上限;
+            log 当前技能达到上限 : $fsk[status][base] $fsk[status][special];
+            fsk stop;
+            on_next_skill {
+                lianx;
+            };
+        } {        
+            #delay {1.5}{_lingwu};
+        };
+    };
+    skbrief $fsk[status][base];
 };
 #alias {_check_skill_level} {
     #act {^│技能级别%s　%d%s　技能等级%s　%S%s　技能类别%s　%S│} {
@@ -440,14 +480,14 @@
             };
         };
         #case {"stop"} {
+            #class lianx_inner kill;
+            #class lingw_inner kill;
+            #undelay {dl_next_lianx};
+            #undelay {dl_next_lingw};
             #untic {tk_walk};
             #undelay {wd_lian};
             #undelay {wd_lingwu};
             #undelay {wd_wakeup};
-            #undelay {dl_next_lianx};
-            #undelay {dl_next_lingw};
-            #class lianx_inner kill;
-            #class lingw_inner kill;
         };
         #case {""} {
             mod fullskill help;

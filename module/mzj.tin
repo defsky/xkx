@@ -60,38 +60,6 @@
     #system {echo -e "$mzj[owner] $mzj[pos]" >> data/mzj.log};
 };
 
-#act {^韩世忠说道：「我听说有一群异族奸细在%*的%*附近出没，你去打探(datan)一下，必须要留下一两个奸细，给他们一个教训。」} {
-    #var hsz[area] %1;
-    #var hsz[room] %2;
-    
-    #buffer get hsz[askline] 2;
-    #script {hsz[buffer]}{echo -e "$hsz[askline]"|sed -r "s/\x1B\[([0-9]{1,3}((;[0-9]{1,3})*)?)?[m|K]//g"};
-    #regexp {$hsz[buffer][1]} {^%*向韩世忠打听有关%*job%*的消息。} {
-        #var hsz[owner] &1;
-    } {
-        #var hsz[owner] no_one;
-    };
-    
-    log $hsz[owner] $hsz[area] $hsz[room];
-    #system {echo -e "$hsz[owner] $hsz[area] $hsz[room]" >> data/hsz.log};
-};
-
-#act {^韩世忠说道：「我听说有一群异族奸细在%*的%*附近出没，你带上我的兵符，去打探(datan)一下，必须要留下一两个奸细，给他们一个教训。」} {
-    #var hsz[area] %1;
-    #var hsz[room] %2;
-    
-    #buffer get hsz[askline] 3;
-    #script {hsz[buffer]}{echo -e "$hsz[askline]"|sed -r "s/\x1B\[([0-9]{1,3}((;[0-9]{1,3})*)?)?[m|K]//g"};
-    #regexp {$hsz[buffer][1]} {^%*向韩世忠打听有关%*job%*的消息。} {
-        #var hsz[owner] &1;
-    } {
-        #var hsz[owner] no_one;
-    };
-    
-    log $hsz[owner] $hsz[area] $hsz[room];
-    #system {echo -e "$hsz[owner] $hsz[area] $hsz[room]" >> data/hsz.log};
-};
-
 #act {%*chats '{Mu(ha){0,2}}'} {#showme -> %2ha!}
 
 #class $mod_name close;

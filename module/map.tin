@@ -641,7 +641,11 @@
     };
     
 };
-
+#alias {hire_boat} {
+    ask shao gong about 过河;
+    ask shao gong about 过江;
+    enter;
+};
 #alias {_path_run} {
     status.set_action 走路中;
     
@@ -689,6 +693,15 @@
         } {
             #class go_forward_inner open;
             
+            #act {^走到这里，你被壮阔的景色所吸引，向北眺望，正是长江最险峻湍急之处} {
+                on_walked {
+                    on_walked {
+                        #class go_forward_inner kill;
+                        go_forward;
+                    };
+                };
+                
+            };
             on_blocked {
                 #map undo;
                 
@@ -833,7 +846,6 @@
             ^你还在山中跋涉，一时半会恐怕走不出这藏边群山;
             ^青海湖畔美不胜收，你不由停下脚步，欣赏起了风景;
             ^你不小心被什么东西绊了一下，差点摔个大跟头;
-            ^走到这里，你被壮阔的景色所吸引，向北眺望，正是长江最险峻湍急之处;
             ^荒路几乎没有路了，你走不了那么快;
         };
         
@@ -1076,7 +1088,9 @@
                 #map get roomarea bfs[next_node][area];
                 
                 #map get roomname bfs[next_node][name];
-                #if {"$bfs[next_node][name]" != "马车"} {
+                #if {"$bfs[next_node][name]" != "马车" &&
+                    "$bfs[next_node][name]" != "小船"} {
+                    
                     #if {"$bfs[area]" == "" ||
                          "$bfs[next_node][area]" == "" ||
                          "$bfs[area]" == "$bfs[next_node][area]"} {
@@ -1192,6 +1206,23 @@
 #alias {trvs.reset} {
     #var map[trvs][idx] 1;
 };
+#alias {trvs.start} {
+    #class trvs.inner open;
+    
+    #var on_trvs_complete_handler %1;
+    
+    #act {^%s这里%*{方向|出口}{是|有}%*} {
+        #delay {dl_trvs_step} { trvs.step } {1.5};
+    };
+    
+    #class trvs.inner close;
+    
+    $on_trvs_complete_handler {
+        trvs.stop;
+    };
+    trvs.reset;
+    trvs.step;
+};
 #alias {trvs.step} {
     
     #if {"$map[trvs][path]" != ""} {
@@ -1203,14 +1234,18 @@
             $map[trvs][path][$map[trvs][idx]];
             #math map[trvs][idx] {$map[trvs][idx] + 1};
         } {
+            trvs.stop;
             #unact {^你逃跑失败};
             #show 遍历路径行走完成;
         };
     } {
+        trvs.stop;
         #show 遍历路径为空;
     };
 };
-
+#alias {trvs.stop} {
+    #class trvs.inner kill;
+};
 
 #nop ================================== 常用行走别名 ===========================;
 
@@ -1229,7 +1264,15 @@
 #alias {bw} {
     gt 帅府大厅;
 };
-
+#alias {pad} {
+    map pad;
+};
+#alias {gohome} {
+    goto 盛昌;
+    on_there {
+        enter @lower{$status[id]};
+    };
+};
 
 #class $mod_name close;
 

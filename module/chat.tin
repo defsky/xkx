@@ -27,17 +27,11 @@
     ^%*¸æËßÄã£º%*;
 };
 
-#alias {_hnd_chat_filter} {
-    #foreach {$chat_filter_list[%*]} {s} {
-        #regexp {%1} {$s} {
-            #system {echo -e "%2" >> data/chatlog};
-        };
-    };
-};
-
 #function {nowtime} {
     #format {result}{%t}{%H:%M}
 };
+
+
 
 #act {^¡¾±±ÏÀQQÈº¡¿%*} {
     #system {echo -e '[@nowtime{}]%0' >> data/chatlog};
