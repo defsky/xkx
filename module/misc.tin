@@ -617,14 +617,26 @@
 };
 
 #var bw[status][gate][threshold] 100;
+#var bw[status][report] 0;
 
+#alias {bw.report} {
+    #if {$bw[status][report] == 1} {
+        #var bw[status][report] 0;
+        #show 防御播报关闭;
+    } {
+        #var bw[status][report] 1;
+        #show 防御播报打开;
+    };
+};
 #alias {show_gate_state} {
-    %1 防御简报 第$bw[status][round]轮：;
+    #if {$bw[status][report] == 1} {
+        %1 防御简报 第$bw[status][round]轮：;
 
-    %1 东门 $bw[status][gate][e][shield]/$bw[status][gate][e][shield_max];
-    %1 南门 $bw[status][gate][s][shield]/$bw[status][gate][s][shield_max];
-    %1 西门 $bw[status][gate][w][shield]/$bw[status][gate][w][shield_max];
-    %1 北门 $bw[status][gate][n][shield]/$bw[status][gate][n][shield_max];
+        %1 东门 $bw[status][gate][e][shield]/$bw[status][gate][e][shield_max];
+        %1 南门 $bw[status][gate][s][shield]/$bw[status][gate][s][shield_max];
+        %1 西门 $bw[status][gate][w][shield]/$bw[status][gate][w][shield_max];
+        %1 北门 $bw[status][gate][n][shield]/$bw[status][gate][n][shield_max];
+    };
 };
 #alias {check_door} {
     bw.lookgate w;
