@@ -652,6 +652,7 @@
     };
 };
 #alias {bw.prepare} {
+    #undelay {dl_bw_check};
     halt;
     #delay {1} {pu};
     #delay {2} {yun qi};
@@ -662,10 +663,10 @@
 #alias {bw.check} {
     #if {$status[force] > @eval{$status[force_max] * 1.7}} {
         #var bw[dig][need_count] 0;
-        #if {$timer[value] < 15} {
+        #if {$timer[value] <= 20} {
             bw.prepare;
         };
-        #elseif {$timer[value] >= 44 && $timer[value] < 73} {
+        #elseif {$timer[value] >= 54 && $timer[value] < 73} {
             #var bw[dig][need_count] 1;
         };
         #elseif {$timer[value] >= 74 && $timer[value] < 90} {
@@ -675,9 +676,9 @@
             #var bw[dig][need_count] 3;
         };
         #else {
-            #delay {2} {
+            #delay {dl_bw_check} {
                 bw.check;
-            };
+            }{2};
         };
         
         #if {$bw[dig][need_count] > 0} {
@@ -689,7 +690,7 @@
     } {
         dazuo max;
         #tic {tk_bw_dazuo} {
-            #if {$timer[value] < 14} {
+            #if {$timer[value] < 18} {
                 #alias cb_on_dazuo_complete #cr;
                 #untic {tk_bw_dazuo};
                 bw.prepare;
@@ -820,6 +821,7 @@
         #unact {^看起来%*想杀死你};
         
         on_no_bing {
+            #delay {dl_back_wd}{bw.guard.back} {3};
             bw.guard.back;
         };
     };
@@ -833,6 +835,7 @@
 };
 #alias {bw.guard.back} {
     on_walked {
+        #undelay {dl_back_wd};
         on_no_bing {
             bw.guard.back;
         };

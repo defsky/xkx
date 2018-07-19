@@ -136,7 +136,9 @@
 };
 #act {    郭夫人「桃花仙子」黄蓉(Huang rong)} {
     _bwmsg 发现黄蓉;
-    ask huang about 工事;
+    #if {$baowei[enterflag] == 1} {
+        ask huang about 工事;
+    };
 };
 #act {    %*(Menggu bing)} {
     _bwmsg 发现蒙古兵;
