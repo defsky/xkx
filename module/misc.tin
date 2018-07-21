@@ -800,7 +800,7 @@
     #class bw.guard.start.inner open;
     
     #tic {tk_bw_fish} {
-        kill menggu bing;
+        kill menggu bing;ý“
     }{1};
     
     #act {^%s%S(%w %w) <»èÃÔ²»ÐÑ>} {
