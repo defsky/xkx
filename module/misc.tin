@@ -540,13 +540,7 @@
         #nop #unact {^郭靖令手下军士给你一把铁锹};
         #delay {0.5} {
             on_center {
-                bw.dig 3;
-                on_dig_complete {
-                    #delay {2} {jg}; 
-                    #delay {4} {pu};
-                    #delay {6} {jiali max};
-                    #delay {8} {yun qi};
-                };
+                bw.check;
             };
             #2 n;#2 e;
         };
@@ -563,19 +557,23 @@
             bw.guard.last;
             on_guard_complete {
                 #var bw[status][attack] {};
-                bw.lookgate w;
-                on_lookgate_ok {
-                    bw.lookgate e;
+                #if {$bw[status][report] == 1} {
+                    bw.lookgate w;
                     on_lookgate_ok {
-                        bw.lookgate s;
+                        bw.lookgate e;
                         on_lookgate_ok {
-                            bw.lookgate n;
+                            bw.lookgate s;
                             on_lookgate_ok {
-                                show_gate_state chat;
-                                bw.check;
+                                bw.lookgate n;
+                                on_lookgate_ok {
+                                    show_gate_state bd;
+                                    bw.check;
+                                };
                             };
                         };
                     };
+                } {
+                    bw.check;
                 };
             };
         };
@@ -617,14 +615,26 @@
 };
 
 #var bw[status][gate][threshold] 100;
+#var bw[status][report] 0;
 
+#alias {bw.report} {
+    #if {$bw[status][report] == 1} {
+        #var bw[status][report] 0;
+        #show <139>防御播报关闭<079>;
+    } {
+        #var bw[status][report] 1;
+        #show <129>防御播报打开<139>;
+    };
+};
 #alias {show_gate_state} {
-    %1 防御简报 第$bw[status][round]轮：;
+    #if {$bw[status][report] == 1} {
+        %1 防御简报 第$bw[status][round]轮：;
 
-    %1 东门 $bw[status][gate][e][shield]/$bw[status][gate][e][shield_max];
-    %1 南门 $bw[status][gate][s][shield]/$bw[status][gate][s][shield_max];
-    %1 西门 $bw[status][gate][w][shield]/$bw[status][gate][w][shield_max];
-    %1 北门 $bw[status][gate][n][shield]/$bw[status][gate][n][shield_max];
+        %1 东门 $bw[status][gate][e][shield]/$bw[status][gate][e][shield_max];
+        %1 南门 $bw[status][gate][s][shield]/$bw[status][gate][s][shield_max];
+        %1 西门 $bw[status][gate][w][shield]/$bw[status][gate][w][shield_max];
+        %1 北门 $bw[status][gate][n][shield]/$bw[status][gate][n][shield_max];
+    };
 };
 #alias {check_door} {
     bw.lookgate w;
@@ -635,26 +645,28 @@
             on_lookgate_ok {
                 bw.lookgate n;
                 on_lookgate_ok {
-                    show_gate_state chat;
+                    show_gate_state bd;
                 };
             };
         };
     };
 };
 #alias {bw.prepare} {
+    #undelay {dl_bw_check};
     halt;
     #delay {1} {pu};
     #delay {2} {yun qi};
     #delay {3} {jg}; 
     #delay {4} {jiali max};
+    #delay {5} {yun shield};
 };
 #alias {bw.check} {
     #if {$status[force] > @eval{$status[force_max] * 1.7}} {
         #var bw[dig][need_count] 0;
-        #if {$timer[value] < 15} {
+        #if {$timer[value] <= 20} {
             bw.prepare;
         };
-        #elseif {$timer[value] >= 44 && $timer[value] < 73} {
+        #elseif {$timer[value] >= 54 && $timer[value] < 73} {
             #var bw[dig][need_count] 1;
         };
         #elseif {$timer[value] >= 74 && $timer[value] < 90} {
@@ -664,9 +676,9 @@
             #var bw[dig][need_count] 3;
         };
         #else {
-            #delay {2} {
+            #delay {dl_bw_check} {
                 bw.check;
-            };
+            }{2};
         };
         
         #if {$bw[dig][need_count] > 0} {
@@ -678,7 +690,7 @@
     } {
         dazuo max;
         #tic {tk_bw_dazuo} {
-            #if {$timer[value] < 14} {
+            #if {$timer[value] < 18} {
                 #alias cb_on_dazuo_complete #cr;
                 #untic {tk_bw_dazuo};
                 bw.prepare;
@@ -809,6 +821,7 @@
         #unact {^看起来%*想杀死你};
         
         on_no_bing {
+            #delay {dl_back_wd}{bw.guard.back} {3};
             bw.guard.back;
         };
     };
@@ -822,6 +835,7 @@
 };
 #alias {bw.guard.back} {
     on_walked {
+        #undelay {dl_back_wd};
         on_no_bing {
             bw.guard.back;
         };

@@ -128,6 +128,21 @@
     
 };
 
+#function {var}{
+    #var result $%1;
+};
+#alias {on_test} {
+    #show %1;
+    #show %2;
+    #show %3;
+    #alias cb_on_test #cr;
+    #alias cb_on_test %0;
+    
+    
+    #var tt {test alias};
+    cb_on_test;
+};
+
 #class $mod_name close;
 
 ${mod_name}_load;
