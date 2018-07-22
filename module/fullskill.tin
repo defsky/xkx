@@ -321,12 +321,19 @@
     };
     skbrief $fsk[status][base];
 };
-#alias {_check_skill_level} {
+#alias {deleted_check_skill_level} {
     #act {^│技能级别%s　%d%s　技能等级%s　%S%s　技能类别%s　%S│} {
         #var fsk[status][level] %%2;
         #unact {^│技能级别%s　%d%s　技能等级%s　%S%s　技能类别%s　%S│};
     };
     #send {verify $fsk[status][special]};
+};
+#alias {_check_skill_level} {
+    #act {^#%*/%*} {
+        #unact {^#%*/%*};
+        #var fsk[status][level] %%1;
+    };
+    skbrief $fsk[status][special];
 };
 #alias {lianx} {
     status.set_action 练习;
