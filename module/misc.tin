@@ -821,7 +821,7 @@
         #unact {^看起来%*想杀死你};
         
         on_no_bing {
-            #delay {dl_back_wd}{bw.guard.back} {3};
+            #nop #delay {dl_back_wd}{bw.guard.back} {3};
             bw.guard.back;
         };
     };
@@ -829,6 +829,7 @@
     #class bw.guard.start.inner close;
     
     on_center {
+        #undelay {dl_back_wd};
         #class bw.guard.start.inner kill;
         #show guard complete;
     };
@@ -840,7 +841,8 @@
             bw.guard.back;
         };
     };
-    #delay {1} {$bw[status][guard][walk_back]};
+    $bw[status][guard][walk_back];
+    #delay {dl_back_wd}{bw.guard.back} {5};
 };
 #alias {on_no_bing} {
     #alias cb_on_no_bing #cr;
