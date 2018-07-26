@@ -32,10 +32,15 @@
 };
 #alias {mrstart} {
     #var murong[start] 1;
-    on_there {
+    #map get roomvnum murong[vnum];
+    #if {$murong[vnum] == 433} {
         mrjob;
+    } {
+        on_there {
+            mrjob;
+        };
+        goto 茶馆 苏州;
     };
-    goto 茶馆 苏州;
 };
 #alias {mrfin} {
     #map get roomvnum murong[vnum];
@@ -63,21 +68,16 @@
     #var murong[start] 0;
 };
 #alias {mrpos} {
-    #var murong[room] %2;
-    #var murong[area] %1;
+    #var murong[room][area] %1;
+    #var murong[room][name] %2;
     log $murong[area] $murong[room];
     mrgo;
+};
+#alias {mrgo} {
     on_there {
         zhaojz;
     };
-};
-#alias {mrgo} {
-    #if {"$murong[mode]" == "text"} {
-        gotowork $murong[pos1];
-    };
-    #if {"$murong[mode]" == "image"} {
-        gt $murong[room] $murong[area];
-    };
+    goto $murong[room][name] $murong[room][area];
 };
 #alias {mrjob} {
     ask pu ren about job;
@@ -140,24 +140,26 @@
     };
     #var murong[mode] image;
 };
+
+#var murong[banned_area] {{神龙岛花园}{}};
+
 #act {^仆人叹道：家贼难防，有人偷走了少爷的信件，据传曾在『%*』附近出现，你去把它找回来吧} {
     #var murong[mode] text;
     #var murong[pos] %1;
-    #var murong[pos1] %1;
+    #var murong[room] @parse_addr{%1};
+    
     #system {echo "%1">>data/murong.log};
-    #if {"$murong[pos1]" == "神龙岛花园"} {
-        mrfai;
-    } {;
+    
+    #if {&murong[banned_area][$murong[pos]] == 0} {
         mrgo;
-        on_there {
-            zhaojz;
-        };
+    } {
+        mrfai;
     };
     
 };
 
 #act {^慕容世家{家贼|内鬼}死了} {
-    _mrmsg 家贼挂了，拿信;
+    log 家贼挂了，拿信;
     #class on_found_jiazei_inner kill;
     #delay {2} {gc};
 };
@@ -169,12 +171,13 @@
         goto 茶馆 苏州;
     };
     
-    _mrmsg 拿到信件，回城复命;
+    log 拿到信件，回城复命;
 };
 #act {^仆人忙着呢，等会吧} {
     #delay {1} {give xin to pu ren};
 };
 #act {^由于你成功的找回慕容复写给江湖豪杰的信件，被奖励} {
+    log 任务完成;
     #if {$murong[start] == 1} {
         #delay {mrstart} {mrjob} {3};
     };

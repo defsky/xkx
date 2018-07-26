@@ -464,7 +464,7 @@
         #act {襄阳保卫战正在进行中，现在是蒙古兵第%*轮发兵} {
             timer.reset;
             halt;
-            #tic {fish_look} {look}{2};
+            #tic {fish_look} {kill bing}{1};
             #delay {60}{#untic fish_look};
             #delay {1} {yun qi};
             #delay {2} {jiali max};
@@ -505,6 +505,14 @@
 #alias {bw.start} {
     tune fb;
     
+    #list bw[dig][queue] create n s e w;
+    #var bw[dig][depth] 5;
+    #var bw[dig][req_cnt] 0;
+    #var bw[status][guard][steps] {{w}{9}{e}{6}{s}{9}{n}{8}};
+    #var bw[status][guard][room] {{w}{雪峰脚下}{e}{菜园}{s}{荆门}{n}{荒原}};
+    #var bw[status][gate][threshold] 100;
+    #var bw[status][report] 0;
+    #var bw[status][get_qiao] 0;
     #list bw[status][attack] create {};
 
     #class bw.start.inner open;
@@ -526,13 +534,17 @@
         timer.reset;
         
         ask guo about 襄阳保卫;
+        #var bw[status][get_qiao] 0;
         #delay {0.5} {join 3};
     };
     
     #act {    郭夫人「桃花仙子」黄蓉(Huang rong)} {
         #nop #unact {    郭夫人「桃花仙子」黄蓉(Huang rong)};
         
-        ask huang about 工事;
+        #if {$bw[status][get_qiao] == 0} {
+            #var bw[status][get_qiao] 1;
+            ask huang about 工事;
+        };
         
         #nop #class bw.start.inner kill;
     };
@@ -546,11 +558,13 @@
         };
     };
     #act {郭靖吩咐下面兵士将你带到襄阳保卫战的前线} {
-    
+        
     };
     #act {襄阳保卫战正在进行中，现在是蒙古兵第%*轮发兵} {
         timer.reset;
         #var bw[status][round] %%1;
+        
+        #unact {这里没有这个人};
         
         bw.guard.first;
         on_guard_complete {
@@ -582,6 +596,7 @@
         #list bw[status][attack] add $direction[cn][%%1];
     };
     #act {各位可以到郭靖处领奖} {
+        #undelay {dl_back_wd};
         #act {^帅府大厅 - } {
             #unact {^帅府大厅 - };
             ask guo about 奖励;
@@ -611,11 +626,8 @@
     #untic {tk_bw_dazuo};
     #untic {tk_bw_fish};
     
-    #nop #unvar bw;
+    #unvar bw;
 };
-
-#var bw[status][gate][threshold] 100;
-#var bw[status][report] 0;
 
 #alias {bw.report} {
     #if {$bw[status][report] == 1} {
@@ -762,9 +774,6 @@
     };
 };
 
-#var bw[status][guard][steps] {{w}{9}{e}{6}{s}{9}{n}{8}};
-#var bw[status][guard][room] {{w}{雪峰脚下}{e}{菜园}{s}{荆门}{n}{荒原}};
-
 #alias {on_guard_complete} {
     #alias cb_on_guard_complete #cr;
     #alias cb_on_guard_complete %0;
@@ -830,6 +839,7 @@
     
     on_center {
         #undelay {dl_back_wd};
+        #unact {这里没有这个人};
         #class bw.guard.start.inner kill;
         #show guard complete;
     };
@@ -856,10 +866,6 @@
 #alias {bw.guard.stop} {
 
 };
-
-#list bw[dig][queue] create n s e w;
-#var bw[dig][depth] 5;
-#var bw[dig][req_cnt] 0;
 
 #alias {bw.dig} {
     #var bw[dig][walk] $bw[dig][queue][1];

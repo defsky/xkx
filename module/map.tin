@@ -924,40 +924,42 @@
     go_forward;
 };
 
-#list area_list create {建康府诸军都统制府;临安府西湖;临安提督府;少林寺寺内;北京城内城;长江北岸;长江南岸;建康府南;建康府北;黄河南岸;黄河北岸;丝绸之路;回族小镇;日月神教;康亲王府;平西王府;扬州城;镇江府;临安府;牙山湾;苏州城;峨嵋派;归云庄;大理城;桃源县;杀手帮;桃花岛;铁掌峰;岳王墓;洛阳城;长安城;大轮寺;凌霄城;侠客岛;冰火岛;华山村;洛阳东;麒麟村;晋阳城;兰州城;湟中城;星宿海;灵鹫宫;全真教;武当山;紫禁城;神龙岛;天龙寺;张家口;无量山;嘉兴;明州;江州;慕容;泉州;岳阳;梅庄;闽南;灵州;南昌;信阳;荆州;襄阳;华山;丐帮;中原;古墓;曲阜;泰山;天坛;回部;明教;白驼;成都;昆明;苗疆}
+#list del_area_list create {建康府诸军都统制府;临安府西湖;临安提督府;少林寺寺内;北京城内城;长江北岸;长江南岸;建康府南;建康府北;黄河南岸;黄河北岸;丝绸之路;回族小镇;日月神教;康亲王府;平西王府;扬州城;镇江府;临安府;牙山湾;苏州城;峨嵋派;归云庄;大理城;桃源县;杀手帮;桃花岛;铁掌峰;岳王墓;洛阳城;长安城;大轮寺;凌霄城;侠客岛;冰火岛;华山村;洛阳东;麒麟村;晋阳城;兰州城;湟中城;星宿海;灵鹫宫;全真教;武当山;紫禁城;神龙岛;天龙寺;张家口;无量山;嘉兴;明州;江州;慕容;泉州;岳阳;梅庄;闽南;灵州;南昌;信阳;荆州;襄阳;华山;丐帮;中原;古墓;曲阜;泰山;天坛;回部;明教;白驼;成都;昆明;苗疆}
 
+#list area_list create {建康府诸军都统制府;西湖;杭州提督府;少林寺;北京;长江北岸;长江南岸;长江;建康府南城;建康府北城;黄河南岸;黄河北岸;丝绸之路;回族小镇;日月神教;康亲王府;平西王府;扬州;镇江;临安府;牙山;苏州;峨嵋;归云庄;大理城中;桃源;杀手帮;桃花岛;铁掌峰;岳王墓;洛阳;长安;大轮寺;凌霄城;侠客岛;冰火岛;小山村;洛阳;麒麟村;晋阳;兰州;湟中;星宿;灵鹫;全真;武当;紫禁城;神龙岛;天龙寺;张家口;无量山;嘉兴;明州;江州;姑苏慕容;泉州;岳阳;梅庄;福州;灵州;南昌;信阳;荆州;襄阳;华山;丐帮;中原;古墓;曲阜;泰山;天坛;回部;明教;白驼山;成都;昆明;苗疆}
+
+#var map_area_table {{杭州提督府}{临安提督府}{建康府南城}{建康府南}{建康府北城}{建康府北}{长江}{长江南岸}{大理城中}{大理城}{姑苏慕容}{慕容}{小山村}{华山村}{白驼山}{白驼}{福州}{闽南}};
 
 #nop 西湖西湖岸边;
 
-#alias {gotowork} {
+#function {parse_addr} {
     #var work_place %1;
     
-    #replace {work_place} {杭州提督府} {临安提督府};
-    #replace {work_place} {建康府南城} {建康府南};
-    #replace {work_place} {建康府北城} {建康府北};
-    #replace {work_place} {长江长江} {长江南岸长江};
-    #replace {work_place} {牙山牙山} {牙山湾牙山};
-    #replace {work_place} {大理城中} {大理城};
-    #replace {work_place} {姑苏慕容} {慕容};
-    #replace {work_place} {小山村} {华山村};
-    #replace {work_place} {少林寺} {少林寺寺内};
-    #replace {work_place} {白驼山} {白驼};
-    #replace {work_place} {福州} {闽南};
-    #replace {work_place} {扬州} {扬州城};
-    #replace {work_place} {镇江} {镇江府};
-    #replace {work_place} {西湖} {临安府西湖};
-    #replace {work_place} {苏州} {苏州城};
-    #replace {work_place} {峨嵋} {峨嵋派};
-    #replace {work_place} {桃源} {桃源县};
-    #replace {work_place} {洛阳} {洛阳城};
-    #replace {work_place} {长安} {长安城};
-    #replace {work_place} {晋阳} {晋阳城};
-    #replace {work_place} {北京} {北京城内城};
-    #replace {work_place} {兰州} {兰州城};
-    #replace {work_place} {湟中} {湟中城};
-    #replace {work_place} {星宿} {星宿海};
-    #replace {work_place} {灵鹫} {灵鹫宫};
-    #replace {work_place} {全真} {全真教};
+    #foreach {$area_list[%*]} {areaname} {
+        #regexp {$work_place}{^$areaname%*} {
+        
+            #if {"&1" == "红娘%*"} {
+                #var result {{area}{}{name}{&1}};
+            };
+            #if {"&1" == "荆门"} {
+                #var result {{area}{}{name}{&1}};
+            };
+            #else {
+                #if {&map_area_table[$areaname] == 0} {
+                    #var result {{area}{$areaname}{name}{&1}};
+                } {
+                    #var result {{area}{$map_area_table[$areaname]}{name}{&1}};
+                };
+            };
+            
+            #unvar areaname;#unvar work_place;
+            #break;
+        };
+    };
+};
+
+#alias {gotowork} {
+    #var work_place %1;
     
     #foreach {$area_list[%*]} {areaname} {
         #regexp {$work_place}{^$areaname%*} {
@@ -969,7 +971,11 @@
                 goto &1;
             };
             #else {
-                goto &1 $areaname;
+                #if {&map_area_table[$areaname] == 0} {
+                    goto &1 $areaname;
+                } {
+                    goto &1 $map_area_table[$areaname];
+                };
             };
             
             log $areaname &1;
