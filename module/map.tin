@@ -926,11 +926,41 @@
 
 #list del_area_list create {建康府诸军都统制府;临安府西湖;临安提督府;少林寺寺内;北京城内城;长江北岸;长江南岸;建康府南;建康府北;黄河南岸;黄河北岸;丝绸之路;回族小镇;日月神教;康亲王府;平西王府;扬州城;镇江府;临安府;牙山湾;苏州城;峨嵋派;归云庄;大理城;桃源县;杀手帮;桃花岛;铁掌峰;岳王墓;洛阳城;长安城;大轮寺;凌霄城;侠客岛;冰火岛;华山村;洛阳东;麒麟村;晋阳城;兰州城;湟中城;星宿海;灵鹫宫;全真教;武当山;紫禁城;神龙岛;天龙寺;张家口;无量山;嘉兴;明州;江州;慕容;泉州;岳阳;梅庄;闽南;灵州;南昌;信阳;荆州;襄阳;华山;丐帮;中原;古墓;曲阜;泰山;天坛;回部;明教;白驼;成都;昆明;苗疆}
 
-#list area_list create {建康府诸军都统制府;西湖;杭州提督府;少林寺;北京;长江北岸;长江南岸;长江;建康府南城;建康府北城;黄河南岸;黄河北岸;丝绸之路;回族小镇;日月神教;康亲王府;平西王府;扬州;镇江;临安府;牙山;苏州;峨嵋;归云庄;大理城中;桃源;杀手帮;桃花岛;铁掌峰;岳王墓;洛阳;长安;大轮寺;凌霄城;侠客岛;冰火岛;小山村;洛阳;麒麟村;晋阳;兰州;湟中;星宿;灵鹫;全真;武当;紫禁城;神龙岛;天龙寺;张家口;无量山;嘉兴;明州;江州;姑苏慕容;泉州;岳阳;梅庄;福州;灵州;南昌;信阳;荆州;襄阳;华山;丐帮;中原;古墓;曲阜;泰山;天坛;回部;明教;白驼山;成都;昆明;苗疆}
+#list area_list create {建康府诸军都统制府;西湖;杭州提督府;少林寺;北京;长江北岸;长江南岸;长江;建康府南城;建康府北城;黄河南岸;黄河北岸;丝绸之路;回族小镇;日月神教;康亲王府;平西王府;扬州;镇江;临安府;牙山;苏州;峨嵋;归云庄;大理城中;桃源;杀手帮;桃花岛;铁掌峰;岳王墓;洛阳;长安;大轮寺;凌霄城;侠客岛;冰火岛;小山村;洛阳;麒麟村;晋阳;兰州;湟中;星宿;灵鹫;全真;武当山;紫禁城;神龙岛;天龙寺;张家口;无量山;嘉兴;明州;江州;姑苏慕容;泉州;岳阳;梅庄;福州;灵州;南昌;信阳;荆州;襄阳;华山;丐帮;中原;古墓;曲阜;泰山;天坛;回部;明教;白驼山;成都;昆明;苗疆}
 
 #var map_area_table {{杭州提督府}{临安提督府}{建康府南城}{建康府南}{建康府北城}{建康府北}{长江}{长江南岸}{大理城中}{大理城}{姑苏慕容}{慕容}{小山村}{华山村}{白驼山}{白驼}{福州}{闽南}};
 
 #nop 西湖西湖岸边;
+
+#alias {parse_addr} {
+    #var work_place %1;
+    #var buffer %2;
+    
+    #foreach {$area_list[%*]} {areaname} {
+        #regexp {$work_place}{^$areaname%*} {
+            #var roomname &1;
+            
+            #if {"$roomname" == "红娘%*"} {
+                #var areaname {noarea};
+                #var roomname {红娘庄};
+            };
+            #if {"$roomname" == "荆门" || "$roomname" == "华容道"} {
+                #var areaname {荆州};
+            };
+            
+            #if {&map_area_table[$areaname] == 0} {
+                #var $buffer {{area}{$areaname}{name}{$roomname}};
+            } {
+                #var $buffer {{area}{$map_area_table[$areaname]}{name}{$roomname}};
+            };
+            
+            #unvar areaname;
+            #unvar work_place;
+            #unvar roomname;
+            #break;
+        };
+    };
+};
 
 #function {parse_addr} {
     #var work_place %1;
@@ -1205,8 +1235,8 @@
     #show 遍历路径:$map[trvs][path];
     
     #unvar mst;
-    trvs.reset;
-    trvs.step;
+    
+    trvs.start;
 };
 
 #alias {trvs.reset} {
@@ -1215,17 +1245,19 @@
 #alias {trvs.start} {
     #class trvs.inner open;
     
-    #var on_trvs_complete_handler %1;
+    #if {"%1" != ""} {
+        #var on_trvs_complete_handler %1;
+        $on_trvs_complete_handler {
+            trvs.stop;
+        };
+    };
     
     #act {^%s这里%*{方向|出口}{是|有}%*} {
-        #delay {dl_trvs_step} { trvs.step } {1.5};
+        #delay {dl_trvs_step} { trvs.step } {1};
     };
     
     #class trvs.inner close;
     
-    $on_trvs_complete_handler {
-        trvs.stop;
-    };
     trvs.reset;
     trvs.step;
 };
@@ -1250,6 +1282,7 @@
     };
 };
 #alias {trvs.stop} {
+    #undelay {dl_trvs_step};
     #class trvs.inner kill;
 };
 

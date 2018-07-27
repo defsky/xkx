@@ -528,7 +528,7 @@
     };
     
     #act {^【任务】襄阳保卫战开启，请大家踊跃从军，到襄阳的郭靖处报名（ask guojing about 襄阳保卫）} {
-        
+        log 保卫开始;
         timer.set 150;
         timer.hnd timer_handler;
         timer.reset;
@@ -564,6 +564,8 @@
         timer.reset;
         #var bw[status][round] %%1;
         
+        log 第$bw[status][round]轮发兵;
+        
         #unact {这里没有这个人};
         
         bw.guard.first;
@@ -597,6 +599,8 @@
     };
     #act {各位可以到郭靖处领奖} {
         #undelay {dl_back_wd};
+        log 可以领奖了;
+        
         #act {^帅府大厅 - } {
             #unact {^帅府大厅 - };
             ask guo about 奖励;
@@ -612,6 +616,7 @@
 #alias {bw.stop} {
     tune fb;
     
+    #class bw.guard.start.inner kill;
     #class bw.start.inner kill;
     #class bw.guard.inner kill;
     #class bw.dig.inner kill;
@@ -625,6 +630,8 @@
     
     #untic {tk_bw_dazuo};
     #untic {tk_bw_fish};
+    
+    #undelay {dl_back_wd};
     
     #unvar bw;
 };
@@ -664,6 +671,8 @@
     };
 };
 #alias {bw.prepare} {
+    log 准备开战;
+    
     #undelay {dl_bw_check};
     halt;
     #delay {1} {pu};
@@ -673,6 +682,7 @@
     #delay {5} {yun shield};
 };
 #alias {bw.check} {
+    log 检查状态;
     #if {$status[force] > @eval{$status[force_max] * 1.7}} {
         #var bw[dig][need_count] 0;
         #if {$timer[value] <= 20} {
@@ -700,6 +710,7 @@
             };
         };
     } {
+        log 开始打坐;
         dazuo max;
         #tic {tk_bw_dazuo} {
             #if {$timer[value] < 18} {
@@ -784,6 +795,8 @@
     };
 };
 #alias {bw.guard} {
+    log 保卫%1;
+    
     #var bw[status][guard][walk] %1;
     #var bw[status][guard][walk_back] @reverse{%1};
     
@@ -868,6 +881,8 @@
 };
 
 #alias {bw.dig} {
+    log 开始dig %1 次;
+    
     #var bw[dig][walk] $bw[dig][queue][1];
     #list bw[dig][queue] delete 1;
     #list bw[dig][queue] add $bw[dig][walk];
@@ -900,6 +915,8 @@
     bw.dig.next;
 };
 #alias {bw.dig.next} {
+    log dig 下个地方;
+    
     #if {$bw[dig][count] >= $bw[dig][req_cnt] || $bw[dig][level] >= $bw[dig][depth]} {
         #class bw.dig.inner kill;
         
@@ -934,11 +951,13 @@
     };
 };
 #alias {on_center} {
+    
     #alias cb_on_center #cr;
     #alias cb_on_center %0;
     
     #act {^城中心 - } {
         #unact {^城中心 - };
+        log 到达城中心;
         cb_on_center;
         
     };

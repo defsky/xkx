@@ -128,6 +128,10 @@
     
 };
 
+#act {^Äã¼ñÆğÒ»¶ÑÔÉÌú} {
+    drop yun tie;
+};
+
 #function {var}{
     #var result $%1;
 };

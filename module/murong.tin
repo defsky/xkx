@@ -20,10 +20,6 @@
     #buffer lock;
 };
 
-#alias {_mrmsg} {
-    #showme <139>murong : %0<079>;
-};
-
 #var murong[start] 0;
 #var murong[trvs_level] 6;
 
@@ -42,55 +38,119 @@
         goto 茶馆 苏州;
     };
 };
+#alias {askfin} {
+    give xin to pu ren;
+    #if {$murong[start] == 1}{
+        log 10秒后继续任务;
+        #delay {dl_mrjob}{mrjob}{10}:
+    };
+};
 #alias {mrfin} {
     #map get roomvnum murong[vnum];
     #if {$murong[vnum] == 433} {
-        give xin to pu ren;
+        askfin;
     } {
         on_there {
-            give xin to pu ren;
+            askfin;
         };
         goto 茶馆 苏州;
     };
 };
+#alias {askfail} {
+    log 放弃任务;
+    ask pu about fail;
+    #if {$murong[start] == 1}{
+        log 30秒后继续任务;
+        #delay {dl_mrjob}{mrjob}{30}:
+    };
+};
 #alias {mrfai} {
+    #class on_found_jiazei_inner kill;
+    
     #map get roomvnum murong[vnum];
     #if {$murong[vnum] == 433} {
-        ask pu about fail;
+        askfail;
     } {
         mr;
         on_there {
-            mrfai;
+            askfail;
         };
     };
 };
 #alias {mrstop} {
     #var murong[start] 0;
+    #undelay {dl_mrjob};
 };
+
+#var murong[banned][area] {{紫禁城}{}{灵鹫}{}{临安提督府}{}{星宿}{}{杀手帮}{}{北京}{}{武当山}{}{丐帮}{}};
+#var murong[banned][pos] {{归云庄桃花林}{}{归云庄迷魂阵}{}{襄阳黑松寨}{}{襄阳乱葬岗}{}{神龙岛花园}{}{福州密室}{}{白驼山蛇谷荒地}{}{杀手帮果林}{}{北京城墙}{}{华山悬崖}{}{晋阳城墙}{}{泰山兵器库}{}{泰山茅屋}{}{扬州兵器库}{}};
+
 #alias {mrpos} {
-    #var murong[room][area] %1;
-    #var murong[room][name] %2;
-    log $murong[area] $murong[room];
+    #var murong[pos] %1;
     mrgo;
 };
+
 #alias {mrgo} {
+    #if {"$murong[pos]" == ""} {
+        log 未取得任务地点;
+    } {
+        #var murong[room] {};
+        
+        parse_addr $murong[pos] murong[room];
+        
+        #if {"$murong[room][area]" == "" && "$murong[room][name]" == ""} {
+            log 解析地点失败;
+            mrfai;
+        } {
+            log $murong[room][area] $murong[room][name];
+
+            #if {&murong[banned][area][$murong[room][area]] == 0} {
+                #if {&murong[banned][pos][$murong[pos]] == 0} {
+                    mrgowork;
+                } {
+                    log 禁止的地点;
+                    
+                    mrfai;
+                };
+            } {
+                log 禁止的区域;
+                    
+                mrfai;
+            };
+        };
+    };
+};
+
+#alias {mrgowork} {
+    log 前往任务地点;
+    
     on_there {
         zhaojz;
     };
-    goto $murong[room][name] $murong[room][area];
+    
+    #if {"$murong[room][area]" == "noarea"} {
+        goto $murong[room][name];
+    } {
+        goto $murong[room][name] $murong[room][area];
+    };
 };
+
 #alias {mrjob} {
     ask pu ren about job;
 };
 #alias {zhaojz} {
     log 开始寻找家贼;
+    
     #class on_found_jiazei_inner open;
     
     #act {$status[name]发现的 慕容世家{家贼|内鬼}($status[id]'s murong jiazei)} {
-        _mrmsg 发现家贼;
-        follow jiazei;
-        yun powerup;
+        log 发现家贼;
         #undelay {dl_search_jiazei};
+        trvs.stop;
+        
+        follow jiazei;
+        
+        #delay {1} {yun powerup};
         kill jiazei;
     };
     #act {^慕容世家{家贼|内鬼}%*，身穿布衣走了过来} {
@@ -121,12 +181,12 @@
     
     #class on_found_jiazei_inner close;
     
+    #if {"$murong[room][area]" == "长江%*" || "$murong[room][area]" == "黄河%*"} {
+        #var murong[trvs_level] 20;
+    } {
+        #var murong[trvs_level] 6;
+    };  
     #delay {dl_search_jiazei} {
-        #class on_found_jiazei_inner open;
-        #act {^%s这里%*{方向|出口}{是|有}%*} {
-            #delay {dl_search_jiazei} { trvs.step } {1.5};
-        };
-        #class on_found_jiazei_inner close;
         bfs $murong[trvs_level];
     } {2};
     
@@ -134,6 +194,7 @@
 };
 
 #act {^仆人叹道：家贼难防，有人偷走了少爷的信件，据传曾在以下地点附近出现，你去把它找回来吧} {
+    log 图片任务;
     #act {http://pkuxkx.net/antirobot/robot.php?filename=%*} {
         #unact {http://pkuxkx.net/antirobot/robot.php?filename=%*};
         #system {firefox http://pkuxkx.net/antirobot/robot.php?filename=%%1};
@@ -141,20 +202,13 @@
     #var murong[mode] image;
 };
 
-#var murong[banned_area] {{神龙岛花园}{}};
-
 #act {^仆人叹道：家贼难防，有人偷走了少爷的信件，据传曾在『%*』附近出现，你去把它找回来吧} {
     #var murong[mode] text;
     #var murong[pos] %1;
-    #var murong[room] @parse_addr{%1};
     
     #system {echo "%1">>data/murong.log};
     
-    #if {&murong[banned_area][$murong[pos]] == 0} {
-        mrgo;
-    } {
-        mrfai;
-    };
+    mrgo;
     
 };
 
@@ -164,26 +218,23 @@
     #delay {2} {gc};
 };
 #act {^你从慕容世家{家贼|内鬼}的尸体身上搜出一封信件} {
-    on_there {
-        give xin to pu ren;
-    };
-    on_map_pad {
-        goto 茶馆 苏州;
-    };
-    
     log 拿到信件，回城复命;
+    on_map_pad {
+        mrfin;
+    };
 };
 #act {^仆人忙着呢，等会吧} {
     #delay {1} {give xin to pu ren};
 };
 #act {^由于你成功的找回慕容复写给江湖豪杰的信件，被奖励} {
-    log 任务完成;
-    #if {$murong[start] == 1} {
-        #delay {mrstart} {mrjob} {3};
-    };
+    log 慕容任务完成;
 };
 #act {^仆人对着你摇了摇头说：「你刚做过任务，先去休息休息吧。」} {
-    #delay {10} {mrjob};
+    log CD中,30秒后继续尝试;
+    #delay {dl_mrjob} {mrjob}{30};
+};
+#act {^由于你没有找回慕容复丢失的信件，被扣除：} {
+
 };
 
 #class $mod_name close;
