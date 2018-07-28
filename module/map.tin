@@ -723,6 +723,14 @@
                     go_forward;
                 };
             };
+            on_wait_need {
+                log 需要等待30秒再继续走路;
+                #map undo;
+                back_one_step;
+                #delay {30} {
+                    go_forward;
+                };
+            };
             
             #class go_forward_inner close;
             
@@ -779,6 +787,26 @@
             cb_on_walked;
         };
     };
+    #alias {on_wait_need} {
+        #alias cb_on_wait_need #cr;
+        #alias cb_on_wait_need %%0;
+        
+        #class on_wait_need_inner open;
+        
+        #list on_wait_need_trigger_list create {
+            ^你刚要前行，忽然发现江水决堤，不由暗自庆幸，还好没过去;
+            ^你正要前行，有人大喝：黄河决堤啦，快跑啊;
+        };
+        
+        #foreach {$on_wait_need_trigger_list[%*]} {regstring} {
+            #act {$regstring} {
+                #class on_wait_need_inner kill;
+                cb_on_wait_need;
+            };
+        };
+        
+        #class on_wait_need_inner close;
+    };
     #alias {on_blocked} {
         #alias cb_on_blocked #cr;
         #alias cb_on_blocked %%0;
@@ -788,8 +816,6 @@
         #list on_blocked_trigger_list create {
             ^这个方向没有出路;
             ^哎哟，你一头撞在墙上;
-            ^你刚要前行，忽然发现江水决堤，不由暗自庆幸，还好没过去;
-            ^你正要前行，有人大喝：黄河决堤啦，快跑啊;
             ^你从悬崖上摔了下来;
             ^那条路不知深浅，还是不要去了;
             ^你身上没有车资%*车夫拒绝开车;
@@ -947,7 +973,14 @@
             #if {"$roomname" == "荆门" || "$roomname" == "华容道"} {
                 #var areaname {荆州};
             };
-            
+            #if {"$work_place" == "襄阳官道"} {
+                #var areaname {荆州};
+                #var roomname {官道};
+            };
+            #if {"$work_place" == "中原客店二楼"} {
+                #var areaname {中原};
+                #var roomname {悦来客栈};
+            };
             #if {&map_area_table[$areaname] == 0} {
                 #var $buffer {{area}{$areaname}{name}{$roomname}};
             } {

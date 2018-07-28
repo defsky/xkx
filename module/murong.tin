@@ -58,7 +58,10 @@
 };
 #alias {askfail} {
     log 放弃任务;
-    ask pu about fail;
+    
+    #delay {dl_mrfai} {
+        ask pu about fail;
+    }{10};
     #if {$murong[start] == 1}{
         log 30秒后继续任务;
         #delay {dl_mrjob}{mrjob}{30}:
@@ -80,10 +83,11 @@
 #alias {mrstop} {
     #var murong[start] 0;
     #undelay {dl_mrjob};
+    #delay {dl_mrfai};
 };
 
 #var murong[banned][area] {{紫禁城}{}{灵鹫}{}{临安提督府}{}{星宿}{}{杀手帮}{}{北京}{}{武当山}{}{丐帮}{}};
-#var murong[banned][pos] {{归云庄桃花林}{}{归云庄迷魂阵}{}{襄阳黑松寨}{}{襄阳乱葬岗}{}{神龙岛花园}{}{福州密室}{}{白驼山蛇谷荒地}{}{杀手帮果林}{}{北京城墙}{}{华山悬崖}{}{晋阳城墙}{}{泰山兵器库}{}{泰山茅屋}{}{扬州兵器库}{}};
+#var murong[banned][pos] {{大轮寺积雪小路}{}{丝绸之路大沙漠}{}{泰山封禅台}{}{白驼山蛇谷树林}{}{归云庄桃花林}{}{归云庄迷魂阵}{}{襄阳黑松寨}{}{襄阳乱葬岗}{}{神龙岛花园}{}{福州密道}{}{福州密室}{}{白驼山蛇谷荒地}{}{杀手帮果林}{}{北京城墙}{}{华山悬崖}{}{晋阳城墙}{}{泰山兵器库}{}{泰山茅屋}{}{扬州兵器库}{}};
 
 #alias {mrpos} {
     #var murong[pos] %1;
@@ -124,6 +128,18 @@
 #alias {mrgowork} {
     log 前往任务地点;
     
+    #var murong[looked] 0;
+    
+    #act {$status[name]发现的 慕容世家{家贼|内鬼}($status[id]'s murong jiazei)} {
+        #nop #unact {$status[name]发现的 慕容世家{家贼|内鬼}($status[id]'s murong jiazei)};
+        
+        log 提前发现家贼;
+        goto_stop;
+        on_there;
+        zhaojz 3;
+        #var murong[looked] 1;
+    };
+    
     on_there {
         zhaojz;
     };
@@ -139,6 +155,10 @@
     ask pu ren about job;
 };
 #alias {zhaojz} {
+    #if {"%1" != "" } {
+        #var murong[trvs_level] %1;
+    };
+    
     log 开始寻找家贼;
     
     #class on_found_jiazei_inner open;
@@ -153,8 +173,12 @@
         #delay {1} {yun powerup};
         kill jiazei;
     };
-    #act {^慕容世家{家贼|内鬼}%*，身穿布衣走了过来} {
-        #undelay {dl_search_jiazei};
+    #act {^你决定开始跟随慕容世家{家贼|内鬼}一起行动} {
+        #unact {^慕容世家{家贼|内鬼}往%*离开};
+    };
+    #act {^慕容世家{家贼|内鬼}%*走了过来} {
+        trvs.stop;
+        follow jiazei;
         kill jiazei;
     };
     #act {^这里{不能|禁止|不准}战斗} {
