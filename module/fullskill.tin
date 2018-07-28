@@ -29,12 +29,7 @@
 #var jiudai_empty 1;
 
 #act {^牛皮酒袋已经被喝得一滴也不剩了} {
-    #if {$jiudai_empty == 1} {
-        #var jiudai_empty 0;
-        put jiudai in bao 2;
-        get jiudai from bao;
-        #delay {5} {#var jiudai_empty 1;};
-    };
+
 };
 
 #alias {_fskmsg} {
@@ -250,7 +245,7 @@
         }{$fsk[config][freq][lwc]};     
     };
     #act {^你略一凝神} {
-        log yun regenerate;
+        log 凝神;
         _lingwu;
     };
     #act {你现在过于疲倦,无法静下心来领悟功夫} {

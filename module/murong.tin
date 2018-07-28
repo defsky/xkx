@@ -27,6 +27,7 @@
     goto 茶馆 苏州;
 };
 #alias {mrstart} {
+    #undelay {dl_mrjob};
     #var murong[start] 1;
     #map get roomvnum murong[vnum];
     #if {$murong[vnum] == 433} {
@@ -59,12 +60,15 @@
 #alias {askfail} {
     log 放弃任务;
     
+    #show <139>10秒后放弃任务<079>;
+    
     #delay {dl_mrfai} {
         ask pu about fail;
     }{10};
     #if {$murong[start] == 1}{
-        log 30秒后继续任务;
-        #delay {dl_mrjob}{mrjob}{30}:
+        log 20秒后继续任务;
+        #show <139>20秒后继续<079>;
+        #delay {dl_mrjob}{mrjob}{20}:
     };
 };
 #alias {mrfai} {
@@ -83,11 +87,12 @@
 #alias {mrstop} {
     #var murong[start] 0;
     #undelay {dl_mrjob};
-    #delay {dl_mrfai};
+    #undelay {dl_mrfai};
+    on_there {};
 };
 
-#var murong[banned][area] {{紫禁城}{}{灵鹫}{}{临安提督府}{}{星宿}{}{杀手帮}{}{北京}{}{武当山}{}{丐帮}{}};
-#var murong[banned][pos] {{大轮寺积雪小路}{}{丝绸之路大沙漠}{}{泰山封禅台}{}{白驼山蛇谷树林}{}{归云庄桃花林}{}{归云庄迷魂阵}{}{襄阳黑松寨}{}{襄阳乱葬岗}{}{神龙岛花园}{}{福州密道}{}{福州密室}{}{白驼山蛇谷荒地}{}{杀手帮果林}{}{北京城墙}{}{华山悬崖}{}{晋阳城墙}{}{泰山兵器库}{}{泰山茅屋}{}{扬州兵器库}{}};
+#var murong[banned][area] {{神龙岛}{}{紫禁城}{}{灵鹫}{}{星宿}{}{杀手帮}{}{北京}{}{武当山}{}{丐帮}{}};
+#var murong[banned][pos] {{大轮寺积雪小路}{}{丝绸之路大沙漠}{}{泰山封禅台}{}{白驼山蛇谷树林}{}{归云庄桃花林}{}{归云庄迷魂阵}{}{襄阳黑松寨}{}{襄阳乱葬岗}{}{神龙岛花园}{}{福州密道}{}{福州密室}{}{白驼山蛇谷荒地}{}{杀手帮果林}{}{北京城墙}{}{华山悬崖}{}{泰山兵器库}{}{泰山茅屋}{}{扬州兵器库}{}};
 
 #alias {mrpos} {
     #var murong[pos] %1;
@@ -113,11 +118,13 @@
                     mrgowork;
                 } {
                     log 禁止的地点;
+                    #show <139>禁止的地点<079>;
                     
                     mrfai;
                 };
             } {
                 log 禁止的区域;
+                #show <139>禁止的地点<079>;
                     
                 mrfai;
             };
@@ -128,15 +135,16 @@
 #alias {mrgowork} {
     log 前往任务地点;
     
+    #var murong[trvs_level] 6;
+    
     #var murong[looked] 0;
     
     #act {$status[name]发现的 慕容世家{家贼|内鬼}($status[id]'s murong jiazei)} {
         #nop #unact {$status[name]发现的 慕容世家{家贼|内鬼}($status[id]'s murong jiazei)};
         
         log 提前发现家贼;
-        goto_stop;
-        on_there;
-        zhaojz 3;
+        kill jiazei;
+
         #var murong[looked] 1;
     };
     
@@ -155,6 +163,9 @@
     ask pu ren about job;
 };
 #alias {zhaojz} {
+    #if {$murong[looked] == 1} {
+        $var murong[trvs_level] 3;
+    };
     #if {"%1" != "" } {
         #var murong[trvs_level] %1;
     };
@@ -167,7 +178,7 @@
         log 发现家贼;
         #undelay {dl_search_jiazei};
         trvs.stop;
-        
+    
         follow jiazei;
         
         #delay {1} {yun powerup};
@@ -206,10 +217,8 @@
     #class on_found_jiazei_inner close;
     
     #if {"$murong[room][area]" == "长江%*" || "$murong[room][area]" == "黄河%*"} {
-        #var murong[trvs_level] 20;
-    } {
-        #var murong[trvs_level] 6;
-    };  
+        #var murong[trvs_level] 30;
+    }; 
     #delay {dl_search_jiazei} {
         bfs $murong[trvs_level];
     } {2};
@@ -221,7 +230,9 @@
     log 图片任务;
     #act {http://pkuxkx.net/antirobot/robot.php?filename=%*} {
         #unact {http://pkuxkx.net/antirobot/robot.php?filename=%*};
-        #system {firefox http://pkuxkx.net/antirobot/robot.php?filename=%%1};
+        #nop #system {firefox http://pkuxkx.net/antirobot/robot.php?filename=%%1};
+        #nop #system {./script/getpic.sh $status[id] %%1 &};
+        fetch_captcha %%1;
     };
     #var murong[mode] image;
 };
@@ -239,7 +250,9 @@
 #act {^慕容世家{家贼|内鬼}死了} {
     log 家贼挂了，拿信;
     #class on_found_jiazei_inner kill;
-    #delay {2} {gc};
+    get silver from corpse;
+    #delay {1} {get gold from corpse};
+    #delay {2} {get xin from corpse};
 };
 #act {^你从慕容世家{家贼|内鬼}的尸体身上搜出一封信件} {
     log 拿到信件，回城复命;

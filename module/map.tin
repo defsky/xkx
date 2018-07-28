@@ -719,15 +719,15 @@
                 #nop #show 需要重走 $path_run[list][$path_run[list_idx]];
                 #map undo;
                 back_one_step;
-                #delay {1} {
+                #delay {2} {
                     go_forward;
                 };
             };
             on_wait_need {
-                log 需要等待30秒再继续走路;
+                log 需要等待60秒再继续走路;
                 #map undo;
                 back_one_step;
-                #delay {30} {
+                #delay {60} {
                     go_forward;
                 };
             };
@@ -970,12 +970,16 @@
                 #var areaname {noarea};
                 #var roomname {红娘庄};
             };
-            #if {"$roomname" == "荆门" || "$roomname" == "华容道"} {
+            #if {"$roomname" == "荆州" || "$roomname" == "荆门" || "$roomname" == "华容道"} {
                 #var areaname {荆州};
             };
             #if {"$work_place" == "襄阳官道"} {
                 #var areaname {荆州};
                 #var roomname {官道};
+            };
+            #if {"$work_place" == "泉州杂货铺"} {
+                #var areaname {泉州};
+                #var roomname {曾宅};
             };
             #if {"$work_place" == "中原客店二楼"} {
                 #var areaname {中原};
