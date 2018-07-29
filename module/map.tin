@@ -520,6 +520,7 @@
     #class _path_run_inner kill;
     #class goto_inner kill;
     #var map[gt][status] 0;
+    #undelay {dl_wait_need};
 };
 
 #alias {gt} {
@@ -725,11 +726,11 @@
             };
             on_wait_need {
                 log 需要等待60秒再继续走路;
-                #map undo;
-                back_one_step;
-                #delay {60} {
+                #nop #map undo;
+                #nop back_one_step;
+                #delay {dl_wait_need} {
                     go_forward;
-                };
+                }{60};
             };
             
             #class go_forward_inner close;
