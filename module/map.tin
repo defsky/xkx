@@ -513,6 +513,95 @@
     #message  VARIABLES             %1;
 };
 
+#alias {find_path} {
+
+    #nop #var map[gt][dest][name] {%1};
+    #nop #var map[gt][dest][area] {%2};
+    
+    #class find_path_inner open;
+    
+    #alias {path_save} {
+        #path save forward map[gt][path];
+        #if {"$map[gt][path]" != ""} {
+            #var map[gt][path_found] 1;
+        };
+    };
+    
+    #class find_path_inner close;
+    
+    mess off;
+    
+    #var map[gt][path_found] 0;
+    #var map[gt][path] {};
+    
+    #map get roomname map[room][name];
+    #map get roomarea map[room][area];
+    
+    #if {"$map[gt][dest][area]" == ""} {
+        #if {"$map[room][name]" == "$map[gt][dest][name]"} {
+            #showme <139> GPS : 目的地为当前房间。<079>;
+            
+            #class find_path_inner kill;
+            #var map[gt][path_found] 2;
+            #return;
+        };
+    } {
+        #if {"$map[room][name]" == "$map[gt][dest][name]" &&
+            "$map[room][area]" == "$map[gt][dest][area]"} {
+            
+            #showme <139> GPS : 目的地为当前房间。<079>;
+            
+            #class find_path_inner kill;
+            #var map[gt][path_found] 2;
+            #return;
+        };
+    };
+
+    #if {"$map[gt][dest][area]" == ""} {
+        #if {0 == $map[gt][path_found]} {
+            #map find {%*$map[gt][dest][name]%*};
+            path_save;
+        };
+        #if {0 == $map[gt][path_found]} {
+            #map find {}{}{}{}{$map[gt][dest][name]};
+            path_save;
+        };
+        #if {0 == $map[gt][path_found]} {
+            #map find {}{}{}{}{%*$map[gt][dest][name]%*};
+            path_save;
+        };
+    
+    } {
+        #if {0 == $map[gt][path_found]} {
+            #map find {$map[gt][dest][name]} {} {} {$map[gt][dest][area]};
+            path_save;
+        };
+        #if {0 == $map[gt][path_found]} {
+            #map find {%*$map[gt][dest][name]%*} {} {} {$map[gt][dest][area]};
+            path_save;
+        };
+        #if {0 == $map[gt][path_found]} {
+            #map find {%*$map[gt][dest][name]%*}{}{}{%*$map[gt][dest][area]%*};
+            path_save;
+        };
+        #if {0 == $map[gt][path_found]} {
+            #map find {} {} {} {$map[gt][dest][area]} {$map[gt][dest][name]};
+            path_save;
+        };
+        #if {0 == $map[gt][path_found]} {
+            #map find {} {} {} {$map[gt][dest][area]} {%*$map[gt][dest][name]%*};
+            path_save;
+        };
+        #if {0 == $map[gt][path_found]} {
+            #map find {} {} {} {%*$map[gt][dest][area]%*} {%*$map[gt][dest][name]%*};
+            path_save;
+        };
+    };
+
+    #class find_path_inner kill;
+    mess on;
+};
+
 #alias {goto_stop} {
     set brief 0;
     gt_wrn 行走停止;
@@ -541,8 +630,6 @@
         #var map[gt][status] 1;
     };
     
-    mess off;
-    
     #var map[gt][dest][name] {%1};
     #var map[gt][dest][area] {%2};
     
@@ -557,91 +644,36 @@
     #alias {gt_wrn} {
         #showme <139> GPS : %%0<079>;
     };
-    
-    #var path_has_find 0;
-    #alias {path_save} {
-        #path save forward map[gt][path];
-        #if {"$map[gt][path]" != ""} {
-            #var path_has_find 1;
-        };
-    };
-    
     #class goto_inner close;
-
-    #nop path finding;
     
-    #if {"%1" == "" && "%2" == ""} {
+    #if {"%1" == ""} {
         gt_msg goto <roomname> [roomarea];
         #var map[gt][status] 0;
     } {
-        #map get roomname map[room][name];
+        find_path;
         
-        #var map[gt][path] {};
-        
-        #if {"%2" == ""} {
-            #if {0 == $path_has_find} {
-                #map find {%*$map[gt][dest][name]%*};
-                path_save;
-            };
-            #if {0 == $path_has_find} {
-                #map find {}{}{}{}{$map[gt][dest][name]};
-                path_save;
-            };
-            #if {0 == $path_has_find} {
-                #map find {}{}{}{}{%*$map[gt][dest][name]%*};
-                path_save;
-            };
-        
+        #if {$map[gt][path_found] == 2} {
+            #var map[gt][status] 0;
         } {
-            #if {0 == $path_has_find} {
-                #map find {$map[gt][dest][name]} {} {} {$map[gt][dest][area]};
-                path_save;
-            };
-            #if {0 == $path_has_find} {
-                #map find {%*$map[gt][dest][name]%*} {} {} {$map[gt][dest][area]};
-                path_save;
-            };
-            #if {0 == $path_has_find} {
-                #map find {%*$map[gt][dest][name]%*}{}{}{%*$map[gt][dest][area]%*};
-                path_save;
-            };
-            #if {0 == $path_has_find} {
-                #map find {} {} {} {$map[gt][dest][area]} {$map[gt][dest][name]};
-                path_save;
-            };
-            #if {0 == $path_has_find} {
-                #map find {} {} {} {$map[gt][dest][area]} {%*$map[gt][dest][name]%*};
-                path_save;
-            };
-            #if {0 == $path_has_find} {
-                #map find {} {} {} {%*$map[gt][dest][area]%*} {%*$map[gt][dest][name]%*};
-                path_save;
-            };
-            #if {0 == $path_has_find} {
-                path_save;
-            };
-        
-        };
-    
-        mess on;
-
-        #if {0 == $path_has_find} {
-            gt_wrn 目标地点不可达;
-            #class goto_inner kill;
-            #var map[gt][status] 0;        
-        } {
-            gt_msg 找到路径 {$map[gt][path]};
-            
-            on_error {
-                #var map[gt][status] 0;
+            #if {0 == $map[gt][path_found]} {
+                gt_wrn 目标地点不可达;
+                
                 #class goto_inner kill;
+                #var map[gt][status] 0;        
+            } {
+                gt_msg 找到路径 {$map[gt][path]};
+                
+                on_error {
+                    #var map[gt][status] 0;
+                    #class goto_inner kill;
+                };
+                
+                _path_run;
             };
-            
-            _path_run;
         };
     };
-    
 };
+
 #alias {hire_boat} {
     ask shao gong about 过河;
     ask shao gong about 过江;
