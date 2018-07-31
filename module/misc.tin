@@ -572,7 +572,7 @@
         on_guard_complete {
             bw.guard.last;
             on_guard_complete {
-                #var bw[status][attack] {};
+                
                 #if {$bw[status][report] == 1} {
                     bw.lookgate w;
                     on_lookgate_ok {
@@ -673,12 +673,14 @@
 #alias {bw.prepare} {
     log 准备开战;
     
+    #var bw[status][attack] {};
+    
     #undelay {dl_bw_check};
     halt;
     #delay {1} {pu};
     #delay {2} {yun qi};
     #delay {3} {jg}; 
-    #delay {4} {jiali max};
+    #delay {4} {jiali 200};
     #delay {5} {yun shield};
 };
 #alias {bw.check} {
@@ -854,6 +856,7 @@
         #undelay {dl_back_wd};
         #unact {这里没有这个人};
         #class bw.guard.start.inner kill;
+        
         #show guard complete;
     };
 };
@@ -958,6 +961,7 @@
     #act {^城中心 - } {
         #unact {^城中心 - };
         log 到达城中心;
+        
         cb_on_center;
         
     };
@@ -1343,27 +1347,6 @@
 };
 
 #alias {bxs} {goto 百晓生;};
-
-#alias {gn} {gan che to north};
-#alias {gs} {gan che to south};
-#alias {ge} {gan che to east};
-#alias {gw} {gan che to west};
-#alias {gne} {gan che to northeast};
-#alias {gnw} {gan che to northwest};
-#alias {gse} {gan che to southeast};
-#alias {gsw} {gan che to southwest};
-#alias {gnu} {gan che to northup};
-#alias {gnd} {gan che to northdown};
-#alias {gsu} {gan che to southup};
-#alias {gsd} {gan che to southdown};
-#alias {gwu} {gan che to westup};
-#alias {gwd} {gan che to westdown};
-#alias {geu} {gan che to eastup};
-#alias {ged} {gan che to eastdown};
-#alias {gup} {gan che to up};
-#alias {gdown} {gan che to down};
-#alias {genter} {gan che to enter};
-#alias {gout} {gan che to out};
 
 #alias {w2e} {e;e;e;e;e;e;e;e};
 #alias {w2n} {e;e;e;e;n;n;n;n};
