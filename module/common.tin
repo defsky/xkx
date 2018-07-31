@@ -166,11 +166,55 @@
     #if {"%1" == ""} {
         #act {http://pkuxkx.net/antirobot/robot.php?filename=%*} {
             #unact {http://pkuxkx.net/antirobot/robot.php?filename=%*};
-            #system {firefox http://pkuxkx.net/antirobot/robot.php?filename=%%1};
+            #nop #system {firefox http://pkuxkx.net/antirobot/robot.php?filename=%%1};
+            fetch_captcha %%1;
         };
         fullme;
     } {
         fullme %1;
+    };
+};
+
+#var captcha[try_count] 0;
+#var captcha[failed] 0;
+#var captcha[id] {};
+#var captcha[output] {};
+
+#alias {fetch_captcha} {
+    #if {"%1" == "" } {
+        #if {"$captcha[id]" == ""} {
+            #show <139>请提供验证ID<079>;
+            #return;
+        };
+    } {
+        #var captcha[id] %1;
+    };
+    
+    #if {$captcha[try_count] > 10} {
+        #show <139>获取验证码失败。<079>;
+        log 验证码获取失败...;
+        
+        #var captcha[try_count] 1;
+        #var captcha[failed] 0;
+        #var captcha[output] {};
+    } {
+        #show <139>尝试获取验证码...<079>;
+        
+        #math captcha[try_count] {$captcha[try_count] + 1};
+    
+        #script captcha[output] {script/getpic.sh $status[id] $captcha[id] &};
+        
+        #if {"$captcha[output]" == "" || "$captcha[output][1]" != "$captcha[output][-1]"} {
+            #show <139>获取验证码失败，5秒后再试...<079>;
+            #delay {5} {fetch_captcha};
+        } {
+            #system {display -geometry +600+200 tmp/$captcha[output][1] &};
+            
+            #var captcha[last_pic] $captcha[output][1];
+            #var captcha[last_id] $captcha[id];
+            #var captcha[id] {};
+            #var captcha[try_count] 0;
+        };
     };
 };
 

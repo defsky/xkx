@@ -1,15 +1,15 @@
-host=pkuxkx.net
-#host=223.202.85.195
+#!/bin/bash
 
-a=`curl http://${host}/antirobot/robot.php?filename=$1 2>/dev/null | sed 's/[^"]*="\([^"]*\)"[^"]*/\1/g;s/"/\n/g;' | sed -n 1p | sed s/\.// `
-echo $a
+current_dir=$(cd `dirname $0`;pwd)
 
-fname=${2}_$(date +%Y%m%d%H%M%S).jpg
+a=$(python3 $current_dir/getCaptcha.py $1 $2)
 
-if [ -n "$a" ]; then
-	echo wget http://${host}/antirobot$a -o /home/caoliangcheng/mud/xkx/data/tmp/$fname 2> /dev/null &
-	
-	if [ $? -eq 0 ]; then
-	    echo $fname
-	fi
+if [ ! -z $a ];then
+
+    if [ -e $a ];then
+        echo $a;
+        mv $a $current_dir/../tmp/;
+    fi;
 fi
+
+

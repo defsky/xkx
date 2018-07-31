@@ -464,7 +464,7 @@
         #act {襄阳保卫战正在进行中，现在是蒙古兵第%*轮发兵} {
             timer.reset;
             halt;
-            #tic {fish_look} {look}{2};
+            #tic {fish_look} {kill bing}{1};
             #delay {60}{#untic fish_look};
             #delay {1} {yun qi};
             #delay {2} {jiali max};
@@ -505,6 +505,14 @@
 #alias {bw.start} {
     tune fb;
     
+    #list bw[dig][queue] create n s e w;
+    #var bw[dig][depth] 5;
+    #var bw[dig][req_cnt] 0;
+    #var bw[status][guard][steps] {{w}{9}{e}{6}{s}{9}{n}{8}};
+    #var bw[status][guard][room] {{w}{雪峰脚下}{e}{菜园}{s}{荆门}{n}{荒原}};
+    #var bw[status][gate][threshold] 100;
+    #var bw[status][report] 0;
+    #var bw[status][get_qiao] 0;
     #list bw[status][attack] create {};
 
     #class bw.start.inner open;
@@ -520,19 +528,23 @@
     };
     
     #act {^【任务】襄阳保卫战开启，请大家踊跃从军，到襄阳的郭靖处报名（ask guojing about 襄阳保卫）} {
-        
+        log 保卫开始;
         timer.set 150;
         timer.hnd timer_handler;
         timer.reset;
         
         ask guo about 襄阳保卫;
+        #var bw[status][get_qiao] 0;
         #delay {0.5} {join 3};
     };
     
     #act {    郭夫人「桃花仙子」黄蓉(Huang rong)} {
         #nop #unact {    郭夫人「桃花仙子」黄蓉(Huang rong)};
         
-        ask huang about 工事;
+        #if {$bw[status][get_qiao] == 0} {
+            #var bw[status][get_qiao] 1;
+            ask huang about 工事;
+        };
         
         #nop #class bw.start.inner kill;
     };
@@ -546,17 +558,21 @@
         };
     };
     #act {郭靖吩咐下面兵士将你带到襄阳保卫战的前线} {
-    
+        
     };
     #act {襄阳保卫战正在进行中，现在是蒙古兵第%*轮发兵} {
         timer.reset;
         #var bw[status][round] %%1;
         
+        log 第$bw[status][round]轮发兵;
+        
+        #unact {这里没有这个人};
+        
         bw.guard.first;
         on_guard_complete {
             bw.guard.last;
             on_guard_complete {
-                #var bw[status][attack] {};
+                
                 #if {$bw[status][report] == 1} {
                     bw.lookgate w;
                     on_lookgate_ok {
@@ -582,6 +598,9 @@
         #list bw[status][attack] add $direction[cn][%%1];
     };
     #act {各位可以到郭靖处领奖} {
+        #undelay {dl_back_wd};
+        log 可以领奖了;
+        
         #act {^帅府大厅 - } {
             #unact {^帅府大厅 - };
             ask guo about 奖励;
@@ -597,6 +616,7 @@
 #alias {bw.stop} {
     tune fb;
     
+    #class bw.guard.start.inner kill;
     #class bw.start.inner kill;
     #class bw.guard.inner kill;
     #class bw.dig.inner kill;
@@ -611,11 +631,10 @@
     #untic {tk_bw_dazuo};
     #untic {tk_bw_fish};
     
-    #nop #unvar bw;
+    #undelay {dl_back_wd};
+    
+    #unvar bw;
 };
-
-#var bw[status][gate][threshold] 100;
-#var bw[status][report] 0;
 
 #alias {bw.report} {
     #if {$bw[status][report] == 1} {
@@ -652,15 +671,20 @@
     };
 };
 #alias {bw.prepare} {
+    log 准备开战;
+    
+    #var bw[status][attack] {};
+    
     #undelay {dl_bw_check};
     halt;
     #delay {1} {pu};
     #delay {2} {yun qi};
     #delay {3} {jg}; 
-    #delay {4} {jiali max};
+    #delay {4} {jiali 200};
     #delay {5} {yun shield};
 };
 #alias {bw.check} {
+    log 检查状态;
     #if {$status[force] > @eval{$status[force_max] * 1.7}} {
         #var bw[dig][need_count] 0;
         #if {$timer[value] <= 20} {
@@ -688,6 +712,7 @@
             };
         };
     } {
+        log 开始打坐;
         dazuo max;
         #tic {tk_bw_dazuo} {
             #if {$timer[value] < 18} {
@@ -762,9 +787,6 @@
     };
 };
 
-#var bw[status][guard][steps] {{w}{9}{e}{6}{s}{9}{n}{8}};
-#var bw[status][guard][room] {{w}{雪峰脚下}{e}{菜园}{s}{荆门}{n}{荒原}};
-
 #alias {on_guard_complete} {
     #alias cb_on_guard_complete #cr;
     #alias cb_on_guard_complete %0;
@@ -775,6 +797,8 @@
     };
 };
 #alias {bw.guard} {
+    log 保卫%1;
+    
     #var bw[status][guard][walk] %1;
     #var bw[status][guard][walk_back] @reverse{%1};
     
@@ -821,7 +845,7 @@
         #unact {^看起来%*想杀死你};
         
         on_no_bing {
-            #delay {dl_back_wd}{bw.guard.back} {3};
+            #nop #delay {dl_back_wd}{bw.guard.back} {3};
             bw.guard.back;
         };
     };
@@ -829,7 +853,10 @@
     #class bw.guard.start.inner close;
     
     on_center {
+        #undelay {dl_back_wd};
+        #unact {这里没有这个人};
         #class bw.guard.start.inner kill;
+        
         #show guard complete;
     };
 };
@@ -840,7 +867,8 @@
             bw.guard.back;
         };
     };
-    #delay {1} {$bw[status][guard][walk_back]};
+    $bw[status][guard][walk_back];
+    #delay {dl_back_wd}{bw.guard.back} {5};
 };
 #alias {on_no_bing} {
     #alias cb_on_no_bing #cr;
@@ -855,11 +883,9 @@
 
 };
 
-#list bw[dig][queue] create n s e w;
-#var bw[dig][depth] 5;
-#var bw[dig][req_cnt] 0;
-
 #alias {bw.dig} {
+    log 开始dig %1 次;
+    
     #var bw[dig][walk] $bw[dig][queue][1];
     #list bw[dig][queue] delete 1;
     #list bw[dig][queue] add $bw[dig][walk];
@@ -892,6 +918,8 @@
     bw.dig.next;
 };
 #alias {bw.dig.next} {
+    log dig 下个地方;
+    
     #if {$bw[dig][count] >= $bw[dig][req_cnt] || $bw[dig][level] >= $bw[dig][depth]} {
         #class bw.dig.inner kill;
         
@@ -926,11 +954,14 @@
     };
 };
 #alias {on_center} {
+    
     #alias cb_on_center #cr;
     #alias cb_on_center %0;
     
     #act {^城中心 - } {
         #unact {^城中心 - };
+        log 到达城中心;
+        
         cb_on_center;
         
     };
@@ -1316,27 +1347,6 @@
 };
 
 #alias {bxs} {goto 百晓生;};
-
-#alias {gn} {gan che to north};
-#alias {gs} {gan che to south};
-#alias {ge} {gan che to east};
-#alias {gw} {gan che to west};
-#alias {gne} {gan che to northeast};
-#alias {gnw} {gan che to northwest};
-#alias {gse} {gan che to southeast};
-#alias {gsw} {gan che to southwest};
-#alias {gnu} {gan che to northup};
-#alias {gnd} {gan che to northdown};
-#alias {gsu} {gan che to southup};
-#alias {gsd} {gan che to southdown};
-#alias {gwu} {gan che to westup};
-#alias {gwd} {gan che to westdown};
-#alias {geu} {gan che to eastup};
-#alias {ged} {gan che to eastdown};
-#alias {gup} {gan che to up};
-#alias {gdown} {gan che to down};
-#alias {genter} {gan che to enter};
-#alias {gout} {gan che to out};
 
 #alias {w2e} {e;e;e;e;e;e;e;e};
 #alias {w2n} {e;e;e;e;n;n;n;n};

@@ -112,6 +112,9 @@
     log zhangsan_come;
     accept;
 };
+#act {^【江湖】张 三(Zhang san): 听说%*阁下武功不错，在下想与您较量一下。} {
+    log zhangsan 挑战 %1;
+};
 
 #alias {get_time} {
     #act {现在现实中的时间是北京时间 %*} {
@@ -126,6 +129,10 @@
 };
 #act {【江湖】听说侠客岛赏善使者莅临中原，邀请有缘人前往侠客岛一游！} {
     
+};
+
+#act {^你捡起一堆陨铁} {
+    drop yun tie;
 };
 
 #function {var}{
