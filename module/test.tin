@@ -150,6 +150,11 @@
     cb_on_test;
 };
 
+#macro {\e[1;2A} {moven};
+#macro {\e[1;2B} {moves};
+#macro {\e[1;2C} {movee};
+#macro {\e[1;2D} {movew};
+
 #class $mod_name close;
 
 ${mod_name}_load;

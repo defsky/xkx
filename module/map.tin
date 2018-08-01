@@ -601,7 +601,11 @@
     #class find_path_inner kill;
     mess on;
 };
-
+#alias {hire_boat} {
+    ask shao gong about 过河;
+    ask shao gong about 过江;
+    enter;
+};
 #alias {goto_stop} {
     set brief 0;
     gt_wrn 行走停止;
@@ -610,6 +614,8 @@
     #class goto_inner kill;
     #var map[gt][status] 0;
     #undelay {dl_wait_need};
+    #delay {dl_hubiao_walk};
+    #delay {dl_trvs_walk};
 };
 
 #alias {gt} {
@@ -673,14 +679,64 @@
         };
     };
 };
-
-#alias {hire_boat} {
-    ask shao gong about 过河;
-    ask shao gong about 过江;
-    enter;
+#alias {hbto} {
+    #nop param1 roomname;
+    #nop param2 roomarea;
+    
+    #if {$map[gt][status] == 1} {
+        #return;
+    };
+    
+    #var map[gt][status] 1;
+    
+    #var map[gt][dest][name] {%1};
+    #var map[gt][dest][area] {%2};
+    
+    #class goto_inner open;
+    
+    #alias {gt_err} {
+        #showme <119> GPS : %%0<079>;
+    };
+    #alias {gt_msg} {
+        #showme <129> GPS : %%0<079>;
+    };
+    #alias {gt_wrn} {
+        #showme <139> GPS : %%0<079>;
+    };
+    #class goto_inner close;
+    
+    #if {"%1" == ""} {
+        gt_msg goto <roomname> [roomarea];
+        #var map[gt][status] 0;
+    } {
+        find_path;
+        
+        #if {$map[gt][path_found] == 2} {
+            #var map[gt][status] 0;
+        } {
+            #if {0 == $map[gt][path_found]} {
+                gt_wrn 目标地点不可达;
+                
+                #class goto_inner kill;
+                #var map[gt][status] 0;        
+            } {
+                gt_msg 找到路径 {$map[gt][path]};
+                
+                on_error {
+                    #var map[gt][status] 0;
+                    #class goto_inner kill;
+                };
+                
+                _path_run hubiao;
+            };
+        };
+    };
 };
+
 #alias {_path_run} {
     status.set_action 走路中;
+    
+    #var map[gt][mode] {%1};
     
     #class _path_run_inner open;
     
@@ -808,7 +864,20 @@
             };
             
             #nop #show $path_run[list][$path_run[list_idx]];
-            $path_run[list][$path_run[list_idx]];
+            
+            #if {"$map[gt][mode]" == "hubiao"} {
+                #delay {dl_hubiao_walk} {
+                    g${path_run[list][$path_run[list_idx]]};
+                }{2};
+            };
+            #elseif {"$map[gt][mode]" == "trvs"} {
+                #delay {dl_trvs_walk} {
+                    ${path_run[list][$path_run[list_idx]]};
+                }{1};
+            };
+            #else {
+                $path_run[list][$path_run[list_idx]];
+            };
         };
         
     };
