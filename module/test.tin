@@ -150,6 +150,63 @@
     cb_on_test;
 };
 
+#alias {xuexi} {
+    #if {"%2" != ""} {
+        #var xuexi[teacher] %1;
+        #var xuexi[skill] %2;
+    };
+    
+    #class xuexi_inner open;
+    #act {^你和师父切磋%*，消耗了大量潜能} {
+        xuexi.stop;
+    };
+    #act {^也许是缺乏实战经验，你%*总是无法领会} {
+        xuexi.stop;
+    };
+    #act {^你的潜能已经发挥到极限了，没有办法再成长了} {
+        xuexi.stop;
+    };
+    #act {^你共请教了零次} {
+        yun regenerate;
+    };
+    #act {^你的内力不够} {
+        xuexi.stop;
+        #delay {2} {
+            #act {^你吃饱喝足，站了起来} {
+                gt 休息室;
+                #act {^你在三分钟内刚睡过} {
+                    #delay {10} {
+                        sleep;
+                    };
+                };
+                #act {^你一觉醒来} {
+                    goto 王重阳;
+                    on_there {
+                        xuexi;
+                    };
+                };
+                on_there {
+                    sleep;
+                };
+            };
+            gt 斋堂;
+            on_there {
+                zuo;
+            };
+        };
+    };
+    #tic {tk_xuexi} {
+        xue $xuexi[teacher] for $xuexi[skill] 5;
+    }{1};
+    #class xuexi_inner close;
+};
+#alias {xuexi.stop} {
+    #unact {^你吃饱喝足，站了起来};
+    #unact {^你在三分钟内刚睡过};
+    #unact {^你一觉醒来};
+    #class xuexi_inner kill;
+};
+
 #class $mod_name close;
 
 ${mod_name}_load;
