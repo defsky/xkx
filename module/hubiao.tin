@@ -19,6 +19,129 @@
     #buffer lock;
 };
 
+#nop status list : {none;listesc;getesc;zoubiao;robber;arrived;complete};
+
+#alias {hb_status_set} {
+    #if {"$hubiao[status]" == "%1"} {
+        #return;
+    };
+    #elseif {"%1" == "" || "%1" == "none"} {
+        #class hb_status_$hubiao[status]_inner kill;
+        hb_status_exit_$hubiao[status];
+        #return;
+    };
+    #else {
+        #class hb_status_$hubiao[status]_inner kill;
+        hb_status_exit_$hubiao[status];
+    };
+    
+    #var hubiao[status] %1;
+    
+    hb_status_enter_$hubiao[status];
+};
+
+#alias {hb_status_exit_listesc} {
+    #undelay {dl_hubiao_listesc};
+};
+#alias {hb_status_enter_listesc} {
+    #class hb_status_listesc_inner open;
+    
+    #var listesc_start 0;
+    #var valid_quest {};
+    #list dest_list create {};
+    
+    #alias {list_esc} {
+        #var listesc_start 0;
+        #var valid_quest {};
+        
+        listesc;
+    };
+    
+    #act {^%*押镖任务列表：} {
+        #var listesc_start 1;
+    };
+    #act {^%d     {(\S+)\s+}%*   %* %*} {
+        #nop #show <139>%1-%3-%5<079>;
+        
+        #if {$listesc_start == 1} {
+            #if {&dest_list[%%3] == 0} {
+                #var dest_list[%%3] 1;
+            } {
+                #math dest_list[%%3] {$dest_list[%%3] + 1};
+            };
+            
+            #var shell_cmd {echo "#var dest_list {$dest_list}">data/hubiao.log};
+            #system $shell_cmd;
+            
+            #if {"%%5" == "待认领"} {
+                #var valid_quest[%%1] %%3;
+            };
+        };
+    };
+    #act {^使用命令【getesc 任务序号】来认领押镖任务} {
+        #var listesc_start 0;
+        
+        #delay {dl_hubiao_listesc} {list_esc} {10};
+    };
+    
+    #class hb_status_listesc_inner close;
+    
+    #read data/hubiao.log;
+    list_esc;
+};
+
+#alias {hb_status_exit_getesc} {
+    
+};
+#alias {hb_status_enter_getesc} {
+    #class hb_status_getesc_inner open;
+    
+    #act {^$status[name]把这批红货送到%*那里，他已经派了个伙计名叫%*到%*附近接你，把镖车送到他那里就行了} {
+        #system {echo "%%1 %%2 %%3">>data/hubiao.log};
+        
+        parse_addr %%1 hubiao[dest];
+        #var hubiao[dest][name] %%3;
+        #var hubiao[dest][huoji] %%2;
+        
+        find_path $hubiao[dest][name] $hubiao[dest][area];
+        
+        #delay {2} {
+            status_set zoubiao;
+        };
+    };
+    #act {^认领任务失败，请选择其他任务} {
+        status_set listesc;
+    };
+    
+    #class hb_status_getesc_inner close;
+    
+    #var hubiao[dest] {};
+    getesc $hubiao[quest_id];
+};
+        #case {"zoubiao"} {
+        
+        };
+        #case {"robber"} {
+        
+        };
+        #case {"arrived"} {
+        
+        };
+        #case {"complete"} {
+        
+        };
+        #default {
+            #show <139>无效的状态：%1<079>;
+        };
+    };
+};
+
+#alias {status_exit} {
+    #if {"%1" != ""} {
+        #class status_%1_inner kill;
+    };
+};
+
 #alias {gn} {gan che to north};
 #alias {gs} {gan che to south};
 #alias {ge} {gan che to east};
@@ -41,76 +164,39 @@
 #alias {gout} {gan che to out};
 
 #alias {hbto} {
-    #nop param1 roomname;
-    #nop param2 roomarea;
-    
-    #if {$map[gt][status] == 1} {
-        #return;
-    };
-    
-    #var map[gt][status] 1;
     
     #var map[gt][dest][name] {%1};
     #var map[gt][dest][area] {%2};
     
-    #class goto_inner open;
+    find_path;
     
-    #alias {gt_err} {
-        #showme <119> GPS : %%0<079>;
-    };
-    #alias {gt_msg} {
-        #showme <129> GPS : %%0<079>;
-    };
-    #alias {gt_wrn} {
-        #showme <139> GPS : %%0<079>;
-    };
-    #class goto_inner close;
-    
-    #if {"%1" == ""} {
-        gt_msg goto <roomname> [roomarea];
+    #if {$map[gt][path_found] == 2} {
         #var map[gt][status] 0;
     } {
-        find_path;
-        
-        #if {$map[gt][path_found] == 2} {
-            #var map[gt][status] 0;
+        #if {0 == $map[gt][path_found]} {
+            gt_wrn 目标地点不可达;
+            
+            #class goto_inner kill;
+            #var map[gt][status] 0;        
         } {
-            #if {0 == $map[gt][path_found]} {
-                gt_wrn 目标地点不可达;
-                
+            gt_msg 找到路径 {$map[gt][path]};
+            
+            on_error {
+                #var map[gt][status] 0;
                 #class goto_inner kill;
-                #var map[gt][status] 0;        
-            } {
-                gt_msg 找到路径 {$map[gt][path]};
-                
-                on_error {
-                    #var map[gt][status] 0;
-                    #class goto_inner kill;
-                };
-                
-                _path_run hubiao;
             };
+            
+            _path_run hubiao;
         };
     };
 };
+
+#var hubiao[status] {{getesc}{接镖}{}{}};
 
 #act {^你获得了四份石炭【劣质】} {
     drop shi tan;
 };
 
-#act {^$status[name]把这批红货送到%*那里，他已经派了个伙计名叫%*到%*附近接你，把镖车送到他那里就行了} {
-    #system {echo "%1 %2 %3">>data/hubiao.log};
-    
-    parse_addr %1 hubiao[dest];
-    #var hubiao[dest][name] %3;
-    #var hubiao[dest][huoji] %2;
-    
-    hb_start;
-    
-    #delay {2} {
-        hbto $hubiao[dest][name] $hubiao[dest][area];
-    };
-};
 
 #class $mod_name close;
 

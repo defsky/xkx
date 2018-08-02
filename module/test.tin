@@ -150,7 +150,6 @@
     cb_on_test;
 };
 
-
 #macro {\e[1;2A} {moven};
 #macro {\e[1;2B} {moves};
 #macro {\e[1;2C} {movee};
@@ -212,6 +211,26 @@
     #unact {^ÄãÒ»¾õÐÑÀ´};
     #class xuexi_inner kill;
 };
+
+
+#alias {input} {
+    #switch {"%1"} {
+        #case {"a"} {
+            #show you input A;
+        };
+        #case {"b"} {
+            #show you input B;
+        };
+        #case {"c"} {
+            #show you input C;
+        };
+        #default {
+            #show invalid param:%1;
+        };
+    };
+};
+
+
 
 #class $mod_name close;
 

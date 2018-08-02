@@ -812,7 +812,7 @@
             
             #nop #show $path_run[list][$path_run[list_idx]];
             
-            if {"$map[gt][mode]" == "trvs"} {
+            #if {"$map[gt][mode]" == "trvs"} {
                 #delay {dl_trvs_walk} {
                     ${path_run[list][$path_run[list_idx]]};
                 }{1};
