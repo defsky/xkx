@@ -19,21 +19,38 @@
     #buffer lock;
 };
 
-#nop status list : {none;listesc;getesc;zoubiao;robber;arrived;complete};
+#var hubiao[status_id][none]     空闲状态;
+#var hubiao[status_id][listesc]  查看任务;
+#var hubiao[status_id][getesc]   领取任务;
+#var hubiao[status_id][zoubiao]  赶车走镖;
+#var hubiao[status_id][robber]   出现劫匪;
+#var hubiao[status_id][arrived]  到达地点;
+#var hubiao[status_id][complete] 护镖完成;
+#var hubiao[status_id][mixin]    密信任务;
+
+#var hubiao[status] none;
 
 #alias {hb_status_set} {
-    #if {"$hubiao[status]" == "%1"} {
+    #if {&hubiao[status_id][%1] == 0} {
+        log hubiao 无效状态 %1;
         #return;
     };
-    #elseif {"%1" == "" || "%1" == "none"} {
-        #class hb_status_$hubiao[status]_inner kill;
-        hb_status_exit_$hubiao[status];
+    #elseif {"$hubiao[status]" == "%1"} {
         #return;
     };
     #else {
-        #class hb_status_$hubiao[status]_inner kill;
-        hb_status_exit_$hubiao[status];
+        #if {"$hubiao[status]" != "none"} {
+            log hubiao 退出状态 $hubiao[status_id][$hubiao[status]];
+            #class hb_status_$hubiao[status]_inner kill;
+            hb_status_exit_$hubiao[status];
+        };
     };
+    
+    #if {"%1" == "" || "%1" == "none"} {
+        #return;
+    };
+    
+    log hubiao 进入状态 $hubiao[status_id][%1];
     
     #var hubiao[status] %1;
     
@@ -118,28 +135,40 @@
     #var hubiao[dest] {};
     getesc $hubiao[quest_id];
 };
-        #case {"zoubiao"} {
-        
-        };
-        #case {"robber"} {
-        
-        };
-        #case {"arrived"} {
-        
-        };
-        #case {"complete"} {
-        
-        };
-        #default {
-            #show <139>无效的状态：%1<079>;
-        };
-    };
+
+#alias {hb_status_exit_zoubiao} {
+    
+};
+#alias {hb_status_enter_zoubiao} {
+
 };
 
-#alias {status_exit} {
-    #if {"%1" != ""} {
-        #class status_%1_inner kill;
-    };
+#alias {hb_status_exit_robber} {
+    
+};
+#alias {hb_status_enter_robber} {
+
+};
+
+#alias {hb_status_exit_arrived} {
+    
+};
+#alias {hb_status_enter_arrived} {
+
+};
+
+#alias {hb_status_exit_complete} {
+    
+};
+#alias {hb_status_enter_complete} {
+
+};
+
+#alias {hb_status_exit_mixin} {
+    
+};
+#alias {hb_status_enter_mixin} {
+
 };
 
 #alias {gn} {gan che to north};
@@ -190,8 +219,6 @@
         };
     };
 };
-
-#var hubiao[status] {{getesc}{接镖}{}{}};
 
 #act {^你获得了四份石炭【劣质】} {
     drop shi tan;
