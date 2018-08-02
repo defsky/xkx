@@ -680,7 +680,7 @@
     #delay {1} {pu};
     #delay {2} {yun qi};
     #delay {3} {jg}; 
-    #delay {4} {jiali 200};
+    #delay {4} {jiali 300};
     #delay {5} {yun shield};
 };
 #alias {bw.check} {
