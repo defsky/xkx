@@ -40,6 +40,59 @@
 #alias {genter} {gan che to enter};
 #alias {gout} {gan che to out};
 
+#alias {hbto} {
+    #nop param1 roomname;
+    #nop param2 roomarea;
+    
+    #if {$map[gt][status] == 1} {
+        #return;
+    };
+    
+    #var map[gt][status] 1;
+    
+    #var map[gt][dest][name] {%1};
+    #var map[gt][dest][area] {%2};
+    
+    #class goto_inner open;
+    
+    #alias {gt_err} {
+        #showme <119> GPS : %%0<079>;
+    };
+    #alias {gt_msg} {
+        #showme <129> GPS : %%0<079>;
+    };
+    #alias {gt_wrn} {
+        #showme <139> GPS : %%0<079>;
+    };
+    #class goto_inner close;
+    
+    #if {"%1" == ""} {
+        gt_msg goto <roomname> [roomarea];
+        #var map[gt][status] 0;
+    } {
+        find_path;
+        
+        #if {$map[gt][path_found] == 2} {
+            #var map[gt][status] 0;
+        } {
+            #if {0 == $map[gt][path_found]} {
+                gt_wrn 目标地点不可达;
+                
+                #class goto_inner kill;
+                #var map[gt][status] 0;        
+            } {
+                gt_msg 找到路径 {$map[gt][path]};
+                
+                on_error {
+                    #var map[gt][status] 0;
+                    #class goto_inner kill;
+                };
+                
+                _path_run hubiao;
+            };
+        };
+    };
+};
 
 #act {^你获得了四份石炭【劣质】} {
     drop shi tan;
