@@ -603,6 +603,7 @@
         
         #act {^帅府大厅 - } {
             #unact {^帅府大厅 - };
+            #cr;
             ask guo about 奖励;
         };
         #2 w;#2 s;
@@ -680,7 +681,7 @@
     #delay {1} {pu};
     #delay {2} {yun qi};
     #delay {3} {jg}; 
-    #delay {4} {jiali 350};
+    #delay {4} {jiali 400};
     #delay {5} {yun shield};
 };
 #alias {bw.check} {
