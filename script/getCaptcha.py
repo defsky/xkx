@@ -5,13 +5,13 @@ from urllib import request
 
 _,uid,imgID = sys.argv
 
-baseurl = 'http://pkuxkx.net/antirobot/'
+baseurl = 'http://pkuxkx.com/antirobot/'
 user_agent = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebkit/537.36 (KHTML,like Gecko) Chrome/55.0.2883.75 Safari/537.36'
 header = {'User-Agent':user_agent}
 
-pageurl = baseurl + 'robot.php?filename=' + imgID
-
 try:
+    pageurl = baseurl + 'robot.php?filename=' + imgID
+    
     req = request.Request(pageurl,headers=header)
 
     page = request.urlopen(req,timeout=10)

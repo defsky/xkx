@@ -164,7 +164,7 @@
 
 #alias {fm} {
     #if {"%1" == ""} {
-        #act {http://pkuxkx.net/antirobot/robot.php?filename=%*} {
+        #act {http://pkuxkx.{net|com}/antirobot/robot.php?filename=%*} {
             #unact {http://pkuxkx.net/antirobot/robot.php?filename=%*};
             #nop #system {firefox http://pkuxkx.net/antirobot/robot.php?filename=%%1};
             fetch_captcha %%1;
