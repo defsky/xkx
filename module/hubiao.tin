@@ -46,13 +46,13 @@
         };
     };
     
-    #if {"%1" == "" || "%1" == "none"} {
+    #var hubiao[status] %1;
+    
+    #if {"$hubiao[status]" == "" || "#hubiao[status]" == "none"} {
         #return;
     };
     
-    log hubiao 进入状态 $hubiao[status_id][%1];
-    
-    #var hubiao[status] %1;
+    log hubiao 进入状态 $hubiao[status_id][$hubiao[status]];
     
     hb_status_enter_$hubiao[status];
 };
@@ -73,37 +73,53 @@
         
         listesc;
     };
+    #alias {select_quest} {
+        #var hubiao[quest_id] {};
+        #var selected_quest {{id}{}{priority}{999}};
+        
+        #foreach {$valid_qest[]}{selected_quest[tmp_id]}{
+            #if {$dest_list[$valid_quest[$selected_quest[tmp_id]]] < $selected_quest[priority]} {
+                #var selected_quest[priority] $dest_list[$valid_quest[$selected_quest[tmp_id]]];
+                #var selectid_quest[id] $selected_quest[tmp_id];
+            };
+        };
+        
+        #var hubiao[quest_id] $selected_quest[id];
+    };
     
     #act {^%*押镖任务列表：} {
         #var listesc_start 1;
     };
-    #act {^%d     {(\S+)\s+}%*   %* %*} {
-        #nop #show <139>%1-%3-%5<079>;
+    #act {^{(\d+)\s+(\S+)\s+\d+}秒   %S %S} {
+        #nop #show <139>%%2-%%3-%%4<079>;
         
         #if {$listesc_start == 1} {
             #if {&dest_list[%%3] == 0} {
-                #var dest_list[%%3] 1;
-            } {
-                #math dest_list[%%3] {$dest_list[%%3] + 1};
+                #var dest_list[%%3] 999;
+                #var shell_cmd {echo "#var dest_list {$dest_list}">data/hubiao_dest_list.tin};
+                #system $shell_cmd;
             };
-            
-            #var shell_cmd {echo "#var dest_list {$dest_list}">data/hubiao.log};
-            #system $shell_cmd;
-            
-            #if {"%%5" == "待认领"} {
-                #var valid_quest[%%1] %%3;
+
+            #if {"%%4" == "待认领"} {
+                #var valid_quest[%%2] %%3;
             };
         };
     };
     #act {^使用命令【getesc 任务序号】来认领押镖任务} {
         #var listesc_start 0;
         
-        #delay {dl_hubiao_listesc} {list_esc} {10};
+        select_quest;
+        
+        #if {"$hubiao[quest_id]" == ""} {
+            #delay {dl_hubiao_listesc} {list_esc} {10};
+        } {
+            hb_status_set getesc;
+        };
     };
     
     #class hb_status_listesc_inner close;
     
-    #read data/hubiao.log;
+    #read data/hubiao_dest_list.tin;
     list_esc;
 };
 

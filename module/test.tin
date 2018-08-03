@@ -230,8 +230,6 @@
     };
 };
 
-
-
 #class $mod_name close;
 
 ${mod_name}_load;
