@@ -31,30 +31,30 @@
 #var hubiao[status] none;
 
 #alias {hb_status_set} {
-    #if {&hubiao[status_id][%1] == 0} {
-        log hubiao 无效状态 %1;
-        #return;
-    };
-    #elseif {"$hubiao[status]" == "%1"} {
-        #return;
-    };
-    #else {
-        #if {"$hubiao[status]" != "none"} {
-            log hubiao 退出状态 $hubiao[status_id][$hubiao[status]];
-            #class hb_status_$hubiao[status]_inner kill;
-            hb_status_exit_$hubiao[status];
+
+    #if {"%1" == "" || "%1" == "$hubiao[status]"} {
+        #nop;
+    } {
+        #if {&hubiao[status_id][%1] == 0} {
+            log hubiao 无效状态 %1;
+        } {
+            #if {"$hubiao[status]" != "none"} {
+                log hubiao 退出状态 $hubiao[status_id][$hubiao[status]];
+                #class hb_status_$hubiao[status]_inner kill;
+                hb_status_exit_$hubiao[status];
+            };
+            
+            #var hubiao[status] {%1};
+            
+            log hubiao 进入状态 $hubiao[status_id][$hubiao[status]];
+            
+            #if {"$hubiao[status]" != "none"} {
+                hb_status_enter_$hubiao[status];
+            };
         };
     };
     
-    #var hubiao[status] %1;
-    
-    #if {"$hubiao[status]" == "" || "#hubiao[status]" == "none"} {
-        #return;
-    };
-    
-    log hubiao 进入状态 $hubiao[status_id][$hubiao[status]];
-    
-    hb_status_enter_$hubiao[status];
+    #nop;
 };
 
 #alias {hb_status_exit_listesc} {
@@ -74,17 +74,20 @@
         listesc;
     };
     #alias {select_quest} {
-        #var hubiao[quest_id] {};
+        #var hubiao[quest] {};
         #var selected_quest {{id}{}{priority}{999}};
         
-        #foreach {$valid_qest[]}{selected_quest[tmp_id]}{
+        #foreach {$valid_quest[]}{selected_quest[tmp_id]}{
             #if {$dest_list[$valid_quest[$selected_quest[tmp_id]]] < $selected_quest[priority]} {
                 #var selected_quest[priority] $dest_list[$valid_quest[$selected_quest[tmp_id]]];
-                #var selectid_quest[id] $selected_quest[tmp_id];
+                #var selected_quest[id] $selected_quest[tmp_id];
             };
         };
         
-        #var hubiao[quest_id] $selected_quest[id];
+        #var hubiao[quest][id] $selected_quest[id];
+        #var hubiao[quest][boss] $valid_quest[$selected_quest[id]];
+        
+        #unvar selected_quest;
     };
     
     #act {^%*押镖任务列表：} {
@@ -110,7 +113,8 @@
         
         select_quest;
         
-        #if {"$hubiao[quest_id]" == ""} {
+        #if {"hubiao[dest][id]" == ""} {
+            log 未选中任务，10秒后重新选择;
             #delay {dl_hubiao_listesc} {list_esc} {10};
         } {
             hb_status_set getesc;
@@ -131,15 +135,31 @@
     
     #act {^$status[name]把这批红货送到%*那里，他已经派了个伙计名叫%*到%*附近接你，把镖车送到他那里就行了} {
         #system {echo "%%1 %%2 %%3">>data/hubiao.log};
+        log hubiao 任务领取成功;
         
         parse_addr %%1 hubiao[dest];
         #var hubiao[dest][name] %%3;
         #var hubiao[dest][huoji] %%2;
         
+        log hubiao 目的地 ：$hubiao[dest][name] $hubiao[dest][area];
+        
         find_path $hubiao[dest][name] $hubiao[dest][area];
         
-        #delay {2} {
-            status_set zoubiao;
+        #if {"$map[gt][path]" == ""} {
+            #show <139>找不到目的地路径 : $hubiao[dest][name] $hubiao[dest][area]<079>;
+            log hubiao 找不到目的地路径 : $hubiao[dest][name] $hubiao[dest][area];
+            
+            #nop hb_status_set none;
+        } {
+            #show <129>找到路径 : $map[gt][path]<079>;
+            
+            #var hubiao[path_idx] 1;
+            #list hubiao[path] create $map[gt][path];
+            
+            #delay {2} {
+                hb_status_set zoubiao;
+            };
+        
         };
     };
     #act {^认领任务失败，请选择其他任务} {
@@ -149,42 +169,89 @@
     #class hb_status_getesc_inner close;
     
     #var hubiao[dest] {};
-    getesc $hubiao[quest_id];
+    
+    #show <139>本次选中任务:$hubiao[quest][id] $hubiao[quest][boss]<079>;
+    
+    log 选中任务: $hubiao[quest][id] $hubiao[quest][boss];
+    #show 渡仁把这批红货送到嘉兴钱庄包方圆那里，他已经派了个伙计名叫时儿到嘉兴城附近接你，把镖车送到他那里就行了。;
+    #nop getesc $hubiao[quest][id];
+    
 };
 
 #alias {hb_status_exit_zoubiao} {
-    
+    #undelay {dl_zoubiao_wait};
 };
 #alias {hb_status_enter_zoubiao} {
-
+    #class hb_status_zoubiao_inner open;
+    
+    #alias {ganche} {
+        g$hubiao[path][$hubiao[path_idx]];
+    };
+    #act {^镖车隆隆驶了过来} {
+        #math hubiao[path_idx] {$hubiao[path_idx] + 1};
+        
+    };
+    #act {^镖车还没有跟上来呢,走慢点} {
+        #delay {dl_zoubiao_wait} {
+            ganche;
+        }{2};
+    };
+    
+    #class hb_status_zoubiao_inner close;
+    
+    ganche;
 };
 
 #alias {hb_status_exit_robber} {
     
 };
 #alias {hb_status_enter_robber} {
-
+    #class hb_status_robber_inner open;
+    
+    #class hb_status_robber_inner close;
 };
 
 #alias {hb_status_exit_arrived} {
     
 };
 #alias {hb_status_enter_arrived} {
-
+    #class hb_status_arrived_inner open;
+    
+    #class hb_status_arrived_inner close;
 };
 
 #alias {hb_status_exit_complete} {
     
 };
 #alias {hb_status_enter_complete} {
-
+    #class hb_status_complete_inner open;
+    
+    #act {^你获得了%*石炭【劣质】} {
+        drop shi tan;
+    };
+    #act {^林震南吩咐了旁边的镖头几句，转头对你道：「辛苦了} {
+        #math hubiao[lunci] {$hubiao[lunci] + 1};
+        hb_status_set listesc;
+    };
+    
+    #class hb_status_complete_inner close;
+    
+    on_map_pad {
+        gt 林镇南;
+        
+        on_there {
+            ask lin about finish;
+        };
+    };
 };
 
 #alias {hb_status_exit_mixin} {
     
 };
 #alias {hb_status_enter_mixin} {
-
+    #class hb_status_mixin_inner open;
+    
+    #class hb_status_mixin_inner close;
 };
 
 #alias {gn} {gan che to north};
@@ -207,38 +274,6 @@
 #alias {gdown} {gan che to down};
 #alias {genter} {gan che to enter};
 #alias {gout} {gan che to out};
-
-#alias {hbto} {
-    
-    #var map[gt][dest][name] {%1};
-    #var map[gt][dest][area] {%2};
-    
-    find_path;
-    
-    #if {$map[gt][path_found] == 2} {
-        #var map[gt][status] 0;
-    } {
-        #if {0 == $map[gt][path_found]} {
-            gt_wrn 目标地点不可达;
-            
-            #class goto_inner kill;
-            #var map[gt][status] 0;        
-        } {
-            gt_msg 找到路径 {$map[gt][path]};
-            
-            on_error {
-                #var map[gt][status] 0;
-                #class goto_inner kill;
-            };
-            
-            _path_run hubiao;
-        };
-    };
-};
-
-#act {^你获得了四份石炭【劣质】} {
-    drop shi tan;
-};
 
 
 #class $mod_name close;

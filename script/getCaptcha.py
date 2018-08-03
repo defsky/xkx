@@ -5,6 +5,8 @@ from urllib import request
 
 _,uid,imgID = sys.argv
 
+#http://pkuxkx.com/antirobot/robot.php?filename=1533298957741196
+
 baseurl = 'http://pkuxkx.com/antirobot/'
 user_agent = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebkit/537.36 (KHTML,like Gecko) Chrome/55.0.2883.75 Safari/537.36'
 header = {'User-Agent':user_agent}

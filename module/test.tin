@@ -110,7 +110,7 @@
 
 #act {你需要先接受张三的挑战} {
     log zhangsan_come;
-    accept;
+    accept zhang;
 };
 #act {^【江湖】张 三(Zhang san): 听说%*阁下武功不错，在下想与您较量一下。} {
     log zhangsan 挑战 %1;

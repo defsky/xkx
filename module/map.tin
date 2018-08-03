@@ -515,8 +515,8 @@
 
 #alias {find_path} {
 
-    #nop #var map[gt][dest][name] {%1};
-    #nop #var map[gt][dest][area] {%2};
+    #var map[gt][dest][name] {%1};
+    #var map[gt][dest][area] {%2};
     
     #class find_path_inner open;
     
