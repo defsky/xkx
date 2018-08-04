@@ -829,8 +829,9 @@
         #alias cb_on_walked #cr;
         #alias cb_on_walked %%0;
         
-        #act {^%S%s-%s$} {
-            #unact {^%S%s-%s$};
+        #nop #act {^%S%s-%s$};
+        #act {^%* - $} {
+            #unact {^%* - $};
             cb_on_walked;
         };
     };

@@ -194,7 +194,7 @@
         #var hubiao[dest][name] %%3;
         #var hubiao[dest][huoji] %%2;
         
-        log hubiao 目的地 ：$hubiao[dest][name] $hubiao[dest][area];
+        log hubiao 目的地 ：$hubiao[dest][area] $hubiao[dest][name];
         
         find_path $hubiao[dest][name] $hubiao[dest][area];
         
@@ -347,6 +347,7 @@
 
 #alias {hb_status_exit_robber} {
     #undelay {dl_robber_check};
+    #undelay {dl_change_status};
 };
 #alias {hb_status_enter_robber} {
     #class hb_status_robber_inner open;
@@ -355,7 +356,7 @@
         shou @lower{$status[id]} robber;
     };
     
-    #act {^你想要收劫匪为弟子} {
+    #act {^你想{要|}收劫匪为弟子} {
         log hubiao 发现劫匪,5秒后再检测;
 
         #delay {dl_robber_check} {
@@ -363,6 +364,7 @@
         }{5};
     };
     #act {^你想收谁作弟子} {
+        #undelay {dl_robber_check};
         log hubiao 没有检测到劫匪;
         
         #if {$hubiao[complete] == 1} {
@@ -371,7 +373,9 @@
             #if {$hubiao[luanru] == 1} {
                 hb_status_set luanru;
             } {
-                hb_status_set zoubiao;
+                #delay {dl_change_status} {
+                    hb_status_set zoubiao;
+                }{2};
             };
         };
     };
@@ -426,7 +430,11 @@
 #alias {hb_status_enter_luanru} {
     #class hb_status_luanru_inner open;
     
-    
+    #alias {luanru} {
+        #list hubiao[path] insert $hubiao[path_idx] %%1;
+        
+        hb_status_set zoubiao;
+    };
     
     #class hb_status_luanru_inner close;
     
