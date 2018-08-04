@@ -212,22 +212,14 @@
     #class xuexi_inner kill;
 };
 
-
-#alias {input} {
-    #switch {"%1"} {
-        #case {"a"} {
-            #show you input A;
-        };
-        #case {"b"} {
-            #show you input B;
-        };
-        #case {"c"} {
-            #show you input C;
-        };
-        #default {
-            #show invalid param:%1;
-        };
+#alias {testclass} {
+    #class test open;
+    
+    #act {this is for test class open} {
+        #nop;
     };
+    
+    #class test close;
 };
 
 #class $mod_name close;

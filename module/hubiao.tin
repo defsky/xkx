@@ -27,8 +27,10 @@
 #var hubiao[status_id][arrived]  到达地点;
 #var hubiao[status_id][complete] 护镖完成;
 #var hubiao[status_id][mixin]    密信任务;
+#var hubiao[status_id][mixinok]  密信完成;
 
 #var hubiao[status] none;
+#var hubiao[killed] 0;
 
 #alias {hb_status_set} {
 
@@ -128,7 +130,7 @@
 };
 
 #alias {hb_status_exit_getesc} {
-    
+    #undelay {dl_getesc};
 };
 #alias {hb_status_enter_getesc} {
     #class hb_status_getesc_inner open;
@@ -136,6 +138,8 @@
     #act {^$status[name]把这批红货送到%*那里，他已经派了个伙计名叫%*到%*附近接你，把镖车送到他那里就行了} {
         #system {echo "%%1 %%2 %%3">>data/hubiao.log};
         log hubiao 任务领取成功;
+        
+        #var hubiao[complete] 0;
         
         parse_addr %%1 hubiao[dest];
         #var hubiao[dest][name] %%3;
@@ -155,6 +159,7 @@
             
             #var hubiao[path_idx] 1;
             #list hubiao[path] create $map[gt][path];
+            #list hubiao[path] size hubiao[path_len];
             
             #delay {2} {
                 hb_status_set zoubiao;
@@ -163,7 +168,14 @@
         };
     };
     #act {^认领任务失败，请选择其他任务} {
-        status_set listesc;
+        hb_status_set listesc;
+    };
+    #act {^你上次运镖太辛苦了，下去休息休息吧} {
+        log hubiao CD中，20秒后继续;
+        
+        #delay {dl_getesc} {
+            hb_status_set listesc;
+        }{20};
     };
     
     #class hb_status_getesc_inner close;
@@ -173,8 +185,8 @@
     #show <139>本次选中任务:$hubiao[quest][id] $hubiao[quest][boss]<079>;
     
     log 选中任务: $hubiao[quest][id] $hubiao[quest][boss];
-    #show 渡仁把这批红货送到嘉兴钱庄包方圆那里，他已经派了个伙计名叫时儿到嘉兴城附近接你，把镖车送到他那里就行了。;
-    #nop getesc $hubiao[quest][id];
+    #nop #show 渡仁把这批红货送到嘉兴钱庄包方圆那里，他已经派了个伙计名叫时儿到嘉兴城附近接你，把镖车送到他那里就行了。;
+    getesc $hubiao[quest][id];
     
 };
 
@@ -185,16 +197,82 @@
     #class hb_status_zoubiao_inner open;
     
     #alias {ganche} {
-        g$hubiao[path][$hubiao[path_idx]];
+        #if {$hubiao[complete] == 0} {
+            #if {$hubiao[path_idx] <= $hubiao[path_len]} {
+                g$hubiao[path][$hubiao[path_idx]];
+            } {
+                pphuoji;
+            };
+        };
     };
-    #act {^镖车隆隆驶了过来} {
+    #alias {pphuoji} {
+        #class pphuoji_inner open;
+        
+        #act {告诉你：拼音：【%*】【%w %w】} {
+            #var hubiao[dest][py] {%%%2 %%%3};
+            
+            helpme find %%%2 %%%3;
+        };
+        #act {告诉你：【%*】目前在【%*的%*】,快去摁死它吧} {
+            #var hubiao[dest][area1] %%%2;
+            #var hubiao[dest][name1] %%%3;
+            
+            #class pphuoji_inner kill;
+            
+            find_path $hubiao[dest][name1] $hubiao[dest][area1];
+        
+            #if {"$map[gt][path]" == ""} {
+                #show <139>找不到目的地路径 : $hubiao[dest][name1] $hubiao[dest][area1]<079>;
+                log hubiao 找不到目的地路径 : $hubiao[dest][name1] $hubiao[dest][area1];
+                
+                #nop hb_status_set none;
+            } {
+                #show <129>找到路径 : $map[gt][path]<079>;
+                
+                #var hubiao[path_idx] 1;
+                #list hubiao[path] create $map[gt][path];
+                #list hubiao[path] size hubiao[path_len];
+                
+                ganche;
+            };
+            
+        };
+        
+        #class pphuoji_inner close;
+        
+        helpme py $hubiao[dest][huoji];
+    };
+    
+    #act {^这个方向过不去} {
+        log hubiao 路径出错;
+        #show <139>路径出错，请手动纠正<079>;
+    };
+    #act {^你赶着镖车驶了过来} {
         #math hubiao[path_idx] {$hubiao[path_idx] + 1};
         
+        #delay {dl_zoubiao_wait} {
+            ganche;
+        }{2};
     };
     #act {^镖车还没有跟上来呢,走慢点} {
         #delay {dl_zoubiao_wait} {
             ganche;
         }{2};
+    };
+    #act {^{劫匪突然从暗处跳了出来|劫匪伸手一拦道|你还是先把对手解决了再说吧}} {
+        hb_status_set robber;
+    };
+    #act {「店铺伙计」$hubiao[dest][huoji](%w %w} {
+        log hubiao 发现收货的伙计 %%1 %%2;
+        
+        #undelay {dl_zoubiao_wait};
+    };
+    #act {^你累了个半死，终于把镖运到了地头} {
+        #var hubiao[complete] 1;
+        
+        log hubiao 镖车交货完成;
+        
+        hb_status_set complete;
     };
     
     #class hb_status_zoubiao_inner close;
@@ -203,12 +281,52 @@
 };
 
 #alias {hb_status_exit_robber} {
-    
+    #undelay {dl_robber_check};
 };
 #alias {hb_status_enter_robber} {
     #class hb_status_robber_inner open;
     
+    #alias {check_robber} {
+        shou $status[id] robber;
+    };
+    
+    #act {^你想要收劫匪为弟子} {
+        log 发现劫匪,5秒后再检测;
+
+        #delay {dl_robber_check} {
+            check_robber;
+        }{5};
+    };
+    #act {^你想收谁作弟子} {
+        log 没有检测到劫匪;
+        
+        #if {$hubiao[complete] == 1} {
+            hb_status_set complete;
+        } {
+            hb_status_set zoubiao;
+        };
+    };
+    #act {^{你|劫匪}{脸色一寒，说道|向后一纵，恨恨地说道|向后退了几步，说道}} {
+        kill $status[id] robber;
+    };
+    #act {^劫匪叫道：点子扎手，扯呼} {
+        check_robber;
+    };
+    #act {^劫匪趁你不注意，推着镖车就跑，你赶紧追了上去} {
+        #show <139>镖车乱入！！！<079>;
+        log hubiao 镖车乱入;
+    };
+    #act {^你累了个半死，终于把镖运到了地头} {
+        log hubiao 镖车交货完成;
+        
+        #var hubiao[complete] 1;
+    };
+    
     #class hb_status_robber_inner close;
+    
+    #delay {dl_robber_check} {
+        check_robber;
+    }{1};
 };
 
 #alias {hb_status_exit_arrived} {
@@ -221,7 +339,7 @@
 };
 
 #alias {hb_status_exit_complete} {
-    
+    #undelay {dl_complete_back};
 };
 #alias {hb_status_enter_complete} {
     #class hb_status_complete_inner open;
@@ -231,27 +349,103 @@
     };
     #act {^林震南吩咐了旁边的镖头几句，转头对你道：「辛苦了} {
         #math hubiao[lunci] {$hubiao[lunci] + 1};
-        hb_status_set listesc;
+        
+        hb_status_set none;
+    };
+    #act {^林震南递给你一封密信} {
+        log hubiao 接到密信任务;
+        
+        hb_status_set mixin;
     };
     
     #class hb_status_complete_inner close;
     
-    on_map_pad {
-        gt 林镇南;
-        
-        on_there {
-            ask lin about finish;
+    #delay {dl_complete_back} {
+        on_map_pad {
+            gt 林镇南;
+            
+            on_there {
+                ask lin about finish;
+            };
         };
-    };
+    } {2};
 };
 
 #alias {hb_status_exit_mixin} {
-    
+    #untic {tk_mixin_yao};
 };
 #alias {hb_status_enter_mixin} {
     #class hb_status_mixin_inner open;
     
+    #alias {kan_mixin} {
+        #act {http://pkuxkx.{net|com}/antirobot/robot.php?filename=%*} {
+            #unact {http://pkuxkx.net/antirobot/robot.php?filename=%*};
+            fetch_captcha %%2;
+        };
+        xian;
+    };
+    #alias {mxpos} {
+        #var hubiao[mixin][area] %%1;
+        #var hubiao[mixin][room] %%2;
+        
+        gt $hubiao[mixin][room] $hubiao[mixin][area];
+        
+        on_there {
+            zhao;
+        };
+    };
+    
+    #act {一个伙计挖着鼻屎走了出来，道：你找我啥事} {
+        log hubiao 偷财物的伙计出现;
+        
+        look;
+    };
+    #act {^    卷走林震南财物的伙计 %*(%w)} {
+        log hubiao 发现偷财物的伙计 %%1 %%2;
+        
+        #var hubiao[mixin][target][name] %%1;
+        #var hubiao[mixin][target][id] %%2;
+        
+        #class hb_status_mixin_inner open;
+        
+        #act {^$hubiao[mixin][target][name]把一包财物砸向你，一转眼不见了} {
+            log hubiao 得到财物;
+        
+            hb_status_set mixinok;
+        };
+        
+        #class hb_status_mixin_inner close;
+        
+        #tic {tk_mixin_yao} {
+            ask $hubiao[mixin][target][id] about yao;
+        }{1};
+    };
+    
     #class hb_status_mixin_inner close;
+    
+    kan_mixin;
+};
+
+#alias {hb_status_exit_mixinok} {
+
+};
+#alias {hb_status_enter_mixinok} {
+    #class hb_status_mixinok_inner close;
+    
+    #act {^你给林镇南一些失踪的财物} {
+        log hubiao 财物已交还;
+        
+        hb_status_set listesc;
+    };
+    
+    #class hb_status_mixinok_inner close;
+    
+    on_map_pad {
+        gt 林镇南;
+        on_there {
+            give cai wu to lin;
+        };
+    };
 };
 
 #alias {gn} {gan che to north};
