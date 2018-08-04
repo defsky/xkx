@@ -39,6 +39,7 @@
 #var hubiao[status_id][mixin]    密信任务;
 #var hubiao[status_id][mixinok]  密信完成;
 #var hubiao[status_id][luanru]   镖车乱入;
+#var hubiao[status_id][recover]  恢复气血;
 
 #if {&hubiao[lunci] == 0} {
     #var hubiao[lunci] 0;
@@ -156,13 +157,18 @@
     #act {^使用命令【getesc 任务序号】来认领押镖任务} {
         #var listesc_start 0;
         
-        select_quest;
-        
-        #if {"hubiao[dest][id]" == ""} {
-            log hubiao 未选中任务，10秒后重新选择;
-            #delay {dl_hubiao_listesc} {list_esc} {10};
+        #if {"$valid_quest" == ""} {
+            log hubiao 没有待认领的任务,20秒后再查看;
+            #delay {dl_hubiao_listesc} {list_esc} {20};
         } {
-            hb_status_set getesc;
+            select_quest;
+        
+            #if {"$hubiao[quest][id]" == ""} {
+                log hubiao 未选中任务，10秒后重新选择;
+                #delay {dl_hubiao_listesc} {list_esc} {10};
+            } {
+                hb_status_set getesc;
+            };
         };
     };
     
@@ -388,12 +394,30 @@
         
         #var hubiao[complete] 1;
     };
+    #act {^【谣言】某人: $status[name]护的镖被劫匪劫去了} {
+        hb_status_set none;
+    };
     
     #class hb_status_robber_inner close;
+    
+    yun powerup;
     
     #delay {dl_robber_check} {
         check_robber;
     }{2};
+};
+    
+#alias {hb_status_exit_recover} {
+    halt;
+};
+#alias {hb_status_enter_recover} {
+    #class hb_status_recover_inner open;
+    
+    #act {^{劫匪突然从暗处跳了出来|劫匪伸手一拦道|你还是先把对手解决了再说吧}} {
+        hb_status_set robber;
+    };
+    
+    #class hb_status_recover_inner close;
 };
 
 #alias {hb_status_exit_luanru} {
@@ -481,6 +505,8 @@
         xian;
     };
     #alias {mxpos} {
+        log hubiao 密信地点：%%1 %%2;
+        
         #var hubiao[mixin][area] %%1;
         #var hubiao[mixin][room] %%2;
         
