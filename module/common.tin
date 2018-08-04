@@ -134,6 +134,7 @@
         cb_on_unbusy;
     };
     #tic {check_busy} {checkbusy}{1};
+    
     #class on_unbusy_inner close;
 };
 
@@ -165,7 +166,7 @@
 #alias {fm} {
     #if {"%1" == ""} {
         #act {http://pkuxkx.{net|com}/antirobot/robot.php?filename=%*} {
-            #unact {http://pkuxkx.net/antirobot/robot.php?filename=%*};
+            #unact {http://pkuxkx.{net|com}/antirobot/robot.php?filename=%*};
             #nop #system {firefox http://pkuxkx.net/antirobot/robot.php?filename=%%2};
             fetch_captcha %%2;
         };
@@ -202,7 +203,7 @@
         
         #math captcha[try_count] {$captcha[try_count] + 1};
     
-        #script captcha[output] {script/getpic.sh $status[id] $captcha[id] &};
+        #script captcha[output] {bash script/getpic.sh $status[id] $captcha[id] &};
         
         #if {"$captcha[output]" == "" || "$captcha[output][1]" != "$captcha[output][-1]"} {
             #show <139>获取验证码失败，5秒后再试...<079>;

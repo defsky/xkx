@@ -19,6 +19,16 @@
     #buffer lock;
 };
 
+#read data/hubiao_cache_$status[id];
+
+#var hubiao[status] none;
+#var hubiao[luanru] 0;
+#var hubiao[mixin][start] 0;
+
+#if {&hubiao[max_lunci] == 0} {
+    #var hubiao[max_lunci] 6;
+};
+
 #var hubiao[status_id][none]     空闲状态;
 #var hubiao[status_id][listesc]  查看任务;
 #var hubiao[status_id][getesc]   领取任务;
@@ -28,9 +38,42 @@
 #var hubiao[status_id][complete] 护镖完成;
 #var hubiao[status_id][mixin]    密信任务;
 #var hubiao[status_id][mixinok]  密信完成;
+#var hubiao[status_id][luanru]   镖车乱入;
 
-#var hubiao[status] none;
-#var hubiao[killed] 0;
+#if {&hubiao[lunci] == 0} {
+    #var hubiao[lunci] 0;
+};
+
+#alias {gn} {gan che to north};
+#alias {gs} {gan che to south};
+#alias {ge} {gan che to east};
+#alias {gw} {gan che to west};
+#alias {gne} {gan che to northeast};
+#alias {gnw} {gan che to northwest};
+#alias {gse} {gan che to southeast};
+#alias {gsw} {gan che to southwest};
+#alias {gnu} {gan che to northup};
+#alias {gnd} {gan che to northdown};
+#alias {gsu} {gan che to southup};
+#alias {gsd} {gan che to southdown};
+#alias {gwu} {gan che to westup};
+#alias {gwd} {gan che to westdown};
+#alias {geu} {gan che to eastup};
+#alias {ged} {gan che to eastdown};
+#alias {gup} {gan che to up};
+#alias {gdown} {gan che to down};
+#alias {genter} {gan che to enter};
+#alias {gout} {gan che to out};
+
+#alias {hb.start} {
+    hb_status_set listesc;
+};
+#alias {hb.stop} {
+    hb_status_set none;
+};
+#alias {hb.max} {
+    #var hubiao[max_lunci] %1;
+};
 
 #alias {hb_status_set} {
 
@@ -41,7 +84,7 @@
             log hubiao 无效状态 %1;
         } {
             #if {"$hubiao[status]" != "none"} {
-                log hubiao 退出状态 $hubiao[status_id][$hubiao[status]];
+                #nop log hubiao 退出状态 $hubiao[status_id][$hubiao[status]];
                 #class hb_status_$hubiao[status]_inner kill;
                 hb_status_exit_$hubiao[status];
             };
@@ -116,7 +159,7 @@
         select_quest;
         
         #if {"hubiao[dest][id]" == ""} {
-            log 未选中任务，10秒后重新选择;
+            log hubiao 未选中任务，10秒后重新选择;
             #delay {dl_hubiao_listesc} {list_esc} {10};
         } {
             hb_status_set getesc;
@@ -184,7 +227,7 @@
     
     #show <139>本次选中任务:$hubiao[quest][id] $hubiao[quest][boss]<079>;
     
-    log 选中任务: $hubiao[quest][id] $hubiao[quest][boss];
+    log hubiao 选中任务: $hubiao[quest][id] $hubiao[quest][boss];
     #nop #show 渡仁把这批红货送到嘉兴钱庄包方圆那里，他已经派了个伙计名叫时儿到嘉兴城附近接你，把镖车送到他那里就行了。;
     getesc $hubiao[quest][id];
     
@@ -192,6 +235,8 @@
 
 #alias {hb_status_exit_zoubiao} {
     #undelay {dl_zoubiao_wait};
+    #undelay {dl_pphuoji_wd};
+    #class pphuoji_inner kill;
 };
 #alias {hb_status_enter_zoubiao} {
     #class hb_status_zoubiao_inner open;
@@ -209,6 +254,7 @@
         #class pphuoji_inner open;
         
         #act {告诉你：拼音：【%*】【%w %w】} {
+            #unact {告诉你：拼音：【%*】【%w %w】};
             #var hubiao[dest][py] {%%%2 %%%3};
             
             helpme find %%%2 %%%3;
@@ -237,21 +283,34 @@
             };
             
         };
+        #delay {dl_pphuoji_wd} {
+            log hubiao pphuoji超时，60秒没有反应;
+            #class pphuoji_inner kill;
+        }{60};
         
         #class pphuoji_inner close;
         
         helpme py $hubiao[dest][huoji];
+        
     };
     
+    #act {^你现在正忙着哩} {
+        on_unbusy {
+            ganche;
+        };
+    };
     #act {^这个方向过不去} {
         log hubiao 路径出错;
         #show <139>路径出错，请手动纠正<079>;
     };
     #act {^你赶着镖车驶了过来} {
+        #map move $hubiao[path][$hubiao[path_idx]];
         #math hubiao[path_idx] {$hubiao[path_idx] + 1};
         
         #delay {dl_zoubiao_wait} {
-            ganche;
+            on_unbusy {
+                ganche;
+            };
         }{2};
     };
     #act {^镖车还没有跟上来呢,走慢点} {
@@ -287,34 +346,42 @@
     #class hb_status_robber_inner open;
     
     #alias {check_robber} {
-        shou $status[id] robber;
+        shou @lower{$status[id]} robber;
     };
     
     #act {^你想要收劫匪为弟子} {
-        log 发现劫匪,5秒后再检测;
+        log hubiao 发现劫匪,5秒后再检测;
 
         #delay {dl_robber_check} {
             check_robber;
         }{5};
     };
     #act {^你想收谁作弟子} {
-        log 没有检测到劫匪;
+        log hubiao 没有检测到劫匪;
         
         #if {$hubiao[complete] == 1} {
             hb_status_set complete;
         } {
-            hb_status_set zoubiao;
+            #if {$hubiao[luanru] == 1} {
+                hb_status_set luanru;
+            } {
+                hb_status_set zoubiao;
+            };
         };
     };
-    #act {^{你|劫匪}{脸色一寒，说道|向后一纵，恨恨地说道|向后退了几步，说道}} {
-        kill $status[id] robber;
+    #act {^{你|劫匪}{你战胜了劫匪|你哈哈大笑，说道|双手一拱，笑着说道|脸色一寒，说道|向后一纵，恨恨地说道|向后退了几步，说道}} {
+        kill @lower{$status[id]} robber;
+    };
+    #act {^你战胜了劫匪} {
+        kill robber;
     };
     #act {^劫匪叫道：点子扎手，扯呼} {
         check_robber;
     };
     #act {^劫匪趁你不注意，推着镖车就跑，你赶紧追了上去} {
-        #show <139>镖车乱入！！！<079>;
         log hubiao 镖车乱入;
+        
+        #var hubiao[luanru] 1;
     };
     #act {^你累了个半死，终于把镖运到了地头} {
         log hubiao 镖车交货完成;
@@ -326,7 +393,20 @@
     
     #delay {dl_robber_check} {
         check_robber;
-    }{1};
+    }{2};
+};
+
+#alias {hb_status_exit_luanru} {
+    #var hubiao[luanru] 0;
+};
+#alias {hb_status_enter_luanru} {
+    #class hb_status_luanru_inner open;
+    
+    
+    
+    #class hb_status_luanru_inner close;
+    
+    #show <139>镖车乱入,请手动处理<079>;
 };
 
 #alias {hb_status_exit_arrived} {
@@ -347,22 +427,37 @@
     #act {^你获得了%*石炭【劣质】} {
         drop shi tan;
     };
+    #act {^你向林震南打听有关『重置任务』的消息} {
+        log hubiao 任务计数重置成功;
+    };
     #act {^林震南吩咐了旁边的镖头几句，转头对你道：「辛苦了} {
         #math hubiao[lunci] {$hubiao[lunci] + 1};
         
-        hb_status_set none;
+        #if {$hubiao[lunci] >= $hubiao[max_lunci]} {
+            #var hubiao[lunci] 0;
+            ask lin about 重置任务;
+        };
+        
+        #var shell_cmd {echo "#var hubiao {$hubiao}">data/hubiao_cache_$status[id]};
+        #system $shell_cmd;
+        
+        #if {$hubiao[mixin][start] == 1} {
+            hb_status_set mixin;
+        } {
+            hb_status_set none;
+        };
     };
     #act {^林震南递给你一封密信} {
         log hubiao 接到密信任务;
         
-        hb_status_set mixin;
+        #var hubiao[mixin][start] 1;
     };
     
     #class hb_status_complete_inner close;
     
     #delay {dl_complete_back} {
         on_map_pad {
-            gt 林镇南;
+            gt 林震南;
             
             on_there {
                 ask lin about finish;
@@ -373,14 +468,15 @@
 
 #alias {hb_status_exit_mixin} {
     #untic {tk_mixin_yao};
+    #unact {http://pkuxkx.{net|com}/antirobot/robot.php?filename=%*};
 };
 #alias {hb_status_enter_mixin} {
     #class hb_status_mixin_inner open;
     
     #alias {kan_mixin} {
         #act {http://pkuxkx.{net|com}/antirobot/robot.php?filename=%*} {
-            #unact {http://pkuxkx.net/antirobot/robot.php?filename=%*};
-            fetch_captcha %%2;
+            #unact {http://pkuxkx.{net|com}/antirobot/robot.php?filename=%*};
+            fetch_captcha %%%2;
         };
         xian;
     };
@@ -413,12 +509,12 @@
         
             hb_status_set mixinok;
         };
+
+        #tic {tk_mixin_yao} {
+            ask @lower{$hubiao[mixin][target][id]} about yao;
+        }{2};
         
         #class hb_status_mixin_inner close;
-        
-        #tic {tk_mixin_yao} {
-            ask $hubiao[mixin][target][id] about yao;
-        }{1};
     };
     
     #class hb_status_mixin_inner close;
@@ -427,47 +523,26 @@
 };
 
 #alias {hb_status_exit_mixinok} {
-
+    #var hubiao[mixin][start] 0;
 };
 #alias {hb_status_enter_mixinok} {
-    #class hb_status_mixinok_inner close;
+    #class hb_status_mixinok_inner open;
     
-    #act {^你给林镇南一些失踪的财物} {
+    #act {^你给林震南一些失踪的财物} {
         log hubiao 财物已交还;
         
-        hb_status_set listesc;
+        hb_status_set none;
     };
     
     #class hb_status_mixinok_inner close;
     
     on_map_pad {
-        gt 林镇南;
+        gt 林震南;
         on_there {
             give cai wu to lin;
         };
     };
 };
-
-#alias {gn} {gan che to north};
-#alias {gs} {gan che to south};
-#alias {ge} {gan che to east};
-#alias {gw} {gan che to west};
-#alias {gne} {gan che to northeast};
-#alias {gnw} {gan che to northwest};
-#alias {gse} {gan che to southeast};
-#alias {gsw} {gan che to southwest};
-#alias {gnu} {gan che to northup};
-#alias {gnd} {gan che to northdown};
-#alias {gsu} {gan che to southup};
-#alias {gsd} {gan che to southdown};
-#alias {gwu} {gan che to westup};
-#alias {gwd} {gan che to westdown};
-#alias {geu} {gan che to eastup};
-#alias {ged} {gan che to eastdown};
-#alias {gup} {gan che to up};
-#alias {gdown} {gan che to down};
-#alias {genter} {gan che to enter};
-#alias {gout} {gan che to out};
 
 
 #class $mod_name close;

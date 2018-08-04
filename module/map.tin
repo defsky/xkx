@@ -514,9 +514,11 @@
 };
 
 #alias {find_path} {
-
-    #var map[gt][dest][name] {%1};
-    #var map[gt][dest][area] {%2};
+    
+    #if {"%2" != ""} {
+        #var map[gt][dest][name] {%1};
+        #var map[gt][dest][area] {%2};
+    };
     
     #class find_path_inner open;
     

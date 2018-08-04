@@ -25,6 +25,10 @@
         #show %2.cfg removed;
     };
 };
+#alias {cfg.reload} {
+    cfg unload @lower{$status[id]};
+    cfg load @lower{$status[id]};
+};
 #alias {login} {
     #class login_inner open;
     
