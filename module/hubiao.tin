@@ -40,6 +40,7 @@
 #var hubiao[status_id][mixinok]  密信完成;
 #var hubiao[status_id][luanru]   镖车乱入;
 #var hubiao[status_id][recover]  恢复气血;
+#var hubiao[status_id][manual]   手动操作;
 
 #if {&hubiao[lunci] == 0} {
     #var hubiao[lunci] 0;
@@ -71,6 +72,9 @@
 };
 #alias {hb.stop} {
     hb_status_set none;
+};
+#alias {hb.restart} {
+    hb_status_set zoubiao;
 };
 #alias {hb.max} {
     #var hubiao[max_lunci] %1;
@@ -184,11 +188,16 @@
 #alias {hb_status_enter_getesc} {
     #class hb_status_getesc_inner open;
     
-    #act {^$status[name]把这批红货送到%*那里，他已经派了个伙计名叫%*到%*附近接你，把镖车送到他那里就行了} {
+    #alias {hbpos} {
+        #show $status[name]把这批红货送到$hubiao[quest][boss]那里，他已经派了个伙计名叫$hubiao[dest][huoji]到%%1附近接你，把镖车送到他那里就行了。;
+    };
+    
+    #act {^$status[name]把这批红货送到{.*}那里，他已经派了个伙计名叫{.*}到{.*}附近接你，把镖车送到他那里就行了} {
         #system {echo "%%1 %%2 %%3">>data/hubiao.log};
         log hubiao 任务领取成功;
         
         #var hubiao[complete] 0;
+        #var hubiao[pp][status] none;
         
         parse_addr %%1 hubiao[dest];
         #var hubiao[dest][name] %%3;
@@ -196,13 +205,14 @@
         
         log hubiao 目的地 ：$hubiao[dest][area] $hubiao[dest][name];
         
-        find_path $hubiao[dest][name] $hubiao[dest][area];
+        find_path {$hubiao[dest][name]} {$hubiao[dest][area]};
         
         #if {"$map[gt][path]" == ""} {
             #show <139>找不到目的地路径 : $hubiao[dest][name] $hubiao[dest][area]<079>;
             log hubiao 找不到目的地路径 : $hubiao[dest][name] $hubiao[dest][area];
             
-            #nop hb_status_set none;
+            #show <139>请手动指定目的地(hbpos)<079>;
+            #nop hb_status_set manual;
         } {
             #show <129>找到路径 : $map[gt][path]<079>;
             
@@ -210,9 +220,7 @@
             #list hubiao[path] create $map[gt][path];
             #list hubiao[path] size hubiao[path_len];
             
-            #delay {2} {
-                hb_status_set zoubiao;
-            };
+            hb_status_set zoubiao;
         
         };
     };
@@ -220,11 +228,11 @@
         hb_status_set listesc;
     };
     #act {^你上次运镖太辛苦了，下去休息休息吧} {
-        log hubiao CD中，20秒后继续;
+        log hubiao CD中，30秒后继续;
         
         #delay {dl_getesc} {
             hb_status_set listesc;
-        }{20};
+        }{30};
     };
     
     #class hb_status_getesc_inner close;
@@ -239,9 +247,44 @@
     
 };
 
+#alias {hb_status_exit_findpath} {
+
+};
+#alias {hb_status_enter_findpath} {
+    #class hb_status_findpath_inner open;
+    
+    
+    
+    #class hb_status_findpath_inner close;
+
+    
+};
+
+#alias {hb_status_exit_manual} {
+
+};
+#alias {hb_status_enter_manual} {
+    #class hb_status_manual_inner open;
+    
+    #act {^你累了个半死，终于把镖运到了地头} {
+        #var hubiao[complete] 1;
+        
+        log hubiao 镖车交货完成;
+        
+        hb_status_set complete;
+    };
+    
+    #class hb_status_manual_inner close;
+    
+    #show <139>请手动操作护镖<079>;
+    #buffer lock;
+};
+
 #alias {hb_status_exit_zoubiao} {
     #undelay {dl_zoubiao_wait};
     #undelay {dl_pphuoji_wd};
+    #undelay {dl_zoubiao_start};
+    
     #class pphuoji_inner kill;
 };
 #alias {hb_status_enter_zoubiao} {
@@ -256,48 +299,96 @@
             };
         };
     };
-    #alias {pphuoji} {
-        #class pphuoji_inner open;
+    #alias {find_huoji} {
+        find_path {$hubiao[dest][name1]} {$hubiao[dest][area1]};
         
-        #act {告诉你：拼音：【%*】【%w %w】} {
-            #unact {告诉你：拼音：【%*】【%w %w】};
-            #var hubiao[dest][py] {%%%2 %%%3};
+        #if {"$map[gt][path]" == ""} {
+            #show <139>找不到目的地路径 : $hubiao[dest][name1] $hubiao[dest][area1]<079>;
+            log hubiao 找不到目的地路径 : $hubiao[dest][name1] $hubiao[dest][area1];
             
-            helpme find %%%2 %%%3;
-        };
-        #act {告诉你：【%*】目前在【%*的%*】,快去摁死它吧} {
-            #var hubiao[dest][area1] %%%2;
-            #var hubiao[dest][name1] %%%3;
-            
-            #class pphuoji_inner kill;
-            
-            find_path $hubiao[dest][name1] $hubiao[dest][area1];
-        
-            #if {"$map[gt][path]" == ""} {
-                #show <139>找不到目的地路径 : $hubiao[dest][name1] $hubiao[dest][area1]<079>;
-                log hubiao 找不到目的地路径 : $hubiao[dest][name1] $hubiao[dest][area1];
-                
-                #nop hb_status_set none;
-            } {
-                #show <129>找到路径 : $map[gt][path]<079>;
-                
-                #var hubiao[path_idx] 1;
-                #list hubiao[path] create $map[gt][path];
+            #if {"$hubiao[pp][status]" == "CurrentRoom"} {
+                #list hubiao[path] insert $hubiao[path_idx] $hubiao[roomexits][1];
                 #list hubiao[path] size hubiao[path_len];
                 
                 ganche;
+            } {
+                
+                #if {"$hubiao[pp][status]" == "trvs"} {
+                    hb_status_set manual;
+                } {
+                    #var hubiao[pp][status] trvs;
+                    bfs 2;
+                    
+                    #var hubiao[path] $map[trvs][path];
+                    #list hubiao[path] size hubiao[path_len];
+                    #var hubiao[path_idx] 1;
+                };
+                
+            };
+        } {
+            #show <129>找到路径 : $map[gt][path]<079>;
+            
+            #list hubiao[path] create $map[gt][path];
+            #list hubiao[path] size hubiao[path_len];
+            #var hubiao[path_idx] 1;
+            
+            ganche;
+        };
+    };
+    #alias {pphuoji} {
+        #if {"$hubiao[pp][status]" == "none"} {
+            #class pphuoji_inner open;
+            
+            #act {^ GPS : 目的地为当前房间} {
+                #var hubiao[pp][status] CurrentRoom;
+            };
+            #act {告诉你：拼音：【%*】【%w %w】} {
+                #unact {告诉你：拼音：【%*】【%w %w】};
+                #var hubiao[dest][py] {%%%2 %%%3};
+                
+                #var hubiao[pp][status] pyFound;
+                helpme find %%%2 %%%3;
+            };
+            #act {告诉你：【%*】目前在【%*的%*】,快去摁死它吧} {
+                #var hubiao[pp][status] Found;
+                
+                #var hubiao[dest][area1] %%%2;
+                #var hubiao[dest][name1] %%%3;
+                
+                #if {&map_area_table[$hubiao[dest][area1]] == 0} {
+                
+                } {
+                    #var hubiao[dest][area1] $map_area_table[$hubiao[dest][area1]];
+                };
+                
+                #class pphuoji_inner kill;
+                
+                find_huoji;
+            };
+            #delay {dl_pphuoji_wd} {
+                log hubiao pphuoji超时，80秒没有反应;
+                #var hubiao[pp][status] TimeOut;
+                
+                #class pphuoji_inner kill;
+            }{80};
+            
+            #class pphuoji_inner close;
+            
+            #var hubiao[pp][status] py;
+            helpme py $hubiao[dest][huoji];
+        } {
+            #class pphuoji_inner open;
+            
+            #act {^ GPS : 目的地为当前房间} {
+                #var hubiao[pp][status] CurrentRoom;
             };
             
+            #class pphuoji_inner close;
+            
+            on_map_pad {
+                find_huoji;
+            };
         };
-        #delay {dl_pphuoji_wd} {
-            log hubiao pphuoji超时，60秒没有反应;
-            #class pphuoji_inner kill;
-        }{60};
-        
-        #class pphuoji_inner close;
-        
-        helpme py $hubiao[dest][huoji];
-        
     };
     
     #act {^你现在正忙着哩} {
@@ -305,9 +396,21 @@
             ganche;
         };
     };
+    #act {^%s这里%*{方向|出口}{是|有}%*} {
+        #var hubiao[roomexits] @format_exits{%%5};
+    };
     #act {^这个方向过不去} {
         log hubiao 路径出错;
-        #show <139>路径出错，请手动纠正<079>;
+        #nop #show <139>路径出错，请手动纠正<079>;
+        
+        #nop hb_status_set manual;
+        
+        on_map_pad {
+            correct_path;
+            #delay {dl_zoubiao_start} {
+                ganche;
+            }{2};
+        };
     };
     #act {^你赶着镖车驶了过来} {
         #map move $hubiao[path][$hubiao[path_idx]];
@@ -340,9 +443,42 @@
         hb_status_set complete;
     };
     
+    #alias {correct_path} {
+        log hubiao 自动纠正路径;
+        #show <139>自动纠正路径<079>;
+        
+        find_path {$hubiao[dest][name]} {$hubiao[dest][area]};
+        
+        #if {"$map[gt][path]" == ""} {
+            #show <139>找不到目的地路径 : $hubiao[dest][area] $hubiao[dest][name]<079>;
+            log hubiao 找不到目的地路径 : $hubiao[dest][area] $hubiao[dest][name];
+            
+            #nop hb_status_set manual;
+            
+            #list hubiao[path] insert $hubiao[path_idx] $hubiao[roomexits][1];
+        } {
+            #show <129>找到路径 : $map[gt][path]<079>;
+            
+            #var hubiao[path_idx] 1;
+            #list hubiao[path] create $map[gt][path];
+        };
+        #list hubiao[path] size hubiao[path_len];
+    };
     #class hb_status_zoubiao_inner close;
     
-    ganche;
+    #if {$hubiao[luanru] == 1} {
+        on_map_pad {
+            correct_path;
+            #delay {dl_zoubiao_start} {
+                ganche;
+            }{2};
+        };
+    } {
+        #delay {dl_zoubiao_start} {
+            ganche;
+        }{2};
+    };
+    
 };
 
 #alias {hb_status_exit_robber} {
@@ -370,13 +506,7 @@
         #if {$hubiao[complete] == 1} {
             hb_status_set complete;
         } {
-            #if {$hubiao[luanru] == 1} {
-                hb_status_set luanru;
-            } {
-                #delay {dl_change_status} {
-                    hb_status_set zoubiao;
-                }{2};
-            };
+            hb_status_set zoubiao;
         };
     };
     #act {^{你|劫匪}{你战胜了劫匪|你哈哈大笑，说道|双手一拱，笑着说道|脸色一寒，说道|向后一纵，恨恨地说道|向后退了几步，说道}} {
@@ -386,6 +516,7 @@
         kill robber;
     };
     #act {^劫匪叫道：点子扎手，扯呼} {
+        #undelay {dl_robber_check};
         check_robber;
     };
     #act {^劫匪趁你不注意，推着镖车就跑，你赶紧追了上去} {
@@ -433,6 +564,8 @@
     #alias {luanru} {
         #list hubiao[path] insert $hubiao[path_idx] %%1;
         
+        #map move @reverse{%%1};
+        
         hb_status_set zoubiao;
     };
     
@@ -461,6 +594,12 @@
     };
     #act {^你向林震南打听有关『重置任务』的消息} {
         log hubiao 任务计数重置成功;
+        
+        #if {$hubiao[mixin][start] == 1} {
+            hb_status_set mixin;
+        } {
+            hb_status_set none;
+        };
     };
     #act {^林震南吩咐了旁边的镖头几句，转头对你道：「辛苦了} {
         #math hubiao[lunci] {$hubiao[lunci] + 1};
@@ -468,16 +607,16 @@
         #if {$hubiao[lunci] >= $hubiao[max_lunci]} {
             #var hubiao[lunci] 0;
             ask lin about 重置任务;
+        } {
+            #if {$hubiao[mixin][start] == 1} {
+                hb_status_set mixin;
+            } {
+                hb_status_set none;
+            };
         };
         
         #var shell_cmd {echo "#var hubiao {$hubiao}">data/hubiao_cache_$status[id]};
         #system $shell_cmd;
-        
-        #if {$hubiao[mixin][start] == 1} {
-            hb_status_set mixin;
-        } {
-            hb_status_set none;
-        };
     };
     #act {^林震南递给你一封密信} {
         log hubiao 接到密信任务;
@@ -518,6 +657,12 @@
         #var hubiao[mixin][area] %%1;
         #var hubiao[mixin][room] %%2;
         
+        #if {&map_area_table[$hubiao[mixin][area]] == 0} {
+        
+        } {
+            #var hubiao[mixin][area] $map_area_table[$hubiao[mixin][area]];
+        };
+        
         gt $hubiao[mixin][room] $hubiao[mixin][area];
         
         on_there {
@@ -530,7 +675,7 @@
         
         look;
     };
-    #act {^    卷走林震南财物的伙计 %*(%w)} {
+    #act {^    卷走林震南财物的伙计 {.*}(%w)} {
         log hubiao 发现偷财物的伙计 %%1 %%2;
         
         #var hubiao[mixin][target][name] %%1;

@@ -1321,7 +1321,7 @@
     
     #unvar mst;
     
-    trvs.start;
+    #nop trvs.start;
 };
 
 #alias {trvs.reset} {
