@@ -198,6 +198,7 @@
         
         #var hubiao[complete] 0;
         #var hubiao[pp][status] none;
+        #var hubiao[luanru] 0;
         
         parse_addr %%1 hubiao[dest];
         #var hubiao[dest][name] %%3;
@@ -293,7 +294,15 @@
     #alias {ganche} {
         #if {$hubiao[complete] == 0} {
             #if {$hubiao[path_idx] <= $hubiao[path_len]} {
-                g$hubiao[path][$hubiao[path_idx]];
+                #if {"$hubiao[path][$hubiao[path_idx]]" == "u"} {
+                    gup;
+                };
+                #elseif {"$hubiao[path][$hubiao[path_idx]]" == "d"} {
+                    gdown;
+                };
+                #else {
+                    g$hubiao[path][$hubiao[path_idx]];
+                };
             } {
                 pphuoji;
             };
@@ -323,6 +332,8 @@
                     #var hubiao[path] $map[trvs][path];
                     #list hubiao[path] size hubiao[path_len];
                     #var hubiao[path_idx] 1;
+                    
+                    ganche;
                 };
                 
             };
@@ -471,6 +482,7 @@
         on_map_pad {
             correct_path;
             #delay {dl_zoubiao_start} {
+                #var hubiao[luanru] 0;
                 ganche;
             }{2};
         };
