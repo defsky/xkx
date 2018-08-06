@@ -25,6 +25,10 @@
 #var hubiao[luanru] 0;
 #var hubiao[mixin][start] 0;
 
+#if {&hubiao[auto] == 0} {
+    #var hubiao[auto] 0;
+};
+
 #if {&hubiao[max_lunci] == 0} {
     #var hubiao[max_lunci] 6;
 };
@@ -41,6 +45,8 @@
 #var hubiao[status_id][luanru]   镖车乱入;
 #var hubiao[status_id][recover]  恢复气血;
 #var hubiao[status_id][manual]   手动操作;
+
+#var hubiao[jobmaster][福州福威镖局] {{id}{lin zhennan}{name}{林震南}};
 
 #if {&hubiao[lunci] == 0} {
     #var hubiao[lunci] 0;
@@ -75,6 +81,15 @@
 };
 #alias {hb.restart} {
     hb_status_set zoubiao;
+};
+#alias {hb.auto} {
+    #if {$hubiao[auto] == 0} {
+        #show <139>开启自动接任务<079>;
+        #var hubiao[auto] 1;
+    } {
+        #show <139>关闭自动接任务<079>;
+        #var hubiao[auto] 0;
+    };
 };
 #alias {hb.max} {
     #var hubiao[max_lunci] %1;
@@ -142,6 +157,7 @@
     
     #act {^%*押镖任务列表：} {
         #var listesc_start 1;
+        #var hubiao[biaoju] %%1;
     };
     #act {^{(\d+)\s+(\S+)\s+\d+}秒   %S %S} {
         #nop #show <139>%%2-%%3-%%4<079>;
@@ -184,12 +200,45 @@
 
 #alias {hb_status_exit_getesc} {
     #undelay {dl_getesc};
+    
+    #class get_jobcd_inner kill;
 };
 #alias {hb_status_enter_getesc} {
     #class hb_status_getesc_inner open;
     
     #alias {hbpos} {
         #show $status[name]把这批红货送到$hubiao[quest][boss]那里，他已经派了个伙计名叫$hubiao[dest][huoji]到%%1附近接你，把镖车送到他那里就行了。;
+    };
+    #alias {get_job_cd} {
+        #alias cb_on_hubiao_cooldown #cr;
+        #alias cb_on_hubiao_cooldown %%0;
+        
+        #class get_jobcd_inner open;
+        
+        #act {│[%d][{.+}]{\S+}{(\(\d*\)?)}%s{仍需(.*)秒才能|现在即可}接到下个%*任务。%s│} {
+            #nop #show ->%1-%3-%7-%8;
+            
+            #if {"%%%7" == "现在即可"} {
+                #var jobcd[%%%1] 0;
+            };
+            #if {"%%%8" != ""} {
+                #var jobcd[%%%1] @ctd{%%%8};
+            };
+        };
+        #act {^jobquery 支持参数} {
+            cb_on_hubiao_cooldown;
+            #class get_jobcd_inner kill;
+        };
+        #class get_jobcd_inner close;
+        
+        jobquery;
+    };
+    #alias {wait_job} {
+        log hubiao CD中，$jobcd[09]秒后继续;
+        
+        #delay {dl_getesc} {
+            hb_status_set listesc;
+        }{$jobcd[09]};
     };
     
     #act {^$status[name]把这批红货送到{.*}那里，他已经派了个伙计名叫{.*}到{.*}附近接你，把镖车送到他那里就行了} {
@@ -233,11 +282,9 @@
         hb_status_set listesc;
     };
     #act {^你上次运镖太辛苦了，下去休息休息吧} {
-        log hubiao CD中，30秒后继续;
-        
-        #delay {dl_getesc} {
-            hb_status_set listesc;
-        }{30};
+        get_job_cd {
+            wait_job;
+        };
     };
     
     #class hb_status_getesc_inner close;
@@ -319,28 +366,21 @@
             #show <139>找不到目的地路径 : $hubiao[dest][name1] $hubiao[dest][area1]<079>;
             log hubiao 找不到目的地路径 : $hubiao[dest][name1] $hubiao[dest][area1];
             
-            #if {"$hubiao[pp][status]" == "CurrentRoom"} {
-                #list hubiao[path] insert $hubiao[path_idx] $hubiao[roomexits][1];
+                
+            #if {"$hubiao[pp][status]" == "trvs"} {
+                hb_status_set manual;
+            } {
+                log hubiao 开始遍历，广度：2;
+                #var hubiao[pp][status] trvs;
+                bfs 2;
+                
+                #var hubiao[path] $map[trvs][path];
                 #list hubiao[path] size hubiao[path_len];
+                #var hubiao[path_idx] 1;
                 
                 ganche;
-            } {
-                
-                #if {"$hubiao[pp][status]" == "trvs"} {
-                    hb_status_set manual;
-                } {
-                    log hubiao 开始遍历，广度：2;
-                    #var hubiao[pp][status] trvs;
-                    bfs 2;
-                    
-                    #var hubiao[path] $map[trvs][path];
-                    #list hubiao[path] size hubiao[path_len];
-                    #var hubiao[path_idx] 1;
-                    
-                    ganche;
-                };
-                
             };
+                
         } {
             #show <129>找到路径 : $map[gt][path]<079>;
             
@@ -396,7 +436,11 @@
             #class pphuoji_inner open;
             
             #act {^ GPS : 目的地为当前房间} {
-                #var hubiao[pp][status] CurrentRoom;
+                #if {"$hubiao[pp][status]" == "trvs"} {
+                
+                } {
+                    #var hubiao[pp][status] CurrentRoom;
+                };
             };
             
             #class pphuoji_inner close;
@@ -609,33 +653,46 @@
     #act {^你获得了%*石炭【劣质】} {
         drop shi tan;
     };
-    #act {^你向林震南打听有关『重置任务』的消息} {
+    #act {^你向$hubiao[jobmaster][$hubiao[biaoju]][name]打听有关『重置任务』的消息} {
         log hubiao 任务计数重置成功;
         
         #if {$hubiao[mixin][start] == 1} {
             hb_status_set mixin;
         } {
-            hb_status_set none;
+            #if {$hubiao[auto] == 0} {
+                hb_status_set none;
+            };
+            #elseif {$hubiao[auto] == 1} {
+                hb_status_set listesc;
+            };
         };
     };
-    #act {^林震南吩咐了旁边的镖头几句，转头对你道：「辛苦了} {
+    #act {^$hubiao[jobmaster][$hubiao[biaoju]][name]吩咐了旁边的镖头几句，转头对你道：「辛苦了} {
         #math hubiao[lunci] {$hubiao[lunci] + 1};
         
         #if {$hubiao[lunci] >= $hubiao[max_lunci]} {
             #var hubiao[lunci] 0;
-            ask lin about 重置任务;
+            ask $hubiao[jobmaster][$hubiao[biaoju]][id] about 重置任务;
         } {
             #if {$hubiao[mixin][start] == 1} {
                 hb_status_set mixin;
             } {
-                hb_status_set none;
+                do 3 he jiudai;
+                do 3 eat liang;
+                
+                #if {$hubiao[auto] == 0} {
+                    hb_status_set none;
+                };
+                #elseif {$hubiao[auto] == 1} {
+                    hb_status_set listesc;
+                };
             };
         };
         
         #var shell_cmd {echo "#var hubiao {$hubiao}">data/hubiao_cache_$status[id]};
         #system $shell_cmd;
     };
-    #act {^林震南递给你一封密信} {
+    #act {^$hubiao[jobmaster][$hubiao[biaoju]][name]递给你一封密信} {
         log hubiao 接到密信任务;
         
         #var hubiao[mixin][start] 1;
@@ -645,10 +702,10 @@
     
     #delay {dl_complete_back} {
         on_map_pad {
-            gt 林震南;
+            gt $hubiao[jobmaster][$hubiao[biaoju]][name];
             
             on_there {
-                ask lin about finish;
+                ask $hubiao[jobmaster][$hubiao[biaoju]][id] about finish;
             };
         };
     } {2};
@@ -692,7 +749,7 @@
         
         look;
     };
-    #act {^    卷走林震南财物的伙计 {.*}(%w)} {
+    #act {^    卷走$hubiao[jobmaster][$hubiao[biaoju]][name]财物的伙计 {.*}(%w)} {
         log hubiao 发现偷财物的伙计 %%1 %%2;
         
         #var hubiao[mixin][target][name] %%1;
@@ -724,18 +781,23 @@
 #alias {hb_status_enter_mixinok} {
     #class hb_status_mixinok_inner open;
     
-    #act {^你给林震南一些失踪的财物} {
+    #act {^你给$hubiao[jobmaster][$hubiao[biaoju]][name]一些失踪的财物} {
         log hubiao 财物已交还;
         
-        hb_status_set none;
+        #if {$hubiao[auto] == 0} {
+            hb_status_set none;
+        };
+        #elseif {$hubiao[auto] == 1} {
+            hb_status_set listesc;
+        };
     };
     
     #class hb_status_mixinok_inner close;
     
     on_map_pad {
-        gt 林震南;
+        gt $hubiao[jobmaster][$hubiao[biaoju]][name];
         on_there {
-            give cai wu to lin;
+            give cai wu to $hubiao[jobmaster][$hubiao[biaoju]][id];
         };
     };
 };
