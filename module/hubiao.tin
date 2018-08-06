@@ -204,6 +204,10 @@
         #var hubiao[dest][name] %%3;
         #var hubiao[dest][huoji] %%2;
         
+        #if {"$hubiao[dest][area]" == "嘉兴" && "$hubiao[dest][name]" == "驿道"} {
+            #var hubiao[dest][area] 牙山;
+        };
+        
         log hubiao 目的地 ：$hubiao[dest][area] $hubiao[dest][name];
         
         find_path {$hubiao[dest][name]} {$hubiao[dest][area]};
