@@ -316,6 +316,7 @@
                 #if {"$hubiao[pp][status]" == "trvs"} {
                     hb_status_set manual;
                 } {
+                    log hubiao 开始遍历，广度：2;
                     #var hubiao[pp][status] trvs;
                     bfs 2;
                     
