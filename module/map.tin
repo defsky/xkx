@@ -564,10 +564,6 @@
 
     #if {"$map[gt][dest][area]" == ""} {
         #if {0 == $map[gt][path_found]} {
-            #map find {$map[gt][dest][name]};
-            path_save;
-        };
-        #if {0 == $map[gt][path_found]} {
             #map find {%*$map[gt][dest][name]%*};
             path_save;
         };
@@ -579,7 +575,10 @@
             #map find {}{}{}{}{%*$map[gt][dest][name]%*};
             path_save;
         };
-    
+        #if {0 == $map[gt][path_found]} {
+            #map find {$map[gt][dest][name]};
+            path_save;
+        };
     } {
         #if {0 == $map[gt][path_found]} {
             #map find {$map[gt][dest][name]} {} {} {$map[gt][dest][area]};
