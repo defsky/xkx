@@ -540,7 +540,10 @@
     #map get roomarea map[room][area];
     
     #if {"$map[gt][dest][area]" == ""} {
-        #if {"$map[room][name]" == "$map[gt][dest][name]"} {
+        #map get roomvnum map[room][vnum];
+        
+        #if {"$map[room][name]" == "$map[gt][dest][name]" ||
+            "$map[room][vnum]" == "$map[gt][dest][name]"} {
             #showme <139> GPS : 目的地为当前房间。<079>;
             
             #class find_path_inner kill;
@@ -560,6 +563,10 @@
     };
 
     #if {"$map[gt][dest][area]" == ""} {
+        #if {0 == $map[gt][path_found]} {
+            #map find {$map[gt][dest][name]};
+            path_save;
+        };
         #if {0 == $map[gt][path_found]} {
             #map find {%*$map[gt][dest][name]%*};
             path_save;
