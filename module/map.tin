@@ -564,6 +564,10 @@
 
     #if {"$map[gt][dest][area]" == ""} {
         #if {0 == $map[gt][path_found]} {
+            #map find {$map[gt][dest][name]};
+            path_save;
+        };
+        #if {0 == $map[gt][path_found]} {
             #map find {%*$map[gt][dest][name]%*};
             path_save;
         };
@@ -573,10 +577,6 @@
         };
         #if {0 == $map[gt][path_found]} {
             #map find {}{}{}{}{%*$map[gt][dest][name]%*};
-            path_save;
-        };
-        #if {0 == $map[gt][path_found]} {
-            #map find {$map[gt][dest][name]};
             path_save;
         };
     } {
@@ -1389,10 +1389,10 @@
     goto ÈÙ±¦Õ«;
 };
 #alias {dp} {
-    goto µ±ÆÌ;
+    goto %*µ±ÆÌ;
 };
 #alias {qz} {
-    goto Ç®×¯;
+    goto %*Ç®×¯;
 };
 #alias {wm} {
     goto ÎäÃí;
@@ -1404,7 +1404,7 @@
     map pad;
 };
 #alias {gohome} {
-    goto Ê¢²ý;
+    goto %*Ê¢²ý%*;
     on_there {
         enter @lower{$status[id]};
     };
