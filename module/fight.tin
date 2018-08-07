@@ -61,7 +61,7 @@
 #var cooldown 1;
 
 
-#act {你在攻击中不断积蓄攻势。(气势：%1%%)}{do_pfm;#var status[mo] %1;#var status[flag][fighting] 1;status.set_action 气势$status[mo]%};
+#act {你在攻击中不断积蓄攻势。(气势：%1%%)}{#var status[mo] %1;#var status[flag][fighting] 1;do_pfm;status.set_action 气势$status[mo]%};
 #act {你逐步从之前战斗的紧张气氛中平缓下来。(气势：%1%%)}{#var status[mo] %1;status.set_action 气势$status[mo]%};
 #act {经过一段时间后，你终于完全从紧张地战斗氛围中解脱出来}{#var status[mo] 0;#var status[flag][fighting] 0;status.set_action 气势$status[mo]%};
 #act {你%*大喝一声：看招}{#var status[flag][fighting] 1};

@@ -155,10 +155,16 @@
 #macro {\e[1;2C} {movee};
 #macro {\e[1;2D} {movew};
 
+#alias {xuexi.set} {
+    #var xuexi[room] %1;
+    #var xuexi[rest] %2;
+};
 #alias {xuexi} {
+    #var xuexi[count] 5;
     #if {"%2" != ""} {
         #var xuexi[teacher] %1;
         #var xuexi[skill] %2;
+        #var xuexi[count] %3;
     };
     
     #class xuexi_inner open;
@@ -185,7 +191,7 @@
                     };
                 };
                 #act {^你一觉醒来} {
-                    goto 王重阳;
+                    goto $xuexi[room];
                     on_there {
                         xuexi;
                     };
@@ -201,7 +207,7 @@
         };
     };
     #tic {tk_xuexi} {
-        xue $xuexi[teacher] for $xuexi[skill] 5;
+        xue $xuexi[teacher] for $xuexi[skill] $xuexi[count];
     }{1};
     #class xuexi_inner close;
 };

@@ -220,6 +220,10 @@
         #var murong[trvs_level] 30;
     }; 
     #delay {dl_search_jiazei} {
+        #act {^遍历路径} {
+            #unact {^遍历路径};
+            trvs.start;
+        };
         bfs $murong[trvs_level];
     } {2};
     
@@ -228,11 +232,11 @@
 
 #act {^仆人叹道：家贼难防，有人偷走了少爷的信件，据传曾在以下地点附近出现，你去把它找回来吧} {
     log 图片任务;
-    #act {http://pkuxkx.net/antirobot/robot.php?filename=%*} {
-        #unact {http://pkuxkx.net/antirobot/robot.php?filename=%*};
+    #act {http://pkuxkx.{com|net}/antirobot/robot.php?filename=%*} {
+        #unact {http://pkuxkx.{com|net}/antirobot/robot.php?filename=%*};
         #nop #system {firefox http://pkuxkx.net/antirobot/robot.php?filename=%%1};
-        #nop #system {./script/getpic.sh $status[id] %%1 &};
-        fetch_captcha %%1;
+        #nop #system {./script/getpic.sh $status[id] %%2 &};
+        fetch_captcha %%2;
     };
     #var murong[mode] image;
 };
@@ -265,6 +269,8 @@
 };
 #act {^由于你成功的找回慕容复写给江湖豪杰的信件，被奖励} {
     log 慕容任务完成;
+    do 3 he jiudai;
+    do 3 eat liang;
 };
 #act {^仆人对着你摇了摇头说：「你刚做过任务，先去休息休息吧。」} {
     log CD中,30秒后继续尝试;
