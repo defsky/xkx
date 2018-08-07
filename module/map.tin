@@ -615,6 +615,9 @@
     ask shao gong about 过江;
     enter;
 };
+#alias {gts} {
+    goto_stop;
+};
 #alias {goto_stop} {
     set brief 0;
     gt_wrn 行走停止;
@@ -1109,7 +1112,10 @@
 };
 
 #nop 21 168 1008 2532;
-#list bus_station_list create {11;20;30;45;46;64;94;135;186;197;243;255;285;321;796;985;989;991;1010;1052;1075;1106;1108;1120;1181;1209;1532;1579;1580;1690;1740;2100;2200;2494}
+#list delete_bus_station_list create {11;20;30;45;46;64;94;135;186;197;243;255;285;321;796;985;989;991;1010;1052;1075;1106;1108;1120;1181;1209;1532;1579;1580;1690;1740;2100;2200;2494}
+
+#nop 2923 明教 2245 白驼 1147 兰州 1009 大轮寺 65 苏州;
+#list bus_station_list create {63;93;95;170;187;198;242;244;284;286;322;337;797;988;990;992;1011;1053;1076;1107;1109;1139;1171;1182;1210;1347;1533;1582;1584;1677;1691;1741;2101;3288;3289;3290}
 
 #alias {mapcar} {
     #map get roomvnum current_room_id;
@@ -1119,14 +1125,14 @@
             #map goto $room_id;
             #map roomflag avoid off;
         };
-        #showme <139>GPS : 开启马车行节点<079>;
+        #showme <139>GPS : 开启马车节点<079>;
     };
     #elseif {"%1" == "off"} {
         #foreach {$bus_station_list[%*]} {room_id} {
             #map goto $room_id;
             #map roomflag avoid on;
         };
-        #showme <139>GPS : 关闭马车行节点<079>;
+        #showme <139>GPS : 关闭马车节点<079>;
     };
     
     #map goto $current_room_id;
