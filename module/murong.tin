@@ -109,7 +109,8 @@
         
         #if {"$murong[room][area]" == "" && "$murong[room][name]" == ""} {
             log 解析地点失败;
-            mrfai;
+            #show <139>解析地点失败<079>;
+            #buffer lock;
         } {
             log $murong[room][area] $murong[room][name];
 

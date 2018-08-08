@@ -7,7 +7,7 @@ try:
     _, mapfile = argv
 except ValueError:
     print('''
-    Usage : make_area_list.py <mapfile>
+    Usage : make_search <mapfile>
     ''')
     exit(0)
     

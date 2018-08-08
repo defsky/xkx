@@ -33,6 +33,10 @@
     #var hubiao[max_lunci] 6;
 };
 
+#if {&hubiao[lunci] == 0} {
+    #var hubiao[lunci] 0;
+};
+
 #var hubiao[status_id][none]     空闲状态;
 #var hubiao[status_id][listesc]  查看任务;
 #var hubiao[status_id][getesc]   领取任务;
@@ -47,10 +51,6 @@
 #var hubiao[status_id][manual]   手动操作;
 
 #var hubiao[jobmaster][福州福威镖局] {{id}{lin zhennan}{name}{林震南}};
-
-#if {&hubiao[lunci] == 0} {
-    #var hubiao[lunci] 0;
-};
 
 #alias {gn} {gan che to north};
 #alias {gs} {gan che to south};
@@ -73,6 +73,9 @@
 #alias {genter} {gan che to enter};
 #alias {gout} {gan che to out};
 
+#alias {hb.max} {
+    #var hubiao[max_lunci] %1;
+};
 #alias {hb.start} {
     hb_status_set listesc;
 };
@@ -90,9 +93,6 @@
         #show <139>关闭自动接任务<079>;
         #var hubiao[auto] 0;
     };
-};
-#alias {hb.max} {
-    #var hubiao[max_lunci] %1;
 };
 
 #alias {hb_status_set} {
