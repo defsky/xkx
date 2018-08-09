@@ -1,3 +1,18 @@
+#act {^【北侠QQ群】%*} {
+    #system {echo -e '[@nowtime{}]%0' >> data/chatlog};
+};
+#act {^【闲聊】%*} {
+    #system {echo -e '\033[1;36m[@nowtime{}]%0\033[0m' >> data/chatlog};
+};
+#act {^%*回答你：%*} {
+    #system {echo -e '\033[1;32m[@nowtime{}]%0\033[0m' >> data/chatlog};
+};
+#act {^%*告诉你：%*} {
+    #system {echo -e '\033[1;32m[@nowtime{}]%0\033[0m' >> data/chatlog};
+};
+
+
+
 give 1 gold to seng
 托钵僧愉快地微笑着。
 托钵僧说道：「阿弭陀佛，多谢这位小兄弟 ！」

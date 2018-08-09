@@ -6,44 +6,42 @@
 };
 
 #alias {${mod_name}_unload}{
+    event_handler_del {_hnd_chat} {RECEIVED LINE};
+    
     #showme Module $mod_name unloaded;
     #class $mod_name kill;
 };
 
-#alias {chatlist} {
-    #if {"%1" == "qq"} {
-        #grep ¡¾±±ÏÀQQÈº¡¿;
-    };
-    #if {"%1" == "chat"} {       
-        #grep ¡¾ÏÐÁÄ¡¿;
-    };
-    #buffer lock;
+#alias {chat.on} {
+    event_handler_add {_hnd_chat} {RECEIVED LINE};
 };
-
-#list chat_filter_list create {
-    ^¡¾±±ÏÀQQÈº¡¿%*;
-    ^¡¾ÏÐÁÄ¡¿%*;
-    ^%*»Ø´ðÄã£º%*;
-    ^%*¸æËßÄã£º%*;
+#alias {chat.off} {
+    event_handler_del {_hnd_chat} {RECEIVED LINE};
 };
 
 #function {nowtime} {
     #format {result}{%t}{%H:%M}
 };
 
+#list chat_filter_list create {
+    ^¡¾±±ÏÀQQÈº¡¿%*;
+    ^¡¾ÏÐÁÄ¡¿%*;
+    ^¡¾Ò¥ÑÔ¡¿%*;
+    ^¡¾½­ºþ¡¿%*;
+    ^%*»Ø´ðÄã£º%*;
+    ^%*¸æËßÄã£º%*;
+};
+#alias {_hnd_chat} {
+    #foreach $chat_filter_list[%*] {pattern_str} {
+        #regexp {%1} {$pattern_str} {
+            #var chatcmdstr {chatstr='[@nowtime{}]%2';echo -e $\{chatstr//\\\;/\;\}>> data/chatlog};
 
-
-#act {^¡¾±±ÏÀQQÈº¡¿%*} {
-    #system {echo -e '[@nowtime{}]%0' >> data/chatlog};
-};
-#act {^¡¾ÏÐÁÄ¡¿%*} {
-    #system {echo -e '\033[1;36m[@nowtime{}]%0\033[0m' >> data/chatlog};
-};
-#act {^%*»Ø´ðÄã£º%*} {
-    #system {echo -e '\033[1;32m[@nowtime{}]%0\033[0m' >> data/chatlog};
-};
-#act {^%*¸æËßÄã£º%*} {
-    #system {echo -e '\033[1;32m[@nowtime{}]%0\033[0m' >> data/chatlog};
+            #system {script/do_log.sh '[@nowtime{}]%2' chatlog};
+        };
+    };
+    
+    #unvar chatcmdstr;
+    #unvar pattern_str;
 };
 
 #class $mod_name close;
