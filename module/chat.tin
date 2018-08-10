@@ -23,11 +23,12 @@
     #format {result}{%t}{%H:%M}
 };
 
+#nop     ^¡¾½­ºþ¡¿%*;
+
 #list chat_filter_list create {
     ^¡¾±±ÏÀQQÈº¡¿%*;
     ^¡¾ÏÐÁÄ¡¿%*;
     ^¡¾Ò¥ÑÔ¡¿%*;
-    ^¡¾½­ºþ¡¿%*;
     ^%*»Ø´ðÄã£º%*;
     ^%*¸æËßÄã£º%*;
 };
@@ -36,7 +37,7 @@
         #regexp {%1} {$pattern_str} {
             #var chatcmdstr {chatstr='[@nowtime{}]%2';echo -e $\{chatstr//\\\;/\;\}>> data/chatlog};
 
-            #system {script/do_log.sh '[@nowtime{}]%2' chatlog};
+            #system {script/do_log.sh '\033[1;37m[@nowtime{}]\033[0m%2\033[0m' chatlog};
         };
     };
     

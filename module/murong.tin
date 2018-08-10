@@ -196,6 +196,9 @@
     #act {^这里{不能|禁止|不准}战斗} {
         ask jiazei about fight;
     };
+    #act {^慕容世家{家贼|内鬼}往%*落荒而逃了} {
+        $direction[cn][%%2];
+    };
     #act {^慕容世家{家贼|内鬼}往%*离开} {
         #unact {^慕容世家{家贼|内鬼}往%*离开};
         #undelay {dl_search_jiazei};
@@ -261,6 +264,7 @@
 };
 #act {^你从慕容世家{家贼|内鬼}的尸体身上搜出一封信件} {
     log 拿到信件，回城复命;
+    trvs.stop;
     on_map_pad {
         mrfin;
     };

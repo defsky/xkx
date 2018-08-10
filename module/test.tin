@@ -160,7 +160,9 @@
     #var xuexi[rest] %2;
 };
 #alias {xuexi} {
-    #var xuexi[count] 5;
+    #if {&xuexi[count] == 0} {
+        #var xuexi[count] 5;
+    };
     #if {"%2" != ""} {
         #var xuexi[teacher] %1;
         #var xuexi[skill] %2;
