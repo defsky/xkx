@@ -556,7 +556,7 @@
         };
     } {
         #if {"$map[room][name]" == "$map[gt][dest][name]" &&
-            "$map[room][area]" == "$map[gt][dest][area]"} {
+            "$map[room][area]" == "%*$map[gt][dest][area]%*"} {
             
             #showme <139> GPS : 目的地为当前房间。<079>;
             
