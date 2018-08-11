@@ -32,6 +32,10 @@
 
 #nop ============ Module funtion start ========================================;
 
+#function {get_room} {
+    INVOKE map.search %1 %2;
+};
+
 #function {format_exits} {
     #var format_exits_inner[estr] %1;
     

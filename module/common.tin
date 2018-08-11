@@ -21,6 +21,19 @@
 #function {replace} 	{#var result %1;#replace result {%2} {%3}};
 #function {ctd} 		{#math result {@replace{@replace{{0+@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{%1;{零};{*0+}};{十};{*10+}};{百};{*100+}};{千};{*1000+}};{万};{*10000+}};{甲子};{*60+}};{六};{6}};{一};{1}};{二};{2}};{三};{3}};{四};{4}};{五};{5}};{七};{7}};{八};{8}};{九};{9}}+0};{++};{+}};{+*};{+}}}};
 
+#alias {INVOKE} {
+    #script {file_name} {python3 -m bin.%0 ${status[id]}};
+    #var file_name ${file_name}[1];
+    #if {"${file_name}" != ""} {
+        #read ${file_name};
+        #system {rm ${file_name}};
+    };
+};
+
+#function {py} {
+    INVOKE pinyin %0;
+};
+
 #function {reverse} {
     #switch {"%1"} {
         #case {"e"} { #var result w };

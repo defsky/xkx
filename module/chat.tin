@@ -38,6 +38,8 @@
             #var chatcmdstr {chatstr='[@nowtime{}]%2';echo -e $\{chatstr//\\\;/\;\}>> data/chatlog};
 
             #system {script/do_log.sh '\033[1;37m[@nowtime{}]\033[0m%2\033[0m' chatlog};
+            
+            #return;
         };
     };
     
