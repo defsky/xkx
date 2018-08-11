@@ -542,6 +542,7 @@
     
     #map get roomname map[room][name];
     #map get roomarea map[room][area];
+    #map get roomvnum map[room][vnum];
     
     #if {"$map[gt][dest][area]" == ""} {
         #map get roomvnum map[room][vnum];
