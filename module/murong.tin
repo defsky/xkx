@@ -96,6 +96,7 @@
 
 #alias {mrpos} {
     #var murong[pos] %1;
+    #unvar murong[target_rooms];
     mrgo;
 };
 
@@ -134,6 +135,34 @@
 };
 
 #alias {mrgowork} {
+    #if {&murong[target_rooms] == 0} {
+        #list murong[target_rooms] create @get_room{$murong[room][name];$murong[room][area]};
+        #list murong[target_rooms] size target_rooms;
+        #if {$target_rooms > 1} {
+            #var murong[trvs_level] 1;
+        } {
+            #var murong[trvs_level] 6;
+        };
+    };
+    
+    #if {"$murong[target_rooms]" == ""} {
+        #show <139>找不到家贼，请手动<079>;
+        #buffer lock;
+    } {
+        #act {^ GPS : 目的地为当前房间} {
+            #unact {^ GPS : 目的地为当前房间};
+            zhaojz 1;
+        };
+        
+        goto $murong[target_rooms][1];
+        #list murong[target_rooms] del 1;
+        
+        on_there {
+            zhaojz;
+        };
+    };
+};
+#alias {del_mrgowork} {
     log 前往任务地点;
     
     #var murong[trvs_level] 6;
@@ -214,7 +243,7 @@
             on_there {
                 zhaojz;
             };
-            mrgo;
+            mrgowork;
         };
     };
     
@@ -251,6 +280,7 @@
     
     #system {echo "%1">>data/murong.log};
     
+    #unvar murong[target_rooms];
     mrgo;
     
 };
