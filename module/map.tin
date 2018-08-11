@@ -519,7 +519,7 @@
 
 #alias {find_path} {
     
-    #if {"%2" != ""} {
+    #if {"%1" != ""} {
         #var map[gt][dest][name] {%1};
         #var map[gt][dest][area] {%2};
     };
