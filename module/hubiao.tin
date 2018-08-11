@@ -252,6 +252,7 @@
         parse_addr %%1 hubiao[dest];
         #var hubiao[dest][name] %%3;
         #var hubiao[dest][huoji] %%2;
+        #var hubiao[dest][py] @py{%%2};
         
         #if {"$hubiao[dest][area]" == "嘉兴" && "$hubiao[dest][name]" == "驿道"} {
             #var hubiao[dest][area] 牙山;
@@ -398,13 +399,6 @@
             #act {^ GPS : 目的地为当前房间} {
                 #var hubiao[pp][status] CurrentRoom;
             };
-            #act {告诉你：拼音：【%*】【%w %w】} {
-                #unact {告诉你：拼音：【%*】【%w %w】};
-                #var hubiao[dest][py] {%%%2 %%%3};
-                
-                #var hubiao[pp][status] pyFound;
-                helpme find %%%2 %%%3;
-            };
             #act {告诉你：【%*】目前在【%*的%*】,快去摁死它吧} {
                 #var hubiao[pp][status] Found;
                 
@@ -430,8 +424,8 @@
             
             #class pphuoji_inner close;
             
-            #var hubiao[pp][status] py;
-            helpme py $hubiao[dest][huoji];
+            #var hubiao[pp][status] Find;
+            helpme find $hubiao[dest][py];
         } {
             #class pphuoji_inner open;
             
