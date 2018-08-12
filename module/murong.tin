@@ -141,8 +141,19 @@
         #if {$target_rooms > 1} {
             #var murong[trvs_level] 1;
         } {
-            #var murong[trvs_level] 6;
+            #var murong[trvs_level] 4;
         };
+    };
+    
+    #var murong[looked] 0;
+    
+    #act {$status[name]发现的 慕容世家{家贼|内鬼}($status[id]'s murong jiazei)} {
+        #unact {$status[name]发现的 慕容世家{家贼|内鬼}($status[id]'s murong jiazei)};
+        
+        log 提前发现家贼;
+        kill jiazei;
+
+        #var murong[looked] 1;
     };
     
     #if {"$murong[target_rooms]" == ""} {
@@ -236,6 +247,7 @@
     #act {^遍历路径行走完成} {
         #class on_found_jiazei_inner kill;
         #nop #delay {dl_search_jiazei} { mrfai } {3};
+        mrgowork;
     };
     #act {^这个方向没有出路} {
         #class on_found_jiazei_inner kill;
