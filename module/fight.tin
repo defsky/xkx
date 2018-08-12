@@ -89,6 +89,29 @@
 #act {你吃下一包金创药} {hpbrief1};
 #act {^你必须空手才能使用} {remove shield};
 
+#act {^你没有喝醉，如何使用「八仙醉打」呀} {
+    he jiu;
+};
+
+#act {^( 你%*)『$status[name]( 气血:%d%/%d%)』} {
+    #show %1 %2 %3;
+    #var fight[hp] %2;
+    #var fight[hp_max] %3;
+    
+    #if {$fight[hp_max] < 95} {
+        eat yao;
+    };
+    #if {$fight[hp_max] < 90} {
+        do 2 eat yao;
+    };
+    #if {$fight[hp_max] < 85} {
+        do 3 eat yao;
+    };
+    #if {$fight[hp] < 90} {
+        yun recover;
+    };
+};
+
 #class $mod_name close;
 
 ${mod_name}_load;

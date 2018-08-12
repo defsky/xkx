@@ -10,7 +10,29 @@
     #class $mod_name kill;
 };
 
+#nop 请用kouling命令回答当日万安塔的口令;
+
 #alias {ql} {
+    #class qiaoluo_inner open;
+    
+    #act {^你的客户端不支持MXP,请直接打开链接查看图片} {
+    
+    };
+    #act {^http://pkuxkx.{com|net}/antirobot/robot.php?filename=%*} {
+        #unact {^http://pkuxkx.{com|net}/antirobot/robot.php?filename=%*};
+
+        fetch_captcha %%2;
+    };
+    #act {^恭喜你，答对了口令，你可以敲锣离开了} {
+        #class qiaoluo_inner kill;
+        qiao luo;
+    };
+    #act {^你在万安塔任务中被奖励了} {
+        #class qiaoluo_inner kill;
+    };
+    
+    #class qiaoluo_inner open;
+    
     qiao luo;
 };
 #alias {watgo} {
