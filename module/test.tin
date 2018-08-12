@@ -220,6 +220,8 @@
     #class xuexi_inner kill;
 };
 
+#gag {^无 欢真希望看到你去死};
+
 #alias {testclass} {
     #class test open;
     
