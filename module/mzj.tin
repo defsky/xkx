@@ -37,7 +37,10 @@
     };
 };
 #alias {mzjob} {
-    
+    ask meng about job;
+};
+#alias {mzjgo} {
+    gt $mzj[pos];
 };
 
 #act {没有经过通传，任何人等不得擅闯都统治府} {
@@ -58,6 +61,10 @@
     
     log $mzj[owner] $mzj[pos];
     #system {echo -e "$mzj[owner] $mzj[pos]" >> data/mzj.log};
+    
+    #if {"$mzj[owner]" == "你"} {
+        mzjgo;
+    };
 };
 
 #act {%*chats '{Mu(ha){0,2}}'} {#showme -> %2ha!}

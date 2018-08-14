@@ -31,7 +31,7 @@ try:
     map_list = []
 
     while line:
-        matchobj = re.match(r'R {(.*)} {(.*)} {(.*)} {(' + roomname + ')} {(.*)} {(.*)} {(' + area + ')} {(.*)} {(.*)} {(.*)} {(.*)}',line)
+        matchobj = re.match(r'R {(.*)} {(.*)} {(.*)} {(' + roomname + ')} {(.*)} {(.*)} {(' + area + '.*)} {(.*)} {(.*)} {(.*)} {(.*)}',line)
         
         if matchobj:
             room_count += 1;

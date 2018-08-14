@@ -329,6 +329,9 @@
 #act {^你获得了%*石炭【劣质】} {
     drop shi tan;
 };
+#act {^你获得了%*玄冰【普通】} {
+    drop xuan bing;
+};
 
 #class $mod_name close;
 

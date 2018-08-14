@@ -94,7 +94,9 @@
 };
 
 #act {^( Äã%*)¡º$status[name]( ÆøÑª:%d%/%d%)¡»} {
-    #show %1 %2 %3;
+    hpbrief1;
+    #show <139>==>%1 %2 %3<079>;
+    
     #var fight[hp] %2;
     #var fight[hp_max] %3;
     

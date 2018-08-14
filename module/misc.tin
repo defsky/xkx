@@ -681,12 +681,12 @@
     #delay {1} {pu};
     #delay {2} {yun qi};
     #delay {3} {jg}; 
-    #delay {4} {jiali 400};
+    #nop #delay {4} {jiali 400};
     #delay {5} {yun shield};
 };
 #alias {bw.check} {
     log ¼ì²é×´Ì¬;
-    #if {$status[force] > @eval{$status[force_max] * 1.7}} {
+    #if {$status[force] > @eval{$status[force_max] * 1.2}} {
         #var bw[dig][need_count] 0;
         #if {$timer[value] <= 20} {
             bw.prepare;

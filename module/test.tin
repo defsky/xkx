@@ -222,16 +222,6 @@
 
 #gag {^无 欢真希望看到你去死};
 
-#alias {testclass} {
-    #class test open;
-    
-    #act {this is for test class open} {
-        #nop;
-    };
-    
-    #class test close;
-};
-
 #class $mod_name close;
 
 ${mod_name}_load;
