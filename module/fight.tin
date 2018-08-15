@@ -109,7 +109,7 @@
     #if {$fight[hp_max] < 85} {
         do 3 eat yao;
     };
-    #if {$fight[hp] < 90} {
+    #if {$fight[hp] < 60} {
         yun recover;
     };
 };

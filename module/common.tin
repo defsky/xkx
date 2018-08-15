@@ -34,6 +34,25 @@
     INVOKE pinyin %0;
 };
 
+#function {split_string_zh} {
+    #var split_string_zh[myidx] 0;
+    #var split_string_zh[myresult] {};
+    
+    #parse {%1}{split_string_zh[v]}{
+        #math split_string_zh[myidx] {$split_string_zh[myidx] + 1};
+        #math split_string_zh[mymod] {$split_string_zh[myidx] % 2};
+        #if {$split_string_zh[mymod] == 1} {
+            #var split_string_zh[newch] {$split_string_zh[v]};
+        }{
+            #var split_string_zh[newch] {$split_string_zh[newch]$split_string_zh[v]};
+            #list split_string_zh[myresult] add {$split_string_zh[newch]};
+        };
+    };
+    
+    #var result $split_string_zh[myresult];
+    #unvar split_string_zh;
+};
+
 #function {reverse} {
     #switch {"%1"} {
         #case {"e"} { #var result w };

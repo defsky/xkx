@@ -222,6 +222,74 @@
 
 #gag {^无 欢真希望看到你去死};
 
+
+#alias {get_hpbrief} {
+    #act {#%d,%d,%d,%d{,战斗中|}$}{
+        #line gag;
+        
+        #unact {#%d,%d,%d,%d{,战斗中|}$};
+        
+        #var hpbrief[zhenqi] %%1;
+        #var hpbrief[zhenyuan] %%2;
+        #var hpbrief[food] %%3;
+        #var hpbrief[water] %%4;
+        
+        #if {"%%5" != ""} {
+            #var hpbrief[fighting] 1;
+        } {
+            #var hpbrief[fighting] 0;
+        };
+        
+        #buffer get hpbrief[buffer][input] 1 2;
+        
+        #var hpbrief[buffer][line2] $hpbrief[buffer][input][1];
+        #var hpbrief[buffer][line1] $hpbrief[buffer][input][2];
+        
+        #regexp {$hpbrief[buffer][line1]}{^#%*,%d,%d,%d,%d,%d$} {
+            #var hpbrief[exp] &1;
+            #var hpbrief[pot] &2;
+            #var hpbrief[neili_max] &3;
+            #var hpbrief[neili] &4;
+            #var hpbrief[jingli_max] &5;
+            #var hpbrief[jingli] &6;
+        };
+        #regexp {$hpbrief[buffer][line2]}{^#%d,%d,%d,%d,%d,%d$} {
+            #var hpbrief[hp_max] &1;
+            #var hpbrief[hp_valid] &2;
+            #var hpbrief[hp] &3;
+            #var hpbrief[sp_max] &4;
+            #var hpbrief[sp_valid] &5;
+            #var hpbrief[sp] &6;
+        };
+        
+        #nop #unvar hpbrief[buffer];
+        #unact {^#};
+    };
+    #act {^#} {
+        #line gag;
+    }{6};
+    #send hpbrief;
+};
+
+#alias {duizhao1} {
+
+#show 你背着众人，悄悄地打开了旧纸;
+#show ;
+#show 殺1 2 3 4 5 6 7 8 9 1011;
+#show 1 岛少之州丐山岸府山督手;
+#show 2 州成江苗府泰灵麟日北真;
+#show 3 南龙湖州苏帮康眉北庄安;
+#show 4 路小宿村禁临州江东紫武;
+#show 5 州山府源山禁苏天教阜湖;
+#show 6 康大州府长洛轮武天临长;
+#show 7 疆天当信慕临州石凌古疆;
+#show 8 后天后河康天安嵋督明州;
+#show 9 原中西桃宫量州寺府山禁;
+#show 10神临江禁镇苏中州王教州;
+#show ;
+#show ;
+};
+    
 #class $mod_name close;
 
 ${mod_name}_load;

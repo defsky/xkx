@@ -20,54 +20,253 @@
     #buffer lock;
 };
 
-#alias {on_mzj_asked} {
-    #alias cb_on_mzj_asked #cr;
-    #alias cb_on_mzj_asked %0;
-    
-    #act {你向孟之经打听有关『job』的消息} {
-        cb_on_mzj_asked;
-    };
-};
-#alias {on_mzj_telled} {
-    #alias cb_on_mzj_telled #cr;
-    #alias cb_on_mzj_telled %0;
-    
-    #act {孟之经说道：「这里人多眼杂，你先到%*等候，我自会通知你。」} {
-        cb_on_mzj_telled;
-    };
-};
-#alias {mzjob} {
-    ask meng about job;
-};
-#alias {mzjgo} {
-    gt $mzj[pos];
-};
-
 #act {没有经过通传，任何人等不得擅闯都统治府} {
     ask shiwei about 通传;
     do_rewalk;
 };
 
-#act {孟之经说道：「这里人多眼杂，你先到%*等候，我自会通知你。」} {
-    #var mzj[pos] %1;
-    
-    #buffer get mzj[askline] 1;
-    #script {mzj[buffer]}{echo -e "$mzj[askline]"|sed -r "s/\x1B\[([0-9]{1,3}((;[0-9]{1,3})*)?)?[m|K]//g"};
-    #regexp {$mzj[buffer][1]} {^%*向孟之经打听有关%*{job|情报}%*的消息。} {
-        #var mzj[owner] &1;
-    } {
-        #var mzj[owner] no_one;
-    };
-    
-    log $mzj[owner] $mzj[pos];
-    #system {echo -e "$mzj[owner] $mzj[pos]" >> data/mzj.log};
-    
-    #if {"$mzj[owner]" == "你"} {
-        mzjgo;
-    };
+#var mzj[status_id] {};
+#var mzj[status_id][none]     空闲状态;
+#var mzj[status_id][askjob]   申请任务;
+#var mzj[status_id][waitjob]  等待任务;
+#var mzj[status_id][working]  执行任务;
+#var mzj[status_id][complete] 任务完成;
+
+#var mzj[status] none;
+
+#alias {mzjstart} {
+    mzj_status_set askjob;
+};
+#alias {mzjstop} {
+    mzj_status_set none;
 };
 
-#act {%*chats '{Mu(ha){0,2}}'} {#showme -> %2ha!}
+#alias {mzj_decode} {
+    #unvar mzj[pass_table];
+    #act {^%d{[ ]?(.*)}} {
+        #var mzj[pass_table][%%1] {@split_string_zh{%%3}};
+    };
+    #act {^殺} {
+        #unact {^殺};
+        #act {^$} {
+            #unact {^$};
+            #unact {^%d{[ ]?(.*)}};
+            
+            #var mzj[pos] {};
+            
+            #loop {1}{4}{myidx}{
+                #if {&mzj[pass][$myidx] != 0} {
+                    #var mzj[pos] {$mzj[pos]${mzj[pass_table]$mzj[pass][$myidx]}};
+                } {
+                    #break;
+                };
+            };
+            #unvar myidx;
+            
+            #system {echo -e "$mzj[pos]" >> data/mzj.log};
+            log mzj 译码: $mzj[pos];
+            #show <139>mzj:解密完成<079>;
+        };    
+    };
+    
+    duizhao;
+};
+
+#alias {mzj_status_set} {
+
+    #if {"%1" == "" || "%1" == "$mzj[status]"} {
+        #nop;
+    } {
+        #if {&mzj[status_id][%1] == 0} {
+            log mzj 无效状态 %1;
+        } {
+            #if {"$mzj[status]" != "none"} {
+                #class mzj_status_$mzj[status]_inner kill;
+                mzj_status_exit_$mzj[status];
+            };
+            
+            #var mzj[status] {%1};
+            
+            log mzj $mzj[status_id][$mzj[status]];
+            
+            #if {"$mzj[status]" != "none"} {
+                mzj_status_enter_$mzj[status];
+            };
+        };
+    };
+    #nop;
+};
+
+#alias {mzj_status_exit_askjob} {
+    #undelay {dl_askjob};
+    #unvar mzj[askline];
+    #unvar mzj[buffer];
+    #unvar mzj[owner];
+};
+#alias {mzj_status_enter_askjob} {
+    #class mzj_status_askjob_inner open;
+    
+    #act {孟之经说道：「这里人多眼杂，你先到%*等候，我自会通知你。」} {
+        #var mzj[waitpos] %%1;
+        
+        #buffer get mzj[askline] 1;
+        #script {mzj[buffer]}{echo -e "$mzj[askline]"|sed -r "s/\x1B\[([0-9]{1,3}((;[0-9]{1,3})*)?)?[m|K]//g"};
+        #regexp {$mzj[buffer][1]} {^%*向孟之经打听有关%*{job|情报}%*的消息。} {
+            #var mzj[owner] &1;
+        } {
+            #var mzj[owner] no_one;
+        };
+        
+        log mzj 接头地点：$mzj[waitpos];
+        
+        #if {"$mzj[owner]" == "你"} {
+            mzj_status_set waitjob;
+        };
+    };
+    
+    #class mzj_status_askjob_inner close;
+    
+    #delay {dl_askjob} {
+        ask meng about job;
+    }{1};
+};
+
+#alias {mzj_status_exit_waitjob} {
+    #undelay {dl_waitjob};
+};
+#alias {mzj_status_enter_waitjob} {
+    #class mzj_status_waitjob_inner open;
+    
+    #alias {mzjpass} {
+        #unvar mzj[pass];
+        #var mzjpass[idx] 0;
+        #var mzjpass[idx2] 0;
+        
+        #parse {%%1}{mzjpass[v]}{
+            #math mzjpass[idx] {$mzjpass[idx] + 1};
+            #math mzjpass[idx_mod] {$mzjpass[idx] % 2};
+            #if {$mzjpass[idx_mod] == 1} {
+                #math mzjpass[idx2] {$mzjpass[idx2] + 1};
+                #var mzj[pass][$mzjpass[idx2]] {[$mzjpass[v]]};
+            } {
+                #format {mzj[pass][$mzjpass[idx2]]}{%s%s} {${mzj[pass][$mzjpass[idx2]]}}{[$mzjpass[v]]};
+            };
+        };
+        #unvar mzjpass;
+    };
+    
+    #act {^孟之经托付都府内常随送给了你一页密码} {
+        log mzj 收到任务密码;
+    };
+    #act {^mzj:解密完成} {
+        mzj_status_set working;
+    };
+    #act {^孟之经(meng zhijing)告诉你：第%*个字在：第%*行，第%*列。第%*个字在：第%*行，第%*列。对照(duizhao)这页} {
+        #unvar mzj[pass];
+        #var mzj[pass][@ctd{%%1}] {[@ctd{%%2}][@ctd{%%3}]};
+        #var mzj[pass][@ctd{%%4}] {[@ctd{%%5}][@ctd{%%6}]};
+        
+        mzj_decode;
+    };
+    #act {^孟之经(meng zhijing)告诉你：第%*个字在：第%*行，第%*列。第%*个字在：第%*行，第%*列。第%*个字在：第%*行，第%*列。对照(duizhao)这页} {
+        #unvar mzj[pass];
+        #var mzj[pass][@ctd{%%1}] {[@ctd{%2}][@ctd{%%3}]};
+        #var mzj[pass][@ctd{%%4}] {[@ctd{%5}][@ctd{%%6}]};
+        #var mzj[pass][@ctd{%%7}] {[@ctd{%8}][@ctd{%%9}]};
+        
+        mzj_decode;
+    };
+    #act {^孟之经(meng zhijing)告诉你：第%*个字在：第%*行，第%*列。第%*个字在：第%*行，第%*列。第%*个字在：第%*行，第%*列。第%*个字在：第%*行，第%*列。对照(duizhao)这页} {
+        #unvar mzj[pass];
+        #var mzj[pass][@ctd{%%1}] {[@ctd{%%2}][@ctd{%%3}]};
+        #var mzj[pass][@ctd{%%4}] {[@ctd{%%5}][@ctd{%%6}]};
+        #var mzj[pass][@ctd{%%7}] {[@ctd{%%8}][@ctd{%%9}]};
+        #var mzj[pass][@ctd{%%10}] {[@ctd{%%11}][@ctd{%%12}]};
+        
+        mzj_decode;
+    };
+    
+    #class mzj_status_waitjob_inner close;
+    
+    #delay {dl_waitjob} {
+        gt $mzj[waitpos];
+    }{1};
+};
+
+#alias {mzj_status_exit_working} {
+    #undelay {dl_working};
+};
+#alias {mzj_status_enter_working} {
+    #class mzj_status_working_inner open;
+    
+    #act {^    大元 %S %S(%w %w)} {
+        #var mzj[target][name] {%%2};
+        #var mzj[target][id] {@lower{%%3} %%4};
+        
+        log mzj 发现目标;$mzj[target][name];
+        
+        #class mzj_status_working_inner open;
+        #act {^$mzj[target][name]往%*落荒而逃了}{
+            #map move $direction[cn][%%%1];
+        };
+        #class mzj_status_working_inner close;
+        
+        trvs.stop;
+        follow $mzj[target][id];
+        kill $mzj[target][id];
+    };
+    #act {^你定睛一看，%*正是你要找的汉奸卖国贼！} {
+        #if {"%%1" == "$mzj[target][name]"} {
+            trvs.stop;
+            follow $mzj[target][id];
+            kill $mzj[target][id];
+        };
+        gts;
+    };
+    #act {^恭喜！你完成了都统制府行刺任务} {
+        mzj_status_set complete;
+    };
+    #act {^遍历路径:} {
+        trvs.start;
+    };
+    
+    #class mzj_status_working_inner close;
+    
+    #delay {dl_working} {
+        gt $mzj[pos];
+        on_there {
+            bfs 10;
+        };
+    }{1};
+};
+
+#alias {mzj_status_exit_complete} {
+    #undelay {dl_complete};
+};
+#alias {mzj_status_enter_complete} {
+    #class mzj_status_complete_inner open;
+    
+    #var itemid {};
+    #var itemid {{石碳}{shi tan}{玄冰}{xuan bing}};
+    
+    #act {^完成了都统制府刺杀任务后，你被奖励了：} {
+        #delay {dl_complete} {
+            mzj_status_set none;
+        }{1};
+    };
+    #act {^你获得了%*份{石炭|玄冰}【{劣质|瑕疵}】} {
+        drop $itemid[%%2];
+    };
+    
+    #class mzj_status_complete_inner open;
+    
+    #delay {dl_complete} {
+        gt 孟之经;
+        on_there {
+            ask meng about finish;
+        };
+    }{1};
+};
 
 #class $mod_name close;
 
