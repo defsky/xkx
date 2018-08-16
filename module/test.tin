@@ -85,6 +85,7 @@
         };
     };
 };
+#gag {^无 欢真希望看到你去死};
 
 #act {^这项任务必须在%*分%*秒内完成} {
     #var time[limit] @eval{@eval{@ctd{%1} * 60} + @ctd{%2}};
@@ -133,6 +134,9 @@
 
 #act {^你捡起一堆陨铁} {
     drop yun tie;
+};
+#act {^你有很长一段时间没有备份档案了} {
+    backup;
 };
 
 #function {var}{
@@ -220,7 +224,6 @@
     #class xuexi_inner kill;
 };
 
-#gag {^无 欢真希望看到你去死};
 
 
 #alias {get_hpbrief} {

@@ -111,7 +111,7 @@
             
             #var hubiao[status] {%1};
             
-            log hubiao ½øÈë×´Ì¬ $hubiao[status_id][$hubiao[status]];
+            log hubiao $hubiao[status_id][$hubiao[status]];
             
             #if {"$hubiao[status]" != "none"} {
                 hb_status_enter_$hubiao[status];
