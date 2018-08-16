@@ -1,3 +1,22 @@
+        #unvar mzj[pass];
+        #var mzjpass[idx] 0;
+        #var mzjpass[idx2] 0;
+        
+        #parse {%%1}{mzjpass[v]}{
+            #math mzjpass[idx] {$mzjpass[idx] + 1};
+            #math mzjpass[idx_mod] {$mzjpass[idx] % 2};
+            #if {$mzjpass[idx_mod] == 1} {
+                #math mzjpass[idx2] {$mzjpass[idx2] + 1};
+                #var mzj[pass][$mzjpass[idx2]] {[$mzjpass[v]]};
+            } {
+                #format {mzj[pass][$mzjpass[idx2]]}{%s%s} {${mzj[pass][$mzjpass[idx2]]}}{[$mzjpass[v]]};
+            };
+        };
+        #unvar mzjpass;
+
+
+
+
 > l wang
 大元 建康府南城路招讨副使 王晓浑(Wang xiaohun)
 这是一位投降蒙古的前大宋官员，他警惕地看着周围。

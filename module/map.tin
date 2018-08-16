@@ -1026,7 +1026,7 @@
     
     #foreach {$area_list[%*]} {areaname} {
         #regexp {$work_place}{^$areaname%*} {
-            #var roomname &1;
+            #var roomname {&1};
             
             #if {"$roomname" == "ºìÄï%*"} {
                 #var areaname {noarea};

@@ -33,24 +33,35 @@
 #var mzj[status_id][complete] 任务完成;
 
 #var mzj[status] none;
+#var mzj[auto] 0;
 
-#alias {mzjstart} {
+#alias {mzj.start} {
+    #show <139>mzj: 开始刺杀任务<079>;
     mzj_status_set askjob;
 };
-#alias {mzjstop} {
+#alias {mzj.stop} {
+    #show <139>mzj: 停止刺杀任务<079>;
     mzj_status_set none;
 };
-
+#alias {mzj.auto} {
+    #if {$mzj[auto] == 1} {
+        #show <139>mzj: 关闭自动模式<079>;
+        #var mzj[auto] 0;
+    } {
+        #show <139>mzj: 打开自动模式<079>;
+        #var mzj[auto] 1;
+    };
+};
 #alias {mzj_decode} {
     #unvar mzj[pass_table];
-    #act {^%d{[ ]?(.*)}} {
-        #var mzj[pass_table][%%1] {@split_string_zh{%%3}};
+    #act {^{([0-9]{1,2})[ ]?([^ ]+)}} {
+        #var mzj[pass_table][%%2] {@split_string_zh{%%3}};
     };
     #act {^殺} {
         #unact {^殺};
         #act {^$} {
             #unact {^$};
-            #unact {^%d{[ ]?(.*)}};
+            #unact #act {^{([0-9]{1,2})[ ]?([^ ]+)}};
             
             #var mzj[pos] {};
             
@@ -123,6 +134,14 @@
             mzj_status_set waitjob;
         };
     };
+    #act {^孟之经说道：「你上次大发神威之后，汉奸们都大多不敢出头了，过段时间再来吧。[%d:%d]」} {
+        log mzj: 任务CD中,还要等: %%1:%%2;
+        #math mzj[waitime] {%%1 * 60 + %%2};
+        
+        #delay {dl_askjob} {
+            ask meng about job;
+        }{$mzj[waitime]};
+    };
     
     #class mzj_status_askjob_inner close;
     
@@ -138,46 +157,60 @@
     #class mzj_status_waitjob_inner open;
     
     #alias {mzjpass} {
-        #unvar mzj[pass];
-        #var mzjpass[idx] 0;
-        #var mzjpass[idx2] 0;
-        
-        #parse {%%1}{mzjpass[v]}{
-            #math mzjpass[idx] {$mzjpass[idx] + 1};
-            #math mzjpass[idx_mod] {$mzjpass[idx] % 2};
-            #if {$mzjpass[idx_mod] == 1} {
-                #math mzjpass[idx2] {$mzjpass[idx2] + 1};
-                #var mzj[pass][$mzjpass[idx2]] {[$mzjpass[v]]};
-            } {
-                #format {mzj[pass][$mzjpass[idx2]]}{%s%s} {${mzj[pass][$mzjpass[idx2]]}}{[$mzjpass[v]]};
-            };
+        #if {"%%2" != ""} {
+            #var mzj[pass][1] [%%1][%%2];
         };
-        #unvar mzjpass;
+        #if {"%%4" != ""} {
+            #var mzj[pass][2] [%%3][%%4];
+        };
+        #if {"%%6" != ""} {
+            #var mzj[pass][3] [%%5][%%6];
+        };
+        #if {"%%8" != ""} {
+            #var mzj[pass][4] [%%7][%%8];
+        };
+        #if {"%%10" != ""} {
+            #var mzj[pass][5] [%%9][%%10];
+        };
+        mzj_decode;
     };
     
     #act {^孟之经托付都府内常随送给了你一页密码} {
         log mzj 收到任务密码;
+        
+        #act {http://pkuxkx.{com|net}/antirobot/robot.php?filename=%*} {
+            log mzj 图片任务;
+            #unact {http://pkuxkx.{com|net}/antirobot/robot.php?filename=%*};
+
+            fetch_captcha %%%2;
+        };
     };
     #act {^mzj:解密完成} {
         mzj_status_set working;
     };
     #act {^孟之经(meng zhijing)告诉你：第%*个字在：第%*行，第%*列。第%*个字在：第%*行，第%*列。对照(duizhao)这页} {
+        #unact {http://pkuxkx.{com|net}/antirobot/robot.php?filename=%*};
         #unvar mzj[pass];
+        
         #var mzj[pass][@ctd{%%1}] {[@ctd{%%2}][@ctd{%%3}]};
         #var mzj[pass][@ctd{%%4}] {[@ctd{%%5}][@ctd{%%6}]};
         
         mzj_decode;
     };
     #act {^孟之经(meng zhijing)告诉你：第%*个字在：第%*行，第%*列。第%*个字在：第%*行，第%*列。第%*个字在：第%*行，第%*列。对照(duizhao)这页} {
+        #unact {http://pkuxkx.{com|net}/antirobot/robot.php?filename=%*};
         #unvar mzj[pass];
-        #var mzj[pass][@ctd{%%1}] {[@ctd{%2}][@ctd{%%3}]};
-        #var mzj[pass][@ctd{%%4}] {[@ctd{%5}][@ctd{%%6}]};
-        #var mzj[pass][@ctd{%%7}] {[@ctd{%8}][@ctd{%%9}]};
+        
+        #var mzj[pass][@ctd{%%1}] {[@ctd{%%2}][@ctd{%%3}]};
+        #var mzj[pass][@ctd{%%4}] {[@ctd{%%5}][@ctd{%%6}]};
+        #var mzj[pass][@ctd{%%7}] {[@ctd{%%8}][@ctd{%%9}]};
         
         mzj_decode;
     };
     #act {^孟之经(meng zhijing)告诉你：第%*个字在：第%*行，第%*列。第%*个字在：第%*行，第%*列。第%*个字在：第%*行，第%*列。第%*个字在：第%*行，第%*列。对照(duizhao)这页} {
+        #unact {http://pkuxkx.{com|net}/antirobot/robot.php?filename=%*};
         #unvar mzj[pass];
+        
         #var mzj[pass][@ctd{%%1}] {[@ctd{%%2}][@ctd{%%3}]};
         #var mzj[pass][@ctd{%%4}] {[@ctd{%%5}][@ctd{%%6}]};
         #var mzj[pass][@ctd{%%7}] {[@ctd{%%8}][@ctd{%%9}]};
@@ -190,6 +223,9 @@
     
     #delay {dl_waitjob} {
         gt $mzj[waitpos];
+        on_there {
+            log mzj 到达接头地点;
+        };
     }{1};
 };
 
@@ -209,18 +245,24 @@
         #act {^$mzj[target][name]往%*落荒而逃了}{
             #map move $direction[cn][%%%1];
         };
+        #act {^这里不准战斗} {
+            ask $mzj[target][id] about fight;
+        };
+        #act {^$mzj[target][name]往%*离开} {
+            #map move $direction[cn][%%%1];
+        };
         #class mzj_status_working_inner close;
         
         trvs.stop;
         follow $mzj[target][id];
         kill $mzj[target][id];
     };
+    #act {^对方不愿和你较量} {
+        bfs 15;
+    };
     #act {^你定睛一看，%*正是你要找的汉奸卖国贼！} {
-        #if {"%%1" == "$mzj[target][name]"} {
-            trvs.stop;
-            follow $mzj[target][id];
-            kill $mzj[target][id];
-        };
+        log mzj 看见目标: %%1;
+        trvs.stop;
         gts;
     };
     #act {^恭喜！你完成了都统制府行刺任务} {
@@ -232,10 +274,13 @@
     
     #class mzj_status_working_inner close;
     
+    #unvar mzj[parsed_pos];
+    parse_addr $mzj[pos] mzj[parsed_pos];
+    
     #delay {dl_working} {
-        gt $mzj[pos];
+        gt %*$mzj[parsed_pos][name]%* $mzj[parsed_pos][area];
         on_there {
-            bfs 10;
+            bfs 15;
         };
     }{1};
 };
@@ -247,17 +292,25 @@
     #class mzj_status_complete_inner open;
     
     #var itemid {};
-    #var itemid {{石碳}{shi tan}{玄冰}{xuan bing}};
+    #var itemid {{石炭}{shi tan}{玄冰}{xuan bing}};
     
     #act {^完成了都统制府刺杀任务后，你被奖励了：} {
-        #delay {dl_complete} {
-            mzj_status_set none;
-        }{1};
+        
     };
     #act {^你获得了%*份{石炭|玄冰}【{劣质|瑕疵}】} {
         drop $itemid[%%2];
     };
-    
+    #act {^你累计共完成了%d次都统制府刺杀任务} {
+        log mzj 刺杀任务计数: %%1 次;
+        
+        #delay {dl_complete} {
+            #if {$mzj[auto] == 1} {
+                mzj_status_set askjob;
+            } {
+                mzj_status_set none;
+            };
+        }{1};
+    };
     #class mzj_status_complete_inner open;
     
     #delay {dl_complete} {
