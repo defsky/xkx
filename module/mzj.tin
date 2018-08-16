@@ -61,7 +61,7 @@
         #unact {^š¢};
         #act {^$} {
             #unact {^$};
-            #unact #act {^{([0-9]{1,2})[ ]?([^ ]+)}};
+            #unact {^{([0-9]{1,2})[ ]?([^ ]+)}};
             
             #var mzj[pos] {};
             
@@ -157,6 +157,8 @@
     #class mzj_status_waitjob_inner open;
     
     #alias {mzjpass} {
+        #unvar mzj[pass];
+        
         #if {"%%2" != ""} {
             #var mzj[pass][1] [%%1][%%2];
         };
@@ -269,7 +271,8 @@
         mzj_status_set complete;
     };
     #act {^±éÀúÂ·¾¶:} {
-        trvs.start;
+        #nop trvs.start;
+        _path_run trvs;
     };
     
     #class mzj_status_working_inner close;
