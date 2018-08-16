@@ -442,6 +442,7 @@
             #act {    郭夫人「桃花仙子」黄蓉(Huang rong)} {
                 #unact {    郭夫人「桃花仙子」黄蓉(Huang rong)};
                 #show 发现黄蓉;
+                #cr;
                 ask huang about 工事;
                 #delay {2} {#2 n;#7 w};
             };

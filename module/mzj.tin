@@ -135,7 +135,7 @@
         };
     };
     #act {^孟之经说道：「你上次大发神威之后，汉奸们都大多不敢出头了，过段时间再来吧。[%d:%d]」} {
-        log mzj: 任务CD中,还要等: %%1:%%2;
+        log mzj 需要等待: %%1:%%2;
         #math mzj[waitime] {%%1 * 60 + %%2};
         
         #delay {dl_askjob} {
@@ -237,13 +237,15 @@
 #alias {mzj_status_enter_working} {
     #class mzj_status_working_inner open;
     
-    #act {^    大元 %S %S(%w %w)} {
-        #var mzj[target][name] {%%2};
-        #var mzj[target][id] {@lower{%%3} %%4};
-        
-        log mzj 发现目标;$mzj[target][name];
+    #act {^对方不愿和你较量} {
+        bfs 15;
+    };
+    #act {^你定睛一看，%*正是你要找的汉奸卖国贼！} {
+        log mzj 看见目标: %%1;
+        #var mzj[target][name] {%%1};
         
         #class mzj_status_working_inner open;
+        
         #act {^$mzj[target][name]往%*落荒而逃了}{
             #map move $direction[cn][%%%1];
         };
@@ -253,17 +255,18 @@
         #act {^$mzj[target][name]往%*离开} {
             #map move $direction[cn][%%%1];
         };
+        #act {^    大元 %S $mzj[target][name](%w %w)} {
+            #var mzj[target][id] {@lower{%%%2} %%%3};
+            
+            log mzj 目标ID: $mzj[target][id];
+            
+            trvs.stop;
+            follow $mzj[target][id];
+            kill $mzj[target][id];
+        };
+        
         #class mzj_status_working_inner close;
         
-        trvs.stop;
-        follow $mzj[target][id];
-        kill $mzj[target][id];
-    };
-    #act {^对方不愿和你较量} {
-        bfs 15;
-    };
-    #act {^你定睛一看，%*正是你要找的汉奸卖国贼！} {
-        log mzj 看见目标: %%1;
         trvs.stop;
         gts;
     };

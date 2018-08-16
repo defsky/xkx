@@ -624,7 +624,7 @@
 };
 #alias {goto_stop} {
     set brief 0;
-    gt_wrn 行走停止;
+    #show <139>GPS: 行走停止<079>;
     #class go_forward_inner kill;
     #class _path_run_inner kill;
     #class goto_inner kill;
@@ -909,6 +909,8 @@
             ^你觉得贸然进去有些不妥，还是先问问傻姑和程英再说吧;
             ^我劝你不要轻举妄动;
             ^门卫把手一拦：你这种正派人物，老子一看就恶心，快滚;
+            ^神龙教弟子大声喝道：本教重地，外人不得入内;
+            ^神龙教弟子大喝一声：里面是教主和夫人休息之低，外人不得入内;
         };
         
         #foreach {$on_blocked_trigger_list[%*]} {regstring} {
