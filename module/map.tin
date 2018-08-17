@@ -70,7 +70,8 @@
 #nop ============ Module private function start ===============================;
 
 #alias {_hnd_roomdesc} {
-    #regexp {%1} {^%S%s-%s$} {
+    #nop #regexp {%1} {^%S%s-%s$};
+    #regexp {%1} {^%* - $} {
         #nop #send {get all};
         #var hnd_addesc_inner[desc_start] 1;
         #var hnd_addesc_inner[desc] {};

@@ -275,7 +275,7 @@
             #show <139>找不到目的地路径 : $hubiao[dest][name] $hubiao[dest][area]<079>;
             log hubiao 找不到目的地路径 : $hubiao[dest][name] $hubiao[dest][area];
             
-            #show <139>请手动指定目的地(hbpos)<079>;
+            #show <139>请手动指定目的地(hbpos <房间名>)<079>;
             #nop hb_status_set manual;
         } {
             #show <129>找到路径 : $map[gt][path]<079>;
@@ -562,6 +562,10 @@
         shou @lower{$status[id]} robber;
     };
     
+    #act {^从劫匪身上掉了出来一颗{地|山|风|水|雷|火|泽|天}%*} {
+        log hubiao gem %%1%%2;
+        pgem;
+    };
     #act {^你想{要|}收劫匪为弟子} {
         log hubiao 发现劫匪,5秒后再检测;
 
@@ -732,6 +736,7 @@
         #act {http://pkuxkx.{net|com}/antirobot/robot.php?filename=%*} {
             #unact {http://pkuxkx.{net|com}/antirobot/robot.php?filename=%*};
             fetch_captcha %%%2;
+            #show <139>请输入密信地点(mxpos <区域名> <房间名>)<079>;
         };
         xian;
     };
