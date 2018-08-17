@@ -297,14 +297,8 @@
 #alias {mzj_status_enter_complete} {
     #class mzj_status_complete_inner open;
     
-    #var itemid {};
-    #var itemid {{石炭}{shi tan}{玄冰}{xuan bing}};
-    
     #act {^完成了都统制府刺杀任务后，你被奖励了：} {
         
-    };
-    #act {^你获得了%*份{石炭|玄冰}【{劣质|瑕疵}】} {
-        drop $itemid[%%2];
     };
     #act {^你累计共完成了%d次都统制府刺杀任务} {
         log mzj 刺杀任务计数: %%1 次;

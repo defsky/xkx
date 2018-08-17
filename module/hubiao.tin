@@ -75,12 +75,15 @@
 
 #alias {hb.max} {
     #var hubiao[max_lunci] %1;
+    #show <139>hubiao:护镖重置轮次已设置为：$hubiao[max_lunci]<079>;
 };
 #alias {hb.start} {
+    #show <139>hubiao:开始护镖<079>;
     hb_status_set listesc;
 };
 #alias {hb.stop} {
     hb_status_set none;
+    #show <139>hubiao:停止护镖<079>;
 };
 #alias {hb.restart} {
     hb_status_set zoubiao;
@@ -236,9 +239,15 @@
     #alias {wait_job} {
         log hubiao CD中，$jobcd[09]秒后继续;
         
-        #delay {dl_getesc} {
-            hb_status_set listesc;
-        }{$jobcd[09]};
+        #if {$jobcd[09] < 10} {
+            #delay {dl_getesc} {
+                hb_status_set listesc;
+            }{10};
+        } {
+            #delay {dl_getesc} {
+                hb_status_set listesc;
+            }{$jobcd[09]};
+        };
     };
     
     #act {^$status[name]把这批红货送到{.*}那里，他已经派了个伙计名叫{.*}到{.*}附近接你，把镖车送到他那里就行了} {
@@ -278,6 +287,12 @@
             hb_status_set zoubiao;
         
         };
+    };
+    #act {^你正忙着呢} {
+        log hubiao busy中，稍等10s...;
+        #delay {dl_getesc} {
+            hb_status_set listesc;
+        }{10};
     };
     #act {^认领任务失败，请选择其他任务} {
         hb_status_set listesc;
@@ -663,6 +678,7 @@
     };
     #act {^$hubiao[jobmaster][$hubiao[biaoju]][name]吩咐了旁边的镖头几句，转头对你道：「辛苦了} {
         #math hubiao[lunci] {$hubiao[lunci] + 1};
+        log hubiao 已连续完成 $hubiao[lunci] 轮运镖;
         
         #if {$hubiao[lunci] >= $hubiao[max_lunci]} {
             #var hubiao[lunci] 0;
