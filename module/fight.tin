@@ -101,6 +101,9 @@
 #act {^该兵器现在还无法装备} {
     #delay {1} {wield staff};
 };
+#act {^你正忙着呢，歇会再更换武器} {
+    #delay {1} {wield staff};
+};
 
 #act {^( 你%*)『$status[name]( 气血:%d%/%d%)』} {
     hpbrief1;

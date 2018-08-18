@@ -47,7 +47,7 @@
 #var hubiao[status_id][mixin]    密信任务;
 #var hubiao[status_id][mixinok]  密信完成;
 #var hubiao[status_id][luanru]   镖车乱入;
-#var hubiao[status_id][recover]  恢复气血;
+#var hubiao[status_id][recover]  恢复状态;
 #var hubiao[status_id][manual]   手动操作;
 
 #var hubiao[jobmaster][福州福威镖局] {{id}{lin zhennan}{name}{林震南}};
@@ -317,6 +317,7 @@
         }{5};
     };
     #act {^认领任务失败，请选择其他任务} {
+        log hubiao 任务已被领取;
         hb_status_set listesc;
     };
     #act {^你上次运镖太辛苦了，下去休息休息吧} {
@@ -434,6 +435,7 @@
     };
     #alias {pphuoji} {
         #if {"$hubiao[pp][status]" == "none"} {
+            log hubiao pp伙计;
             #class pphuoji_inner open;
             
             #act {^ GPS : 目的地为当前房间} {
@@ -807,7 +809,9 @@
         gt $hubiao[mixin][room] $hubiao[mixin][area];
         
         on_there {
-            zhao;
+            on_unbusy {
+                zhao;
+            };
         };
     };
     
@@ -857,6 +861,10 @@
         #elseif {$hubiao[auto] == 1} {
             hb_status_set listesc;
         };
+    };
+    #act {^【任务】林震南(Lin zhennan): $status[name]在帮助林震南追回财物后，获得%*一枚} {
+        log hubiao gem %%1;
+        pgem;
     };
     
     #class hb_status_mixinok_inner close;
