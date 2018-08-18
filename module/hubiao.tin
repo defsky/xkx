@@ -75,15 +75,15 @@
 
 #alias {hb.max} {
     #var hubiao[max_lunci] %1;
-    #show <139>hubiao:护镖重置轮次已设置为：$hubiao[max_lunci]<079>;
+    #show <139>护镖重置轮次已设置为：$hubiao[max_lunci]<079>;
 };
 #alias {hb.start} {
-    #show <139>hubiao:开始护镖<079>;
+    #show <139>开始护镖<079>;
     hb_status_set listesc;
 };
 #alias {hb.stop} {
     hb_status_set none;
-    #show <139>hubiao:停止护镖<079>;
+    #show <139>停止护镖<079>;
 };
 #alias {hb.restart} {
     hb_status_set zoubiao;

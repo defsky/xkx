@@ -138,6 +138,10 @@
 #act {^你有很长一段时间没有备份档案了} {
     backup;
 };
+
+#act {^MISSION_COMPLETE} {
+    fsk start;
+};
     
 #function {var}{
     #var result $%1;

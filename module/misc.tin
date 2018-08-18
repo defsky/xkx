@@ -1186,6 +1186,7 @@
         
         #if {$xiul[count] <= 0} {
             log ÐÞÁ¶Íê±Ï $xiul[target];
+            #show <139>MISSION_COMPLETE<079>;
             
             #class xiul_inner kill;
         } {
