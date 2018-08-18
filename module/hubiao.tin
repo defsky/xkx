@@ -237,16 +237,32 @@
         jobquery;
     };
     #alias {wait_job} {
-        log hubiao CD中，$jobcd[09]秒后继续;
+        
         
         #if {$jobcd[09] < 10} {
+            log hubiao CD中，10秒后继续;
             #delay {dl_getesc} {
                 hb_status_set listesc;
             }{10};
-        } {
+        };
+        #elseif {$jobcd[09] < 20} {
+            log hubiao CD中，$jobcd[09]秒后继续;
             #delay {dl_getesc} {
                 hb_status_set listesc;
             }{$jobcd[09]};
+        };
+        #else {
+            log hubiao CD中，dazuo max 后继续;
+            
+            #class hb_status_getesc_inner open;
+            #act {^{你将内息走了个小周天，流回丹田，收功站了起来|你运功完毕，深深吸了口气，站了起来}} {
+                hb_status_set listesc;
+            };
+            #class hb_status_getesc_inner close;
+            
+            on_unbusy {
+                dazuo max;
+            };
         };
     };
     
@@ -289,10 +305,10 @@
         };
     };
     #act {^你正忙着呢} {
-        log hubiao busy中，稍等10s...;
+        log hubiao busy中，稍等 5s...;
         #delay {dl_getesc} {
             hb_status_set listesc;
-        }{10};
+        }{5};
     };
     #act {^认领任务失败，请选择其他任务} {
         hb_status_set listesc;
@@ -311,7 +327,10 @@
     
     log hubiao 选中任务: $hubiao[quest][id] $hubiao[quest][boss];
     #nop #show 渡仁把这批红货送到嘉兴钱庄包方圆那里，他已经派了个伙计名叫时儿到嘉兴城附近接你，把镖车送到他那里就行了。;
-    getesc $hubiao[quest][id];
+    
+    on_unbusy {
+        getesc $hubiao[quest][id];
+    };
     
 };
 
@@ -566,16 +585,16 @@
         log hubiao gem %%1%%2;
         pgem;
     };
-    #act {^你想{要|}收劫匪为弟子} {
-        log hubiao 发现劫匪,5秒后再检测;
+    #act {^deleted你想{要|}收劫匪为弟子} {
+        log hubiao 发现劫匪;
 
         #delay {dl_robber_check} {
-            check_robber;
+            #nop check_robber;
         }{5};
     };
     #act {^你想收谁作弟子} {
         #undelay {dl_robber_check};
-        log hubiao 没有检测到劫匪;
+        log hubiao 没有发现劫匪;
         
         #if {$hubiao[complete] == 1} {
             hb_status_set complete;
