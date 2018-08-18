@@ -140,7 +140,7 @@
 };
 
 #act {^MISSION_COMPLETE} {
-    fsk start;
+    dztn;
 };
     
 #function {var}{

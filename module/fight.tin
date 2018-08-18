@@ -95,6 +95,13 @@
 #act {^你已经够忙的了} {
     #delay {1} {wear shield};
 };
+#act {^%*卸除了你的兵器%*} {
+    #delay {1} {wield staff};
+};
+#act {^该兵器现在还无法装备} {
+    #delay {1} {wield staff};
+};
+
 #act {^( 你%*)『$status[name]( 气血:%d%/%d%)』} {
     hpbrief1;
     #show <139>==>%1 %2 %3<079>;

@@ -258,6 +258,12 @@
             #act {^{你将内息走了个小周天，流回丹田，收功站了起来|你运功完毕，深深吸了口气，站了起来}} {
                 hb_status_set listesc;
             };
+            #act {^你现在内力接近圆满状态} {
+                log hubiao 内力已满，10秒后继续;
+                #delay {dl_getesc} {
+                    hb_status_set listesc;
+                }{10};
+            };
             #class hb_status_getesc_inner close;
             
             on_unbusy {
@@ -585,21 +591,18 @@
         log hubiao gem %%1%%2;
         pgem;
     };
-    #act {^deleted你想{要|}收劫匪为弟子} {
-        log hubiao 发现劫匪;
-
-        #delay {dl_robber_check} {
-            #nop check_robber;
-        }{5};
+    #act {^你想{要|}收劫匪为弟子} {
+        log hubiao 检测到劫匪;
     };
     #act {^你想收谁作弟子} {
         #undelay {dl_robber_check};
-        log hubiao 没有发现劫匪;
+        log hubiao 未检测到劫匪;
         
         #if {$hubiao[complete] == 1} {
             hb_status_set complete;
         } {
-            hb_status_set zoubiao;
+            #nop hb_status_set zoubiao;
+            hb_status_set recover;
         };
     };
     #act {^{你|劫匪}{你战胜了劫匪|你哈哈大笑，说道|双手一拱，笑着说道|脸色一寒，说道|向后一纵，恨恨地说道|向后退了几步，说道}} {
@@ -636,16 +639,44 @@
 };
     
 #alias {hb_status_exit_recover} {
-    halt;
+    #undelay {dl_recover};
+    
+    #untic {tk_do_recover};
 };
 #alias {hb_status_enter_recover} {
     #class hb_status_recover_inner open;
+    
+    #if {$hubiao[complete] == 0} {
+        #tic {tk_do_recover} {
+            #if {$status[hp_valid] < $status[hp_max]} {
+                yun heal;
+                hpbrief1;
+            } {
+                hb_status_set zoubiao;
+            };
+        } {2};
+    };
+    #if {$hubiao[complete] == 1} {
+        #act {^{你将内息走了个小周天，流回丹田，收功站了起来|你运功完毕，深深吸了口气，站了起来}} {
+            hb_status_set listesc;
+        };
+    };
     
     #act {^{劫匪突然从暗处跳了出来|劫匪伸手一拦道|你还是先把对手解决了再说吧}} {
         hb_status_set robber;
     };
     
     #class hb_status_recover_inner close;
+    
+    hpbrief1;
+    
+    #if {$hubiao[complete] == 1} {
+        #if {$status[force] < @eval{$status[force_max] * 0.9}} {
+            dazuo max;
+        } {
+            hb_status_set listesc;
+        };
+    };
 };
 
 #alias {hb_status_exit_luanru} {
