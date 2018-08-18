@@ -726,7 +726,8 @@
                 hb_status_set none;
             };
             #elseif {$hubiao[auto] == 1} {
-                hb_status_set listesc;
+                #nop hb_status_set listesc;
+                hb_status_set recover;
             };
         };
     };
@@ -748,7 +749,8 @@
                     hb_status_set none;
                 };
                 #elseif {$hubiao[auto] == 1} {
-                    hb_status_set listesc;
+                    #nop hb_status_set listesc;
+                    hb_status_set recover;
                 };
             };
         };
