@@ -97,6 +97,25 @@
         #var hubiao[auto] 0;
     };
 };
+#alias {hb.info} {
+    #show 护镖信息;
+    #show -------------------------------------------------------;
+    #show 镖局名称：$hubiao[biaoju];
+    #show 委托单位：$hubiao[quest][boss];
+    #show 接镖伙计：$hubiao[dest][name] $hubiao[dest][huoji];
+    #show 护镖轮次：$hubiao[lunci] / $hubiao[max_lunci];
+    #show 当前状态：$hubiao[status_id][$hubiao[status]];
+    #show 完成状态：$hubiao[complete];
+    #show 自动开始：$hubiao[auto];
+    #show -------------------------------------------------------;
+    
+    #nop #format {line_str} {%-6s%-20s%-20s} {序号} {基本功夫} {特殊功夫};
+    #nop #show $line_str;
+    
+    #buffer lock;
+    
+    #nop #unvar line_str;
+};
 
 #alias {hb_status_set} {
 
