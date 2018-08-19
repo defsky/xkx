@@ -537,10 +537,16 @@
         ask guo about 襄阳保卫;
         #var bw[status][get_qiao] 0;
         #delay {0.5} {join 3};
+        
+        #delay {dl_askhuang} {
+            ask huang about 工事;
+        }{5};
     };
     
     #act {    郭夫人「桃花仙子」黄蓉(Huang rong)} {
         #nop #unact {    郭夫人「桃花仙子」黄蓉(Huang rong)};
+        
+        #cr;
         
         #if {$bw[status][get_qiao] == 0} {
             #var bw[status][get_qiao] 1;
@@ -551,6 +557,8 @@
     };
     #act {^郭靖令手下军士给你一把铁锹} {
         #nop #unact {^郭靖令手下军士给你一把铁锹};
+        #undelay {dl_askhuang};
+        
         #delay {0.5} {
             on_center {
                 bw.check;

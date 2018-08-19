@@ -654,7 +654,12 @@
                 yun heal;
                 hpbrief1;
             } {
-                hb_status_set zoubiao;
+                #if {$status[hp] < @eval{$status[hp_valid] * 0.6}} {
+                    yun recover;
+                    hpbrief1;
+                } {
+                    hb_status_set zoubiao;
+                };
             };
         } {2};
     };
