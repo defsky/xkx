@@ -1,9 +1,14 @@
-#VARIABLE {hubiao}={{auto}{1}{biaoju}{福州福威镖局}{complete}{0}{dest}{{area}{嘉兴}{huoji}{上官钟晓}{name}{嘉兴钱庄}{py}{shangguan zhongxiao}}{jobmaster}{{福州福威镖局}{{id}{
-lin zhennan}{name}{林震南}}}{luanru}{0}{lunci}{9}{max_lunci}{12}{mixin}{{area}{全真}{room}{校经房}{start}{0}{target}{{id}{Niziry}{name}{郝振}}}{path}{{1}{s}{2}{s}{3}{w}{4}{n}
-{5}{n}{6}{n}{7}{nu}{8}{nw}{9}{nw}{10}{n}{11}{e}{12}{n}{13}{n}}{path_idx}{9}{path_len}{13}{pp}{{status}{none}}{quest}{{boss}{嘉兴钱庄}{id}{13629}}{roomexits}{{1}{se}{2}{nw}}{s
-tatus}{zoubiao}{status_id}{{arrived}{到达地点}{complete}{护镖完成}{getesc}{领取任务}{listesc}{查看任务}{luanru}{镖车乱入}{manual}{手动操作}{mixin}{密信任务}{mixinok}{密信完成
-}{none}{空闲状态}{recover}{恢复状态}{robber}{出现劫匪}{zoubiao}{赶车走镖}}}
+借 tyy 一本正白旗
 
+你的眼前一黑，接著什么也不知道了....
+。
+。
+。
+
+你慢慢睁开眼睛，清醒了过来。
+
+
+慢慢地你终于又有了知觉....
 请注意，你的活跃度已经偏低。如果你不是机器人，请在半小时内执行fullme命令补充你的活跃度。
 请注意，你的活跃度已经偏低。如果你不是机器人，请在半小时内执行fullme命令补充你的活跃度。
 请注意，你的活跃度已经偏低。如果你不是机器人，请在半小时内执行fullme命令补充你的活跃度。

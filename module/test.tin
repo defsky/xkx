@@ -228,7 +228,14 @@
     #class xuexi_inner kill;
 };
 
-
+#alias {duoqi} {
+    #tic {tk_duoqi} {
+        duo;
+    }{0.5};
+};
+#alias {duoqi.stop} {
+    #untic {tk_duoqi};
+};
 
 #alias {get_hpbrief} {
     #act {#%d,%d,%d,%d{,Õ½¶·ÖÐ|}$}{
