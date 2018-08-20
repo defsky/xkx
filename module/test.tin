@@ -142,7 +142,37 @@
 #act {^MISSION_COMPLETE} {
     dztn;
 };
+
+#alias {gemon} {
+    #class list_gem_inner open;
+    #act {^┏所有宝石列表┓} {
+        #class list_gem_inner open;
+        
+        #act {^│%d%s│{地|山|风|水|雷|火|泽|天}%*(%w)%s│%S%s│%S%s│%S%s│} {
+            log 当铺 gem %%%3%%%4;
+            buy %%%1;
+        };
+        #act {^└─────┴───────────────┴────────────────────┘} {
+            #class list_gem_inner kill;
+            log 当铺扫描完成;
+        };
+        #class list_gem_inner close;
+        
+    };
+    #class list_gem_inner close;
     
+    list gem;
+};
+
+#alias {ahmon.start} {
+    #tic {tk_ahmon} {
+        gemon;
+    }{11};
+};
+#alias {ahmon.stop} {
+    #untic {tk_ahmon};
+};
+
 #function {var}{
     #var result $%1;
 };

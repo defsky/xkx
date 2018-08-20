@@ -200,8 +200,8 @@
         #var listesc_start 0;
         
         #if {"$valid_quest" == ""} {
-            log hubiao 没有待认领的任务,20秒后再查看;
-            #delay {dl_hubiao_listesc} {list_esc} {20};
+            log hubiao 没有任务,5秒后再查看;
+            #delay {dl_hubiao_listesc} {list_esc} {5};
         } {
             select_quest;
         
@@ -611,7 +611,10 @@
     #alias {check_robber} {
         shou @lower{$status[id]} robber;
     };
-    
+
+    #act {^从劫匪身上掉了出来一%*之%*} {
+        identify $equipid[%%2];
+    };
     #act {^从劫匪身上掉了出来一颗{地|山|风|水|雷|火|泽|天}%*} {
         log hubiao gem %%1%%2;
         pgem;

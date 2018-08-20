@@ -472,7 +472,7 @@
             #delay {3} {pu};
             #delay {4} {jg};
         };
-        #act {^【本地】襄阳保卫战（副本难度%*）守卫成功，各位可以到郭靖处领奖} {
+        #act {^【本地】襄阳保卫战（副本难度%*）守卫成功，各位可以到郭靖处领奖} { 
             #7 e;#2 s;
             
             #delay {5} {
@@ -619,6 +619,8 @@
     };
     #act {^郭靖双手抱拳，讨好地对你说道：} {
         #nop #class bw.start.inner kill;
+        
+        #unact {这里没有这个人};
     };
     
     #class bw.start.inner close;
