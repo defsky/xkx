@@ -139,6 +139,18 @@
     backup;
 };
 
+#act {^也许是上天垂青于你的勤奋和努力吧，一个小时之内你不用担心被判为机器人} {
+    #var status[fm][remain] 60;
+    #tic {tk_fm_countdown} {
+        #if {$status[fm][remain] > 0} {
+            #math status[fm][remain] {$status[fm][remain] - 1};
+        };
+        #if {$status[fm][remain] <= 10} {
+            #show <139>fullme有效时间还剩 $status[fm][remain] 分钟，请及时补充<079>;
+        };
+    }{60};
+};
+
 #act {^MISSION_COMPLETE} {
     dztn;
 };

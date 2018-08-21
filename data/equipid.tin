@@ -19,8 +19,8 @@
 #var equipid[披风] surcoat;
 #var equipid[腰带] waist;
 #var equipid[护腕] wrists;
-#var equipid[戒指] finger;
-#var equipid[项链] neck;
+#var equipid[戒指] ring;
+#var equipid[项链] necklace;
 #var equipid[护心] huxin;
 #var equipid[护肩] hujian;
 #var equipid[腿甲] tuijia;

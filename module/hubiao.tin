@@ -466,6 +466,9 @@
                 #var hubiao[dest][area1] %%%2;
                 #var hubiao[dest][name1] %%%3;
                 
+                #if {"$hubiao[dest][area1]" == "未知区域"} {
+                    #var hubiao[dest][area1] {};
+                };
                 #if {"$hubiao[dest][area1]" == "福州" && "$hubiao[dest][name1]" == "山路"} {
                     #var hubiao[dest][name1] 南门;
                 };
@@ -704,7 +707,7 @@
     hpbrief1;
     
     #if {$hubiao[complete] == 1} {
-        #if {$status[force] < @eval{$status[force_max] * 0.9}} {
+        #if {$status[force] < @eval{$status[force_max] * 0.8}} {
             dazuo max;
         } {
             hb_status_set listesc;
