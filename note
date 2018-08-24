@@ -1,3 +1,21 @@
+            
+            #class hb_status_getesc_inner open;
+            #act {^{你将内息走了个小周天，流回丹田，收功站了起来|你运功完毕，深深吸了口气，站了起来}} {
+                hb_status_set listesc;
+            };
+            #act {^你现在内力接近圆满状态} {
+                log hubiao 内力已满，10秒后继续;
+                #delay {dl_getesc} {
+                    hb_status_set listesc;
+                }{10};
+            };
+            #class hb_status_getesc_inner close;
+            
+            on_unbusy {
+                dazuo max;
+            };
+
+
 你突然感到精神一振，浑身似乎又充满了力量！
 也许是上天垂青于你的勤奋和努力吧，一个小时之内你不用担心被判为机器人
 

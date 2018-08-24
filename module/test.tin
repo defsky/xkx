@@ -132,6 +132,12 @@
     
 };
 
+#act {^    %S丹(%w dan)} {
+    get all;
+};
+#act {^    {地|山|风|水|雷|火|泽|天}%*{木灵|精金|玄冰|炎晶|玉髓|日魂|月魄|玄武甲|凤凰羽|神龙骨|麒麟角}(%w %w)} {
+    get all;
+};
 #act {^你捡起一堆陨铁} {
     drop yun tie;
 };
@@ -145,8 +151,9 @@
         #if {$status[fm][remain] > 0} {
             #math status[fm][remain] {$status[fm][remain] - 1};
         };
-        #if {$status[fm][remain] <= 10} {
-            #show <139>fullme有效时间还剩 $status[fm][remain] 分钟，请及时补充<079>;
+        #if {$status[fm][remain] <= 15} {
+            #show <139>fullme 有效时间还剩 $status[fm][remain] 分钟，请及时补充<079>;
+            log fullme 有效时间还剩 $status[fm][remain] 分钟;
         };
     }{60};
 };

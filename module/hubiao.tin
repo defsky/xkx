@@ -51,6 +51,7 @@
 #var hubiao[status_id][manual]   手动操作;
 
 #var hubiao[jobmaster][福州福威镖局] {{id}{lin zhennan}{name}{林震南}};
+#var hubiao[jobmaster][武当荆西镖局] {{id}{zhang zhi}{name}{张志}};
 
 #alias {gn} {gan che to north};
 #alias {gs} {gan che to south};
@@ -72,6 +73,8 @@
 #alias {gdown} {gan che to down};
 #alias {genter} {gan che to enter};
 #alias {gout} {gan che to out};
+
+#alias {gxiaolu} {gan che to xiaolu};
 
 #alias {hb.max} {
     #var hubiao[max_lunci] %1;
@@ -158,11 +161,13 @@
         #var listesc_start 0;
         #var valid_quest {};
         
-        listesc;
+        on_unbusy {
+            listesc;
+        };
     };
     #alias {select_quest} {
         #var hubiao[quest] {};
-        #var selected_quest {{id}{}{priority}{999}};
+        #var selected_quest {{id}{}{priority}{1000}};
         
         #foreach {$valid_quest[]}{selected_quest[tmp_id]}{
             #if {$dest_list[$valid_quest[$selected_quest[tmp_id]]] < $selected_quest[priority]} {
@@ -200,8 +205,8 @@
         #var listesc_start 0;
         
         #if {"$valid_quest" == ""} {
-            log hubiao 没有任务,5秒后再查看;
-            #delay {dl_hubiao_listesc} {list_esc} {5};
+            log hubiao 没有任务,2秒后再查看;
+            #delay {dl_hubiao_listesc} {list_esc} {2};
         } {
             select_quest;
         
@@ -256,7 +261,7 @@
         jobquery;
     };
     #alias {wait_job} {
-        
+        hpbrief1;
         
         #if {$jobcd[09] < 10} {
             log hubiao CD中，10秒后继续;
@@ -271,23 +276,9 @@
             }{$jobcd[09]};
         };
         #else {
-            log hubiao CD中，dazuo max 后继续;
-            
-            #class hb_status_getesc_inner open;
-            #act {^{你将内息走了个小周天，流回丹田，收功站了起来|你运功完毕，深深吸了口气，站了起来}} {
-                hb_status_set listesc;
-            };
-            #act {^你现在内力接近圆满状态} {
-                log hubiao 内力已满，10秒后继续;
-                #delay {dl_getesc} {
-                    hb_status_set listesc;
-                }{10};
-            };
-            #class hb_status_getesc_inner close;
-            
-            on_unbusy {
-                dazuo max;
-            };
+            log hubiao CD中，恢复状态;
+            hb_status_set recover;
+
         };
     };
     
@@ -306,6 +297,14 @@
         
         #if {"$hubiao[dest][area]" == "嘉兴" && "$hubiao[dest][name]" == "驿道"} {
             #var hubiao[dest][area] 牙山;
+        };
+        #if {"$hubiao[dest][area]" == "泉州"} {
+            #if {"$hubiao[dest][name]" == "泉州码头" ||
+                "$hubiao[dest][name]" == "北码头" ||
+                "$hubiao[dest][name]" == "南码头"} {
+                
+                #var hubiao[dest][area] 钓鱼岛;
+            };
         };
         
         log hubiao 目的地 ：$hubiao[dest][area] $hubiao[dest][name];
@@ -467,7 +466,14 @@
                 #var hubiao[dest][name1] %%%3;
                 
                 #if {"$hubiao[dest][area1]" == "未知区域"} {
-                    #var hubiao[dest][area1] {};
+                    #if {"$hubiao[dest][name1]" == "泉州码头" ||
+                        "$hubiao[dest][name1]" == "北码头" ||
+                        "$hubiao[dest][name1]" == "南码头"} {
+                        
+                        #var hubiao[dest][area1] 钓鱼岛;
+                    } {
+                        #var hubiao[dest][area1] {};
+                    };
                 };
                 #if {"$hubiao[dest][area1]" == "福州" && "$hubiao[dest][name1]" == "山路"} {
                     #var hubiao[dest][name1] 南门;
@@ -616,6 +622,15 @@
     };
 
     #act {^从劫匪身上掉了出来一%*之%*} {
+        #var hubiao[equipid] {};
+        #var hubiao[equipid] {$equipid[%%2]};
+        
+        #act {^      可塑性:%d(0)} {
+            #unact {^      可塑性:%d(0)};
+            #if {%%%1 > 1} {
+                put $hubiao[equipid] in bao;
+            };
+        };
         identify $equipid[%%2];
     };
     #act {^从劫匪身上掉了出来一颗{地|山|风|水|雷|火|泽|天}%*} {
@@ -708,7 +723,9 @@
     
     #if {$hubiao[complete] == 1} {
         #if {$status[force] < @eval{$status[force_max] * 0.8}} {
-            dazuo max;
+            on_unbusy {
+                dazuo max;
+            };
         } {
             hb_status_set listesc;
         };
@@ -831,8 +848,8 @@
     #alias {mxpos} {
         log hubiao 密信地点：%%1 %%2;
         
-        #var hubiao[mixin][area] %%1;
-        #var hubiao[mixin][room] %%2;
+        #var hubiao[mixin][area] {%%1};
+        #var hubiao[mixin][room] {%%2};
         
         #if {&map_area_table[$hubiao[mixin][area]] == 0} {
         

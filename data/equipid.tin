@@ -8,6 +8,8 @@
 #var equipid[´¸] hammer;
 #var equipid[êª] halberd;
 #var equipid[Ø°] dagger;
+#var equipid[¹³] hook;
+#var equipid[Õë] needle;
 #var equipid[îø¼×] armor;
 #var equipid[ÁÛ¼×] armor;
 #var equipid[°å¼×] armor;
