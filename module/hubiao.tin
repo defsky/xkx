@@ -52,6 +52,7 @@
 
 #var hubiao[jobmaster][福州福威镖局] {{id}{lin zhennan}{name}{林震南}};
 #var hubiao[jobmaster][武当荆西镖局] {{id}{zhang zhi}{name}{张志}};
+#var hubiao[jobmaster][苏州昌隆镖局] {{id}{zuo erba}{name}{左二把}};
 
 #alias {gn} {gan che to north};
 #alias {gs} {gan che to south};
@@ -476,7 +477,11 @@
                     };
                 };
                 #if {"$hubiao[dest][area1]" == "福州" && "$hubiao[dest][name1]" == "山路"} {
+                    #var hubiao[dest][area1] 闽南;
                     #var hubiao[dest][name1] 南门;
+                };
+                #if {"$hubiao[dest][name1]" == "嘉兴南湖"} {
+                    #var hubiao[dest][name1] 烟雨楼;
                 };
                 
                 #if {&map_area_table[$hubiao[dest][area1]] == 0} {
@@ -518,6 +523,34 @@
             };
         };
     };
+    #alias {correct_path} {
+        log hubiao 自动纠正路径;
+        #show <139>自动纠正路径<079>;
+        
+        #if {$hubiao[corrected] == 1} {
+            #list hubiao[path] insert $hubiao[path_idx] $hubiao[roomexits][-1];
+        } {;
+            #var hubiao[corrected] 1;
+            
+            find_path {$hubiao[dest][name]} {$hubiao[dest][area]};
+            
+            #if {"$map[gt][path]" == ""} {
+                #show <139>找不到目的地路径 : $hubiao[dest][area] $hubiao[dest][name]<079>;
+                log hubiao 找不到目的地路径 : $hubiao[dest][area] $hubiao[dest][name];
+                
+                #nop hb_status_set manual;
+                
+                #list hubiao[path] insert $hubiao[path_idx] $hubiao[roomexits][1];
+            } {
+                #show <129>找到路径 : $map[gt][path]<079>;
+                
+                #var hubiao[path_idx] 1;
+                #list hubiao[path] create $map[gt][path];
+            };
+        
+        };
+        #list hubiao[path] size hubiao[path_len];
+    };
     
     #act {^你现在正忙着哩} {
         on_unbusy {
@@ -543,6 +576,8 @@
     #act {^你赶着镖车驶了过来} {
         #map move $hubiao[path][$hubiao[path_idx]];
         #math hubiao[path_idx] {$hubiao[path_idx] + 1};
+        
+        #var hubiao[corrected] 0;
         
         #delay {dl_zoubiao_wait} {
             on_unbusy {
@@ -570,28 +605,7 @@
         
         hb_status_set complete;
     };
-    
-    #alias {correct_path} {
-        log hubiao 自动纠正路径;
-        #show <139>自动纠正路径<079>;
-        
-        find_path {$hubiao[dest][name]} {$hubiao[dest][area]};
-        
-        #if {"$map[gt][path]" == ""} {
-            #show <139>找不到目的地路径 : $hubiao[dest][area] $hubiao[dest][name]<079>;
-            log hubiao 找不到目的地路径 : $hubiao[dest][area] $hubiao[dest][name];
-            
-            #nop hb_status_set manual;
-            
-            #list hubiao[path] insert $hubiao[path_idx] $hubiao[roomexits][1];
-        } {
-            #show <129>找到路径 : $map[gt][path]<079>;
-            
-            #var hubiao[path_idx] 1;
-            #list hubiao[path] create $map[gt][path];
-        };
-        #list hubiao[path] size hubiao[path_len];
-    };
+
     #class hb_status_zoubiao_inner close;
     
     #if {$hubiao[luanru] == 1} {

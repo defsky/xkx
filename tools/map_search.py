@@ -21,7 +21,7 @@ area_dict = {}
 bus_station_list = []
 
 while line:
-    matchobj = re.match(r'R {(.*)} {(.*)} {(.*)} {(马车)} {(.*)} {(.*)} {(.*)} {(.*)} {(.*)} {(.*)} {(.*)}',line)
+    matchobj = re.match(r'R {(.*)} {(.*)} {(.*)} {(.*)} {(.*)} {(.*)} {} {(.*)} {(.*)} {(.*)} {(.*)}',line)
     
     if matchobj:
         room_count += 1;
