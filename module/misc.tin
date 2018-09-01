@@ -413,6 +413,7 @@
     #var timer[value] $timer[setValue];
     #tic {tk_timer_processer} {
         #math {timer[value]}{$timer[value] - 1};
+        status.set_action $timer[value];
         #if {$timer[value] <= 0} {
             timer.stop;
         } {

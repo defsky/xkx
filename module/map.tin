@@ -1129,7 +1129,7 @@
 #nop 2923 明教 2245 白驼 1147 兰州 1009 大轮寺 65 苏州;
 #list bus_station_list create {63;65;93;95;170;187;198;242;244;284;286;322;337;797;988;990;992;1011;1053;1076;1107;1109;1139;1171;1182;1210;1347;1533;1582;1584;1677;1691;1741;2101;3288;3289;3290}
 
-#alias {mapcar} {
+#alias {map.car} {
     #map get roomvnum current_room_id;
     
     #if {"%1" == "on"} {
@@ -1145,6 +1145,31 @@
             #map roomflag avoid on;
         };
         #showme <139>GPS : 关闭马车节点<079>;
+    };
+    
+    #map goto $current_room_id;
+    #unvar current_room_id;
+};
+
+#nop 1111 树洞内部 1112 树洞下
+#list andao_list create {1112};
+
+#alias {map.andao} {
+    #map get roomvnum current_room_id;
+    
+    #if {"%1" == "on"} {
+        #foreach {$andao_list[%*]} {room_id} {
+            #map goto $room_id;
+            #map roomflag avoid off;
+        };
+        #showme <139>GPS : 开启暗道节点<079>;
+    };
+    #elseif {"%1" == "off"} {
+        #foreach {$andao_list[%*]} {room_id} {
+            #map goto $room_id;
+            #map roomflag avoid on;
+        };
+        #showme <139>GPS : 关闭暗道节点<079>;
     };
     
     #map goto $current_room_id;

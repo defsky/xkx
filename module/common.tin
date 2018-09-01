@@ -15,6 +15,7 @@
 #function {trim}		{#format result {%p}{%1}};
 #function {lower} 	    {#format result {%l} {%1}};
 #function {upper} 	    {#format result {%u} {%1}};
+#function {cap}         {#format result {%n} {%1}};
 #function {len} 		{#format result {%L} {%1}};
 #function {screenw} 	{#format result {%C}};
 #function {screenh} 	{#format result {%R}};

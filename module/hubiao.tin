@@ -74,6 +74,15 @@
 #alias {gdown} {gan che to down};
 #alias {genter} {gan che to enter};
 #alias {gout} {gan che to out};
+#alias {ghireboat} {
+    ask shao gong about 过河;
+    ask shao gong about 过江;
+    genter;
+};
+#alias {gyellboat} {
+    yell boat;
+    genter;
+};
 
 #alias {gxiaolu} {gan che to xiaolu};
 
@@ -168,7 +177,7 @@
     };
     #alias {select_quest} {
         #var hubiao[quest] {};
-        #var selected_quest {{id}{}{priority}{1000}};
+        #var selected_quest {{id}{}{priority}{999}};
         
         #foreach {$valid_quest[]}{selected_quest[tmp_id]}{
             #if {$dest_list[$valid_quest[$selected_quest[tmp_id]]] < $selected_quest[priority]} {
@@ -243,14 +252,18 @@
         
         #class get_jobcd_inner open;
         
-        #act {│[%d][{.+}]{\S+}{(\(\d*\)?)}%s{仍需(.*)秒才能|现在即可}接到下个%*任务。%s│} {
+        #act {│[%d][{.+}]{\S+}{(\(\d*\)?)}%*{仍需(.*)秒才能|现在即可}接到下个%*任务。%s│} {
             #nop #show ->%1-%3-%7-%8;
             
             #if {"%%%7" == "现在即可"} {
                 #var jobcd[%%%1] 0;
             };
             #if {"%%%8" != ""} {
-                #var jobcd[%%%1] @ctd{%%%8};
+                #regexp {%%%8} {%*分%*} {
+                    #var jobcd[%%%1] @eval{@ctd{&1} * 60 + @ctd{&2}};
+                } {
+                    #var jobcd[%%%1] @ctd{%%%8};
+                };
             };
         };
         #act {^jobquery 支持参数} {
@@ -397,6 +410,7 @@
     #undelay {dl_zoubiao_wait};
     #undelay {dl_pphuoji_wd};
     #undelay {dl_zoubiao_start};
+    #undelay {dl_yellboat};
     
     #class pphuoji_inner kill;
 };
@@ -561,29 +575,61 @@
         #var hubiao[roomexits] @format_exits{%%5};
     };
     #act {^这个方向过不去} {
-        log hubiao 路径出错;
-        #nop #show <139>路径出错，请手动纠正<079>;
+        #if {"$hubiao[path][$hubiao[path_idx]]" == "hireboat" ||
+            "$hubiao[path][$hubiao[path_idx]]" == "yellboat"} {
         
-        #nop hb_status_set manual;
-        
-        on_map_pad {
-            correct_path;
-            #delay {dl_zoubiao_start} {
-                ganche;
-            }{2};
+        } {
+            log hubiao 路径出错;
+            #nop #show <139>路径出错，请手动纠正<079>;
+            
+            #nop hb_status_set manual;
+            
+            on_map_pad {
+                correct_path;
+                #delay {dl_zoubiao_start} {
+                    ganche;
+                }{2};
+            };
         };
     };
     #act {^你赶着镖车驶了过来} {
-        #map move $hubiao[path][$hubiao[path_idx]];
-        #math hubiao[path_idx] {$hubiao[path_idx] + 1};
+        #undelay {dl_yellboat};
         
-        #var hubiao[corrected] 0;
-        
-        #delay {dl_zoubiao_wait} {
-            on_unbusy {
-                ganche;
+        #if {"$hubiao[path][$hubiao[path_idx]]" == "hireboat"||
+                "$hubiao[path][$hubiao[path_idx]]" == "yellboat"} {
+            #map move $hubiao[path][$hubiao[path_idx]];
+            #math hubiao[path_idx] {$hubiao[path_idx] + 1};
+            
+            #var hubiao[corrected] 0;
+        } {
+            #map move $hubiao[path][$hubiao[path_idx]];
+            #math hubiao[path_idx] {$hubiao[path_idx] + 1};
+            
+            #var hubiao[corrected] 0;
+            
+            #if {"$hubiao[path][$hubiao[path_idx]]" == "hireboat" ||
+                    "$hubiao[path][$hubiao[path_idx]]" == "yellboat"} {
+                
+                #class hb_status_zoubiao_inner open;
+                
+                #act {^艄公说“到啦，上岸吧”，随即把一块踏脚板搭上堤岸} {
+                    gout;
+                };
+                #act {^只听得江面上隐隐传来：“别急嘛，这儿正忙着呐} {
+                    #delay {dl_yellboat} {
+                        g$hubiao[path][$hubiao[path_idx]];
+                    }{2};
+                };
+                
+                #class hb_status_zoubiao_inner close;
             };
-        }{2};
+            
+            #delay {dl_zoubiao_wait} {
+                on_unbusy {
+                    ganche;
+                };
+            }{2};
+        };
     };
     #act {^镖车还没有跟上来呢,走慢点} {
         #delay {dl_zoubiao_wait} {
@@ -716,14 +762,21 @@
                     yun recover;
                     hpbrief1;
                 } {
-                    hb_status_set zoubiao;
+                    #if {$status[force] < @eval{$status[force_max] * 0.6}} {
+                        #untic {tk_do_recover};
+                        dazuo max;
+                    } {
+                        hb_status_set zoubiao;
+                    };
                 };
             };
         } {2};
     };
-    #if {$hubiao[complete] == 1} {
-        #act {^{你将内息走了个小周天，流回丹田，收功站了起来|你运功完毕，深深吸了口气，站了起来}} {
+    #act {^{你将内息走了个小周天，流回丹田，收功站了起来|你运功完毕，深深吸了口气，站了起来}} {
+        #if {$hubiao[complete] == 1} {
             hb_status_set listesc;
+        } {
+            hb_status_set zoubiao;
         };
     };
     
