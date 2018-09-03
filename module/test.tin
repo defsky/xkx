@@ -353,7 +353,60 @@
 #show ;
 };
 
-           
+#alias {wc.eat} {
+    #event {END OF PATH} {
+        do 5 eat qiezi;
+        do 5 eat fentiao;
+        do 10 he hulu;
+        
+        #unevent {END OF PATH};
+    };
+    #path load $wc[path];
+    #path run;
+};
+#alias {wc.work} {
+    #event {END OF PATH} {
+        wc.start;
+        #unevent {END OF PATH};
+    };
+    #path load $wc[rpath];
+    #path run;
+};
+#alias {wc.start} {
+    #if {&wc[count] == 0}{
+        #var wc[count] 1;
+        #var wc[count] %1;
+        #var wc[path] {s;s;s;s;e;e;e;n};
+        #var wc[rpath] {s;w;w;w;n;n;n;n};
+    };
+    
+    #class wc.inner open;
+    
+    #act {^你已经累了，还是休息一会吧} {
+        yun regenerate;
+    };
+    #act {^你的内力不够} {
+        
+    };
+    #act {^你内力不足，无法依照石壁内容行功参悟} {
+    
+    };
+    
+    #tic {wc}{
+        #if {$status[force] < @eval{$status[force_max] * 0.6}} {
+            wc.stop;
+            wc.eat;
+            #delay {2} {
+                wc.work;
+            };
+        };
+        watch 石壁 $wc[count];
+    }{1};
+    #class wc.inner close;
+};
+#alias {wc.stop} {
+    #class wc.inner kill;
+};
     
 #class $mod_name close;
 
