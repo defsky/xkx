@@ -354,57 +354,92 @@
 };
 
 #alias {wc.eat} {
-    #event {END OF PATH} {
+    log 去吃喝;
+    gt 食堂;
+    on_there {
         do 5 eat qiezi;
         do 5 eat fentiao;
-        do 10 he hulu;
-        
-        #unevent {END OF PATH};
+        do 5 he hulu;
+        #delay {3} {
+            wc.work;
+        };
     };
-    #path load $wc[path];
-    #path run;
 };
 #alias {wc.work} {
-    #event {END OF PATH} {
+    log 去干活;
+    gt 读书写字;
+    on_there {
         wc.start;
-        #unevent {END OF PATH};
     };
-    #path load $wc[rpath];
-    #path run;
+};
+#alias {wc.dazuo} {
+    log 打坐;
+    
+    #class wc.dazuo.inner open;
+    
+    #act {^{你将内息走了个小周天，流回丹田，收功站了起来|你运功完毕，深深吸了口气，站了起来}} {
+        log 打坐完毕;
+        wc.eat;
+        #class wc.dazuo.inner kills;
+    };
+    #act {^你现在精不够，无法控制内息的流动} {
+        log 不能打坐，等待60s;
+        wc.stop;
+        #delay {60} {
+            wc.eat;
+        };
+    };
+    #class wc.dazuo.inner close;
+    
+    dazuo max;
 };
 #alias {wc.start} {
+    log 开始watch;
+    
     #if {&wc[count] == 0}{
         #var wc[count] 1;
         #var wc[count] %1;
-        #var wc[path] {s;s;s;s;e;e;e;n};
-        #var wc[rpath] {s;w;w;w;n;n;n;n};
     };
     
     #class wc.inner open;
     
     #act {^你已经累了，还是休息一会吧} {
-        yun regenerate;
+        log 没精神,等待10s;
+        
+        hpbrief1;
+        wc.stop;
+        #delay {10} {
+            yun regenerate;
+            wc.eat;
+        };
     };
     #act {^你的内力不够} {
+        log 内力不够,等待60s;
         
+        wc.stop;
+        #delay {60} {
+            wc.eat;
+        };
     };
     #act {^你内力不足，无法依照石壁内容行功参悟} {
-    
+        log 内力不够参悟;
+        wc.stop;
+        wc.dazuo;
     };
     
     #tic {wc}{
-        #if {$status[force] < @eval{$status[force_max] * 0.6}} {
+        #if {$status[force] < @eval{$status[force_max] * 0.25}} {
+            log 内力偏低;
             wc.stop;
-            wc.eat;
-            #delay {2} {
-                wc.work;
-            };
+            wc.dazuo;
+        } {
+            watch 石壁 $wc[count];
         };
-        watch 石壁 $wc[count];
     }{1};
     #class wc.inner close;
 };
 #alias {wc.stop} {
+    log 停止watch;
     #class wc.inner kill;
 };
     
