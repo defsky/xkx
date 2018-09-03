@@ -1,0 +1,270 @@
+#class $mod_name open;
+
+#alias {${mod_name}_load} {
+    #showme Module $mod_name loaded;
+    #unalias ${mod_name}_load;
+};
+
+#alias {${mod_name}_unload}{
+    #showme Module $mod_name unloaded;
+    #class $mod_name kill;
+};
+
+#alias {${mod_name}_help}{
+    #showme <139>模块帮助文档 : ${mod_name}<079>;
+    
+    /* TODO: place your HELP doc here */
+    
+    #showme  ;
+    #showme <139> -> 按任意键继续...<079>;
+    #buffer lock;
+};
+
+#var hyd[status_id] {};
+#var hyd[status_id][none]     空闲状态;
+#var hyd[status_id][askjob]   申请任务;
+#var hyd[status_id][mode1]    {模式  一};
+#var hyd[status_id][mode2]    {模式  二};
+#var hyd[status_id][mode3]    {模式  三};
+#var hyd[status_id][working]  执行任务;
+#var hyd[status_id][complete] 任务完成;
+#var hyd[status_id][xunbao]    寻找宝藏;
+
+#var hyd[status] none;
+#var hyd[auto] 0;
+
+#alias {hyd.start} {
+    #show <139>hyd: 开始胡一刀任务<079>;
+    
+    log hyd 开始任务;
+    
+    #map get roomvnum hyd[status][vnum];
+    #if {$hyd[status][vnum] == 2024} {
+        hyd_status_set askjob;
+    } {
+        on_there {
+            hyd_status_set askjob;
+        };
+        goto 2024;
+    };
+};
+#alias {hyd.stop} {
+    #show <139>hyd: 停止胡一刀任务<079>;
+    hyd_status_set none;
+    on_there;
+};
+#alias {hyd.auto} {
+    #if {$hyd[auto] == 1} {
+        #show <139>hyd: 关闭自动模式<079>;
+        #var hyd[auto] 0;
+    } {
+        #show <139>hyd: 打开自动模式<079>;
+        #var hyd[auto] 1;
+    };
+};
+
+#alias {hyd_status_set} {
+
+    #if {"%1" == "" || "%1" == "$hyd[status]"} {
+        #nop;
+    } {
+        #if {&hyd[status_id][%1] == 0} {
+            log hyd 无效状态 %1;
+        } {
+            #if {"$hyd[status]" != "none"} {
+                #class hyd_status_$hyd[status]_inner kill;
+                hyd_status_exit_$hyd[status];
+            };
+            
+            #var hyd[status] {%1};
+            
+            log hyd $hyd[status_id][$hyd[status]];
+            
+            #if {"$hyd[status]" != "none"} {
+                hyd_status_enter_$hyd[status];
+            };
+        };
+    };
+    #nop;
+};
+
+#alias {setup_target_trigger} {
+    
+    #class hyd_status_mode1_inner open;
+     
+     
+    #act {^    盗 宝 人 「%*龙」$hyd[quest][target][name](@cap{$hyd[quest][target][id])}} {
+        gts;
+        follow $hyd[quest][target][id];
+        kill $hyd[quest][target][id];
+    };
+    #act {^$hyd[quest][target][name]说道：“你有种去%*找我兄弟%*(%w)，他会给我报仇的} {
+        #var hyd[quest][area] {%%1};
+        #var hyd[quest][target][name] {%%2};
+        #var hyd[quest][target][id] {%%3};
+        
+        log hyd $hyd[quest][area] $hyd[quest][target][name] $hyd[quest][target][id];
+        
+        setup_target_trigger;
+    };
+    #act {^$hyd[quest][target][name]长叹道：“人算不如天算，想不到我兄弟五人都栽在你的手中} {
+        combine;
+    };
+
+    #class hyd_status_mode1_inner close;
+    
+    gt $hyd[quest][area];
+    
+    on_there {
+        pphyd;
+    };
+};
+#alias {pphyd} {
+    #class hyd_status_mode1_inner open;
+    
+    #act {^%*告诉你：【$hyd[quest][target][name](@cap{$hyd[quest][target][id]})】目前在【%*的%*】,快去摁死它吧} {
+        #unact {^%*告诉你：【$hyd[quest][target][name](@cap{$hyd[quest][target][id]})】目前在【%*的%*】,快去摁死它吧};
+        
+        #var hyd[pp][area] %%2;
+        #var hyd[pp][room] %%3;
+        
+        hydgo;
+    };
+    
+    #class hyd_status_mode1_inner close;
+    
+    helpme;
+    helpme find $hyd[quest][target][id];
+};
+#alias {hydgo} {
+    gt $hyd[pp][room] $hyd[pp][area];
+};
+
+#alias {bzpos} {
+    #var hyd[xunbao][area] %1;
+    #var hyd[xunbao][room] %2;
+    
+    gt $hyd[xunbao][room] $hyd[xunbao][area];
+    
+    on_there {
+        xunbao;
+    };
+};
+#alias {hydpos} {
+    #var hyd[mode2][area] %1;
+    #var hyd[mode2][room] %2;
+    #var hyd[mode2][name] %3;
+    
+    hyd_status_set mode2;
+};
+
+#alias {hyd_status_exit_askjob} {
+
+};
+#alias {hyd_status_enter_askjob} {
+    #class hyd_status_askjob_inner open;
+     
+    #act {^胡一刀说道：『我收到消息，听说%*有盗宝人%*(%w)找到了闯王宝藏的地图,你可否帮忙找回来！』} {
+        #var hyd[quest][mode] {1};
+        #var hyd[quest][area] {%%1};
+        #var hyd[quest][target][name] {%%2};
+        #var hyd[quest][target][id] {%%3};
+        
+        log hyd $hyd[quest][area] $hyd[quest][target][name] $hyd[quest][target][id];
+        
+        hyd_status_set mode1;
+    };
+    #act {http://pkuxkx.{net|com}/antirobot/robot.php?filename=%*} {
+        #unact {http://pkuxkx.{net|com}/antirobot/robot.php?filename=%*};
+        fetch_captcha %%2;
+        #show <139>请输入地点(hydpos <区域名> <房间名> <人名>)<079>;
+    };
+     
+    #class hyd_status_askjob_inner close;
+     
+    ask hu about 盗宝人;
+};
+
+#alias {hyd_status_exit_mode1} {
+
+};
+#alias {hyd_status_enter_mode1} {
+    #class hyd_status_mode1_inner open;
+    
+    #act {^你将手中的五块地图残片拼在一起，合成了一张藏宝图} {
+       gt 胡一刀;
+       on_there {
+           give cangbao tu to hu;
+       };
+    };
+    
+    #act {^你给胡一刀一张闯王宝藏藏宝图} {
+        hyd_status_set xunbao;  
+    };
+    
+    #class hyd_status_mode1_inner close;
+    
+    setup_target_trigger;
+};
+
+#alias {hyd_status_exit_mode2} {
+
+};
+#alias {hyd_status_enter_mode2} {
+    #class hyd_status_mode2_inner open;
+    
+    #act {^    胡四(Sui cong)} {
+        ask sui cong about 藏宝图;
+    };
+    #act {^林间小道 -} {
+        #show <139>可以开始遍历了<079>;
+    }
+    #act {^小木屋的盗宝人请最后杀} {
+        
+    };
+    #act {^    盗 宝 人 「%*龙」%*(%w)} {
+        #math hyd[mode2][target_count] {$hyd[mode2][target_count] + 1};
+
+        kill @lower{%%3};
+    };
+    
+    #class hyd_status_mode2_inner close;
+    
+    #var hyd[mode2][target_count] 0;
+    
+    gt $hyd[mode2][room] $hyd[mode2][area];
+};    
+    
+#alias {hyd_status_exit_xunbao} {
+    #undelay {dl_xunbao_ok};
+};
+#alias {hyd_status_enter_xunbao} {
+    #class hyd_status_xunbao_inner open;
+    
+    #act {http://pkuxkx.{net|com}/antirobot/robot.php?filename=%*} {
+        #unact {http://pkuxkx.{net|com}/antirobot/robot.php?filename=%*};
+        fetch_captcha %%2;
+        #show <139>请输入宝藏地点(bzpos <区域名> <房间名>)<079>;
+    };
+    
+    #act {^你找到了闯王宝藏的线索}{
+        log hyd 寻宝完成;
+        #delay {dl_xunbao_ok} {
+            #if {$hyd[auto] == 1} {
+                log hyd 自动下次任务;
+                hyd.start;
+            } {
+                log hyd 任务结束;
+                hyd.stop;
+            };
+        }{2};
+    };
+    
+    #class hyd_status_xunbao_inner open;
+    
+    chakan bao tu;
+};
+
+#class $mod_name close;
+
+${mod_name}_load;
