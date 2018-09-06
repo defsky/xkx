@@ -357,9 +357,11 @@
     log 去吃喝;
     gt 食堂;
     on_there {
-        do 5 eat qiezi;
-        do 5 eat fentiao;
+        yao;
+        fill hulu;
+        do 5 eat liang;
         do 5 he hulu;
+        drop liang;
         #delay {3} {
             wc.work;
         };
@@ -367,7 +369,7 @@
 };
 #alias {wc.work} {
     log 去干活;
-    gt 读书写字;
+    gt $wc[work];
     on_there {
         wc.start;
     };
@@ -379,12 +381,13 @@
     
     #act {^{你将内息走了个小周天，流回丹田，收功站了起来|你运功完毕，深深吸了口气，站了起来}} {
         log 打坐完毕;
-        wc.eat;
+        wc.start;
         #class wc.dazuo.inner kills;
     };
     #act {^你现在精不够，无法控制内息的流动} {
         log 不能打坐，等待60s;
         wc.stop;
+        yun jing;
         #delay {60} {
             wc.eat;
         };
@@ -396,13 +399,17 @@
 #alias {wc.start} {
     log 开始watch;
     
-    #if {&wc[count] == 0}{
-        #var wc[count] 1;
-        #var wc[count] %1;
+    #if {"%1" != ""}{
+        #var wc[work] %1;
+        #var wc[count] %2;
     };
     
     #class wc.inner open;
     
+    #act {^也许是缺乏实战经验，你对石壁上面所说的东西总是无法领会} {
+        log 达到上限;
+        wc.stop;
+    };
     #act {^你已经累了，还是休息一会吧} {
         log 没精神,等待10s;
         
@@ -418,7 +425,7 @@
         
         wc.stop;
         #delay {60} {
-            wc.eat;
+            wc.start;
         };
     };
     #act {^你内力不足，无法依照石壁内容行功参悟} {

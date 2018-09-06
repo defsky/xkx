@@ -1,0 +1,123 @@
+#class $mod_name open;
+
+#alias {${mod_name}_load} {
+    #showme Module $mod_name loaded;
+    #unalias ${mod_name}_load;
+};
+
+#alias {${mod_name}_unload}{
+    #showme Module $mod_name unloaded;
+    #class $mod_name kill;
+};
+
+#alias {${mod_name}_help}{
+    #showme <139>。 : ${mod_name}<079>;
+    
+    
+    
+    #showme  ;
+    #showme <139> -> ...<079>;
+    #buffer lock;
+};
+
+#alias {wc.eat} {
+    log 去吃喝;
+    gt 食堂;
+    on_there {
+        yao;
+        fill hulu;
+        do 5 eat liang;
+        do 5 he hulu;
+        drop liang;
+        #delay {3} {
+            wc.work;
+        };
+    };
+};
+
+
+你静心凝神，加速自身的精气恢复
+你减缓真气运行，让自身恢复正常
+
+#alias {wc.work} {
+    log 去干活;
+    gt 医术;
+    on_there {
+        wc.start;
+    };
+};
+#alias {wc.dazuo} {
+    log 打坐;
+    
+    #class wc.dazuo.inner open;
+    
+    #act {^{你将内息走了个小周天，流回丹田，收功站了起来|你运功完毕，深深吸了口气，站了起来}} {
+        log 打坐完毕;
+        wc.start;
+        #class wc.dazuo.inner kill;
+    };
+    #act {^你现在精不够，无法控制内息的流动} {
+        log 不能打坐，等待60s;
+        wc.stop;
+        yun jing;
+        #delay {60} {
+            wc.eat;
+        };
+    };
+    #class wc.dazuo.inner close;
+    
+    dazuo max;
+};
+#alias {wc.start} {
+    log 开始watch;
+    
+    #if {&wc[count] == 0}{
+        #var wc[count] 1;
+        #var wc[count] %1;
+    };
+    
+    #class wc.inner open;
+    
+    #act {^你已经累了，还是休息一会吧} {
+        log 没精神,等待10s;
+        
+        hpbrief1;
+        wc.stop;
+        #delay {10} {
+            yun regenerate;
+            wc.eat;
+        };
+    };
+    #act {^你的内力不够} {
+        log 内力不够,等待60s;
+        
+        wc.stop;
+        #delay {60} {
+            wc.start;
+        };
+    };
+    #act {^你内力不足，无法依照石壁内容行功参悟} {
+        log 内力不够参悟;
+        wc.stop;
+        wc.dazuo;
+    };
+    
+    #tic {wc}{
+        #if {$status[force] < @eval{$status[force_max] * 0.25}} {
+            log 内力偏低;
+            wc.stop;
+            wc.dazuo;
+        } {
+            watch 石壁 $wc[count];
+        };
+    }{1};
+    #class wc.inner close;
+};
+#alias {wc.stop} {
+    log 停止watch;
+    #class wc.inner kill;
+};
+
+#class $mod_name close;
+
+${mod_name}_load;

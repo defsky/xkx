@@ -50,7 +50,7 @@
     };
     #class login_inner close;
     
-    #ses %1 mud.pkuxkx.net 8080;
+    #ses %1 pkuxkx.com 8080;
 };
 
 #class $mod_name close;
