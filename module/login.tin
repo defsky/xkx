@@ -29,10 +29,17 @@
     cfg unload @lower{$status[id]};
     cfg load @lower{$status[id]};
 };
+
+#list login_host create {mud.pkuxkx.net;mud.pkuxkx.com;pkuxkx.com};
+
 #alias {login} {
     #class login_inner open;
     
+    #event {SESSION TIMED OUT} {
+        login %0;
+    };
     #event {SESSION CONNECTED}{
+    
         #format screen[rows] {%R};
         #format screen[cols] {%C};
 
@@ -42,11 +49,26 @@
         
         cfg load %%0;
         
-        #send %%0;
+        #send {%%0};
+        
+    };
+    #act {{			欢迎来到北大侠客行|重新连线完毕}} {
+        #cr;
+        #event {SESSION DISCONNECTED} {
+            #nop %0 name %1 host %2 ip %3 port;
+            log auto_relogin;
+            login %%%0;
+        };
+        #delay {1} {
+            mod status load;
+            #delay {1} {
+                map load;
+            };
+        };
         #class login_inner kill;
     };
-    #act {			欢迎来到北大侠客行} {
-        
+    #act {此ID档案已存在，请输入密码：} {
+        #read pwd_%0.tin;
     };
     #class login_inner close;
     
