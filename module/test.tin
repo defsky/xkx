@@ -402,7 +402,52 @@
     #class dushu.sleep.inner close;
     sleep;
 };
+
+#alias {tm.start} {
+    #class tm.dazuo.inner kill;
     
+    #if {"%1" != "" || &tm[target] != 0} {
+        #var tm[target] %1;
+        
+        #class tm.start.inner open;
+        
+        #act {^你已将内力纳入$tm[target]穴} {
+            vein through $tm[target];
+        };
+        #act {^你现在内力不足，强行通脉，有害无益} {
+            tm.stop;
+            eat liang;
+            he jiudai;
+            tm.dazuo;
+        };
+        
+        #class tm.start.inner close;
+        
+        vein through $tm[target];
+    } {
+        #show <139>请提供穴道名<079>;
+    };
+};
+
+#alias {tm.stop} {
+    #class tm.start.inner kill;
+};
+
+#alias {tm.dazuo} {
+    #class tm.dazuo.inner open;
+    
+    #act {^你将内息走了个小周天，流回丹田，收功站了起来} {
+        dazuo max;
+    };
+    #act {^你现在内力接近圆满状态} {
+        tm.start;
+    };
+    
+    #class tm.dazuo.inner close;
+    dazuo max;
+};
+
+
 #class $mod_name close;
 
 ${mod_name}_load;

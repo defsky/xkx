@@ -36,7 +36,7 @@
     #class login_inner open;
     
     #event {SESSION TIMED OUT} {
-        login %0;
+        #delay {120} { login %0 };
     };
     #event {SESSION CONNECTED}{
     
@@ -60,6 +60,8 @@
             login %%%0;
         };
         #delay {1} {
+            #gts #class login_inner kill;
+            
             mod status load;
             #delay {1} {
                 map load;
@@ -68,11 +70,15 @@
         #class login_inner kill;
     };
     #act {此ID档案已存在，请输入密码：} {
-        #read pwd_%0.tin;
+        #read pwd_%1.tin;
     };
+    #act {^您要将另一个连线中的相同人物赶出去，取而代之吗} {
+        y;
+    };
+    
     #class login_inner close;
     
-    #ses %1 pkuxkx.com 8080;
+    #ses %1 mud.pkuxkx.com 8080;
 };
 
 #class $mod_name close;
