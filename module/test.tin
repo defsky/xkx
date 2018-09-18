@@ -412,6 +412,7 @@
         #class tm.start.inner open;
         
         #act {^你已将内力纳入$tm[target]穴} {
+            #undelay {tm_checker};
             vein through $tm[target];
         };
         #act {^你现在内力不足，强行通脉，有害无益} {
@@ -419,6 +420,17 @@
             eat liang;
             he jiudai;
             tm.dazuo;
+        };
+        #act {^你此处冲穴消耗了%*点内力} {
+            #delay {tm_checker} {
+                tm.start;
+            }{180};
+        };
+        #act {^现在你只能尝试往%*里灌注内力}{
+            log 贯通下个穴道：%%1;
+            #var tm[target] %%1;
+            tm.stop;
+            tm.start;
         };
         
         #class tm.start.inner close;
