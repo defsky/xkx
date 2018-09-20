@@ -404,6 +404,8 @@
 };
 
 #alias {tm.start} {
+    log 开始通脉;
+    
     #class tm.dazuo.inner kill;
     
     #if {"%1" != "" || &tm[target] != 0} {
@@ -432,6 +434,11 @@
             tm.stop;
             tm.start;
         };
+        #act {^过多尝试通脉次数，有害无益。今天就到此为止吧} {
+            tm.stop;
+            log 当天通脉次数用尽;
+            #show MISSION_COMPLETE;
+        };
         
         #class tm.start.inner close;
         
@@ -446,6 +453,8 @@
 };
 
 #alias {tm.dazuo} {
+    log 开始打坐;
+    
     #class tm.dazuo.inner open;
     
     #act {^你将内息走了个小周天，流回丹田，收功站了起来} {
