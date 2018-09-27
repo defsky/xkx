@@ -461,7 +461,7 @@
     #act {^你成功地疏导了$tm[fix][jing]里乱窜的真气} {
         log 经脉疏导成功;
         #class tm.fix.inner kill;
-        tm.start;
+        #delay {5}{tm.start};
     };
     #act {^北丑在你周身大穴不断拍打} {
         log 北丑为我疗伤中...;
