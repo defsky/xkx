@@ -43,7 +43,7 @@
         #format screen[rows] {%R};
         #format screen[cols] {%C};
 
-        #list {startup_modules} {create} {event;common;path;sched;bag;misc;test;map;fullskill};
+        #list {startup_modules} {create} {event;common;path;sched;bag;misc;test;map;fullskill;fight};
 
         startup_mod_init;
         
@@ -60,7 +60,7 @@
             login %%%0;
         };
         #delay {1} {
-            #gts #class login_inner kill;
+            #nop #gts #class login_inner kill;
             
             mod status load;
             #delay {1} {
