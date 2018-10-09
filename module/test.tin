@@ -404,12 +404,13 @@
 };
 
 #alias {tm.start} {
-    log 开始通脉;
     
     #class tm.dazuo.inner kill;
     
     #if {"%1" != "" || &tm[target] != 0} {
         #var tm[target] %1;
+        
+        log 开始通脉: $tm[target];
         
         #class tm.start.inner open;
         
@@ -461,7 +462,7 @@
     #act {^你成功地疏导了$tm[fix][jing]里乱窜的真气} {
         log 经脉疏导成功;
         #class tm.fix.inner kill;
-        #delay {5}{tm.start};
+        #delay {10}{tm.start};
     };
     #act {^北丑在你周身大穴不断拍打} {
         log 北丑为我疗伤中...;
