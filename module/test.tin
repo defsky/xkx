@@ -471,6 +471,11 @@
         log 疏导经脉将消耗: %%1 修行经验 %%2 愿望;
         yes;
     };
+    #act {^北丑(bei chou)告诉你：我帮你疏通经脉，毕竟有损身体，一次需要消耗%*点修行经验} {
+        log 修行经验不足，需要 %%1 点修行经验才能疏通;
+        tm.stop;
+        #class tm.fix.inner kill;
+    };
     
     #class tm.fix.inner close;
     
@@ -497,6 +502,42 @@
     dazuo max;
 };
 
+#alias {slw} {
+    #if {"%2" == ""} {
+        #show <139>slw <name> <step><079>;
+        #return;
+    };
+    
+    #var slw[target] %1;
+    #var slw[dist] %2;
+    #var slw[walked] 0;
+    
+    #act {^%* - $} {
+        #math slw[walked] {$slw[walked] + 1};
+        #if {$slw[walked] >= $slw[dist]} {
+            walk -p;
+            wtmsg;
+            #unact {^%* - $};
+        } {
+            #delay {1} {#show <139>walk step : $slw[walked]<079>;};
+        };
+    };
+    walk $slw[target];
+};
+
+#alias {wtmsg} {
+    #act {^你揉揉眼睛仔细一看，这似乎就是张金鏊提到的线索} {
+        #unact {^你揉揉眼睛仔细一看，这似乎就是张金鏊提到的线索};
+        look xian suo;
+    };
+    #act {^这是一张纸，似乎是张金鏊提到的线索，木人似乎就在%*的%*附近，去拆了它吧} {
+        #unact {^这是一张纸，似乎是张金鏊提到的线索，木人似乎就在%*的%*附近，去拆了它吧};
+        #show <139>木人地点 : %%1 %%2<079>;
+        #delay {2} {
+            gt %%2 %%1;
+        };
+    };
+};
 
 #class $mod_name close;
 
