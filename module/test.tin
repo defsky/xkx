@@ -502,6 +502,16 @@
     dazuo max;
 };
 
+#act {^张金鳌说道：「你去到%*之后缓行(walk)%*步当可发现我留下的线索，一切自有分晓} {
+    log %1 %2;
+};
+#act {^你获得了一枚机关核心，可以回去交任务了} {
+    gt 大理寺;
+    on_there {
+        give core to zhang;
+    };
+};
+
 #alias {slw} {
     #if {"%2" == ""} {
         #show <139>slw <name> <step><079>;
@@ -515,6 +525,7 @@
     #act {^%* - $} {
         #math slw[walked] {$slw[walked] + 1};
         #if {$slw[walked] >= $slw[dist]} {
+            #delay {1} {#show <139>walk step : $slw[walked]<079>;};
             walk -p;
             wtmsg;
             #unact {^%* - $};
@@ -533,8 +544,12 @@
     #act {^这是一张纸，似乎是张金鏊提到的线索，木人似乎就在%*的%*附近，去拆了它吧} {
         #unact {^这是一张纸，似乎是张金鏊提到的线索，木人似乎就在%*的%*附近，去拆了它吧};
         #show <139>木人地点 : %%1 %%2<079>;
+        log 木人地点 : %%1 %%2;
         #delay {2} {
-            gt %%2 %%1;
+            on_map_pad {
+                gt %%2 %%1;
+            };
+            pad;
         };
     };
 };
