@@ -571,6 +571,8 @@
         
     };
     #act {襄阳保卫战正在进行中，现在是蒙古兵第%*轮发兵} {
+        timer.set 150;
+        timer.hnd timer_handler;
         timer.reset;
         #var bw[status][round] %%1;
         
