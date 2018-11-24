@@ -554,6 +554,31 @@
     };
 };
 
+#act {在头顶运转如风接使出「罗汉献佛」} {
+    touxue qian;
+    #unact {在头顶运转如风接使出「罗汉献佛」};
+};
+#act {施展「罗刹索命」} {
+    touxue qian;
+    #unact {施展「罗刹索命」};
+};
+#act {左右挥舞，使出「罗刹开路」} {
+    touxue qian;
+    #unact {左右挥舞，使出「罗刹开路」};
+};
+#act {提杖一招「魔影重重」} {
+    touxue qian;
+    #unact {提杖一招「魔影重重」};
+};
+#act {一式「云龙听梵音」} {
+    touxue gongsun;
+    #unact {一式「云龙听梵音」};
+};
+#act {一式「万里一点红」} {
+    touxue gongsun;
+    #unact {一式「万里一点红」};
+};
+
 #class $mod_name close;
 
 ${mod_name}_load;
