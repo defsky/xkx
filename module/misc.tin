@@ -928,7 +928,7 @@
             bw.dig.next;
         };
     };
-     
+    
     #class bw.dig.inner close;
     
     bw.dig.next;
