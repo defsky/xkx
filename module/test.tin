@@ -522,13 +522,13 @@
     #var slw[dist] %2;
     #var slw[walked] 0;
     
-    #act {^%* - $} {
+    #act {^%* -  $} {
         #math slw[walked] {$slw[walked] + 1};
         #if {$slw[walked] >= $slw[dist]} {
             #delay {1} {#show <139>walk step : $slw[walked]<079>;};
             walk -p;
             wtmsg;
-            #unact {^%* - $};
+            #unact {^%* -  $};
         } {
             #delay {1} {#show <139>walk step : $slw[walked]<079>;};
         };
@@ -578,6 +578,7 @@
     touxue gongsun;
     #unact {一式「万里一点红」};
 };
+
 
 #class $mod_name close;
 

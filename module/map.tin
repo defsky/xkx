@@ -71,7 +71,7 @@
 
 #alias {_hnd_roomdesc} {
     #nop #regexp {%1} {^%S%s-%s$};
-    #regexp {%1} {^%* - $} {
+    #regexp {%1} {^%* -  $} {
         #nop #send {get all};
         #var hnd_addesc_inner[desc_start] 1;
         #var hnd_addesc_inner[desc] {};
@@ -851,8 +851,9 @@
         #alias cb_on_walked %%0;
         
         #nop #act {^%S%s-%s$};
-        #act {^%* - $} {
-            #unact {^%* - $};
+        #nop #act {^%* - $};
+        #act {^%* - [{城内|野外}]} {
+            #unact {^%* - [{城内|野外}]};
             cb_on_walked;
         };
     };
