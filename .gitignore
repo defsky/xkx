@@ -1,3 +1,6 @@
 *~
 *.pyc
 __pycache__
+pwd_*
+*log
+tmp/*
