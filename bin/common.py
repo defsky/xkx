@@ -29,4 +29,3 @@ class Tintin:
         self._tmpfile.close();
         print (self._file_name)
 
-        

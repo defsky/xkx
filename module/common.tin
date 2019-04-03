@@ -79,7 +79,7 @@
         #default { 
             #var result {};
         };
-    };    
+    };
 };
 
 #var direction[brief] {};

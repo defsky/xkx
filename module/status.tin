@@ -178,22 +178,20 @@
         #class hp1_inner open;
         
         
-        #act {≡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━≡}
-        {
-            #line {gag}
-        };
+        #act {┌──个人状态─────────────────────────────┐} { #line gag; };
+        #act {├───────────────────────────────────┤} { #line gag; };
+        #act {^│【精神】%*} { #line gag};
+        #act {^│【气血】%*} { #line gag};
+        #act {^│【真气】%*} { #line gag};
         
-        #act {≡━━━━━━━━━━━━━━━━━━━━━━━◎北大侠客行◎━━≡}
+        #act {└─────────────────────────◎ 北大侠客行 ◎──┘}
         {
             #line {gag};
             update_status_bar top;
 	        #class hp1_inner kill;
         };
         
-        #act {^【 精神 】%*} { #line gag};
-        #act {^【 气血 】%*} { #line gag};
-        
-        #ACTION {^【 食物 】%s%%1%s/%s%%2%s[%%3]%*}
+        #ACTION {^│【食物】%s%%1%s/%s%%2%s[%%3]　%*}
         {
 	        #var status[food] %%1;
 	        #var status[food_max] %%2;
@@ -201,7 +199,7 @@
 	        #line {gag};
         }{5};
 
-        #ACTION {^【 饮水 】%s%%1%s/%s%%2%s[%%3]%*}
+        #ACTION {^│【饮水】%s%%1%s/%s%%2%s[%%3]　%*}
         {
 	        #var status[water] %%1;
 	        #var status[water_max] %%2;
@@ -209,7 +207,7 @@
 	        #line {gag};
         }{5};
 
-        #ACTION {^【 状态 】%s%%1}
+        #ACTION {^│【状态】%s%%1}
         {
 	        #var status[overall] %%1;
 	        #line {gag};
@@ -219,7 +217,7 @@
         
         #send hp;
         
-        #delay {5}{#var status[flag][refresh_hp] 0}
+        #delay {5}{#var status[flag][refresh_hp] 0;}
     }
 }
 
@@ -252,6 +250,11 @@
     {
         #line gag;
     };
+    #act {≡──◎天赋加成◎───────────────────────────────────≡}
+    {
+        #line gag;
+    };
+    #act {　后天膂力} { #line gag; };
     #act {　姓名：　%S%s　ＩＤ：　%S%s　级别：　%S%s　战斗力：　%d%s　}
     {
         #line gag;
@@ -260,7 +263,7 @@
         #var status[ce] %%7;
         
     };
-    #act {≡───────────────────────────────────────────≡}
+    #act {≡─────────────────────────────────◎ 北大侠客行 ◎──≡}
     {
         #line gag;
         #class statusme_inner kill;
