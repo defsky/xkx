@@ -623,7 +623,7 @@
 };
 
 #TICKER {status_refresh}{hpbrief1}{15};
-#TICKER {status_refresh2}{refresh_hp}{600};
+#TICKER {status_refresh2}{refresh_hp}{300};
 #TICKER {status_refresh3}{refresh_sc}{1500};
 
 #act {^#SESSION%*ACTIVATED%*}{hpbrief1};
