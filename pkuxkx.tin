@@ -1,4 +1,5 @@
 #config {mccp} {on}
+#config {color patch} {on}
 #config {packet patch} {0.8}
 
 #PATHDIR          {n}  {s}  {1}

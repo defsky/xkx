@@ -579,6 +579,57 @@
     #unact {一式「万里一点红」};
 };
 
+#var yanhui {
+    {醉仙楼}{
+        {area}{扬州}
+        {status}{0}}
+    {望星楼}{
+        {area}{洛阳}
+        {status}{0}}
+    {烟雨楼}{
+        {area}{嘉兴}
+        {status}{0}}
+    {place}{}
+    {on_the_way}{0}
+    {has_more}{0}
+};
+#act {^【江湖】请参与宴会的朋友抓紧时间到%*宴客厅门厅领奖}
+{
+    #var yanhui[place] %1;
+    #showme <139>$yanhui[place]的宾客领奖了...<099>;
+    
+    #if {$yanhui[$yanhui[place]][status] == 1} {
+        #if {$yanhui[on_the_way] == 1} {
+            #var yanhui[has_more] 1;
+        };
+        #else {
+            #showme <129>我也可以去$yanhui[place]领奖!!!我得赶快去，不然没了。。。<099>;
+            
+            yanhui_go_and_lingjiang;
+        };
+    };
+};
+#alias {yanhui_go_and_lingjiang} {
+    #var yanhui[on_the_way] 1;
+    #var yanhui[$yanhui[place]][status] 0;
+    
+    gt 宴客厅门厅 $yanhui[$yanhui[place]][area];
+    on_there {
+        lingjiang;
+        yanhui_has_more_check;
+    };
+};
+#alias {yanhui_has_more_check} {
+    #if {$yanhui[has_more] == 1} {
+        #showme <129>还可以去$yanhui[place]领奖!!!我得赶快去，不然没了。。。<099>;
+
+        #var yanhui[has_more] 0;
+        
+        yanhui_go_and_lingjiang;
+    } {
+        #var yanhui[on_the_way] 0;
+    };
+};
 
 #class $mod_name close;
 
