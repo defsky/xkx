@@ -176,7 +176,8 @@
         };
         #case {"pad"} {
             #alias {mappad} {
-                #map goto {$map[room][name]}{}{$map[room][desc]}{$map[room][area]};
+                #nop #map goto {$map[room][name]}{}{%*$map[room][desc]%*}{$map[room][area]};
+                #map goto {$map[room][name]}{}{}{$map[room][area]};
                 show_room_data;
                 #unalias mappad;
                 dbg map padding complete;
@@ -349,6 +350,7 @@
     #alias cb_on_handle_roomdesc #cr;
     #alias cb_on_handle_roomdesc %0;
     
+    #act {^== 未完继续}{#cr};
     #act {_hnd_roomdesc : Get room desc complete} {
         cb_on_handle_roomdesc;
     };
@@ -375,7 +377,7 @@
     
     #alias {get_area_end} {
         #class get_area_inner1 kill;
-        #delay {dl_get_area} {
+        #delay {dl_get_area} {l
             get_area_map_end;
         } {2};    
     };
@@ -852,8 +854,12 @@
         
         #nop #act {^%S%s-%s$};
         #nop #act {^%* - $};
-        #act {^%* - [{城内|野外|门派}]} {
-            #unact {^%* - [{城内|野外|门派}]};
+        #nop #act {^%* - [{城内|野外|门派}]} {
+        #nop    #unact {^%* - [{城内|野外|门派}]};
+        #nop     cb_on_walked;
+        #nop };
+        #act {^%* -  $} {
+            #unact {^%* -  $};
             cb_on_walked;
         };
     };
@@ -1022,7 +1028,7 @@
     };
     #class _path_run_inner close;
     
-    set brief 1;
+    set brief 3;
     go_forward;
 };
 
