@@ -302,9 +302,10 @@
         {
             #var status[money] &3;
         };
-        #regexp {%1} {^%s实战经验：%s%S{年|}功力%*}
+        #nop #regexp {%1} {^%s实战经验：%s%S{年|}功力};
+        #regexp {%1} {%*战斗评价%*实战经验：%s%*{年|}功力%*}
         {
-            #var status[ability] @ctd{&3};
+            #var status[ability] @ctd{&4};
         };
         #regexp {%1} {^%s等%s级：%s%S%s职%s业：%s%S%*}
         {
@@ -627,6 +628,8 @@
 #TICKER {status_refresh3}{refresh_sc}{1500};
 
 #act {^#SESSION%*ACTIVATED%*}{hpbrief1};
+
+#var status[fm][captcha_id] {};
 
 #class $mod_name close;
 

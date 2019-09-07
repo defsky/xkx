@@ -20,7 +20,6 @@
 #nop 武馆教头笑着说道：您见笑了，我这点雕虫小技怎够资格「指点」您什么？;
 #nop 武馆教头说道：您太客气了，这怎么敢当？;
 
-
 #alias {on_test_pass} {
     #alias cb_on_test_pass_true #cr;
     #alias cb_on_test_pass_false #cr;
