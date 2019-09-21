@@ -630,6 +630,13 @@
     };
 };
 
+#act {^%s¡¸%1¡¹: %2$} {
+    #var test[climate] {
+        {season}{%1}
+        {weather}{%2}
+    };
+};
+
 #class $mod_name close;
 
 ${mod_name}_load;
