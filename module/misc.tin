@@ -623,13 +623,21 @@
             #cr;
             ask guo about 奖励;
         };
+        #act {^你向郭靖打听有关『奖励』的消息} {
+            #unact {^你向郭靖打听有关『奖励』的消息};
+            
+            bw.stop;
+        };
+        
         #2 w;#2 s;
     };
     #act {^郭靖双手抱拳，讨好地对你说道：} {
         #nop #class bw.start.inner kill;
         
         #unact {这里没有这个人};
+        
     };
+    
     
     #class bw.start.inner close;
 };
