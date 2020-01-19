@@ -106,7 +106,15 @@
     
     status.set_action 打坐;
 };
-
+#act {^莲花生大士说道：「建康府的南贤与我有旧，你可以去他那里请教真气运行的规则。」} {
+    #showme <139>可以请教南贤了！！！<079>;
+    #showme <139>->按任意键继续...<079>;
+    #buffer lock;
+    gt 南贤;
+    on_there {
+        ask nan about 真气运行;
+    };
+};
 #act {^莲花生大士(lianhuasheng dashi)告诉你：天珠即将出世} {
     #act {^你的客户端不支持MXP,请直接打开链接查看图片} {
         #unact {^你的客户端不支持MXP,请直接打开链接查看图片};
@@ -135,6 +143,7 @@
             yun qi;
             #delay {1} {jg};
             #delay {2} {pu};
+            #delay {3} {jiali max};
         };
         #tic {tk_tz} {look} {1};
     };

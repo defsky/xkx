@@ -29,12 +29,7 @@
 #var jiudai_empty 1;
 
 #act {^牛皮酒袋已经被喝得一滴也不剩了} {
-    #if {$jiudai_empty == 1} {
-        #var jiudai_empty 0;
-        put jiudai in bao 2;
-        get jiudai from bao;
-        #delay {5} {#var jiudai_empty 1;};
-    };
+
 };
 
 #alias {_fskmsg} {
@@ -121,6 +116,31 @@
     #unvar line_str;
 };
 
+#alias {get_skbrief} {
+    #alias cb_get_skbrief #cr;
+    #aiias cb_get_skbrief %0;
+    
+    #act {^#%*/%*} {
+        #unact {^#%*/%*};
+        #var fsk[status][level] %%1;
+        cb_on_skbrief;
+        #unaiias cb_get_skbrief;
+    };
+    skbrief $fsk[status][base];
+};
+#alias {on_skill_fulled} {
+    #alias cb_on_skill_fulled #cr;
+    #alias cb_on_skill_fulled %0;
+    
+    #if {$fsk[status][level] >= $fsk[config][limit]} {
+        _fskmsg 当前技能达到上限;
+        log 当前技能达到上限 : $fsk[status][base] $fsk[status][special];
+        
+        cb_on_skill_fulled;
+    };
+    
+    #unalias cb_on_skill_fulled;
+};
 #alias on_next_skill {
     #alias cb_on_next_skill #cr;
     #alias cb_on_next_skill %0;
@@ -191,6 +211,9 @@
     
     #class lingw_inner open;
     
+    #act {^你的「%*」进步了} {
+
+    };
     #act {{你的基本功夫比你的高级功夫还高|你已经达到你的技能等级极限}} {
         fsk stop;
 
@@ -225,7 +248,7 @@
         }{$fsk[config][freq][lwc]};     
     };
     #act {^你略一凝神} {
-        log yun regenerate;
+        log 凝神;
         _lingwu;
     };
     #act {你现在过于疲倦,无法静下心来领悟功夫} {
@@ -279,14 +302,36 @@
     
     #class lingw_inner close;
     
-    #delay {1.5}{_lingwu};
+    #act {^#%*/%*} {
+        #unact {^#%*/%*};
+        #var fsk[status][level] %%1;
+        
+        #if {$fsk[status][level] >= $fsk[config][limit]} {
+            _fskmsg 当前技能达到上限;
+            log 当前技能达到上限 : $fsk[status][base] $fsk[status][special];
+            fsk stop;
+            on_next_skill {
+                lianx;
+            };
+        } {        
+            #delay {1.5}{_lingwu};
+        };
+    };
+    skbrief $fsk[status][base];
 };
-#alias {_check_skill_level} {
+#alias {deleted_check_skill_level} {
     #act {^│技能级别%s　%d%s　技能等级%s　%S%s　技能类别%s　%S│} {
         #var fsk[status][level] %%2;
         #unact {^│技能级别%s　%d%s　技能等级%s　%S%s　技能类别%s　%S│};
     };
     #send {verify $fsk[status][special]};
+};
+#alias {_check_skill_level} {
+    #act {^#%*/%*} {
+        #unact {^#%*/%*};
+        #var fsk[status][level] %%1;
+    };
+    skbrief $fsk[status][special];
 };
 #alias {lianx} {
     status.set_action 练习;
@@ -349,7 +394,7 @@
         _lian;
     };
     #nop #act {你的体力太低了};
-    #act {^{你的气血不够练|你的精力太差了，不能练|你的精力太低|你的体力太低|你的体力太差|你的体力不够|你现在气血虚浮|你太累了}} {
+    #act {^{你的气血不够练|你现在内力不足|你的精力太差了，不能练|你的精力太低|你的体力太低|你的体力太差|你的体力不够|你现在气血虚浮|你太累了}} {
         hpbrief1;
         he jiudai;eat liang;
         #delay {1} {
@@ -440,14 +485,14 @@
             };
         };
         #case {"stop"} {
+            #class lianx_inner kill;
+            #class lingw_inner kill;
+            #undelay {dl_next_lianx};
+            #undelay {dl_next_lingw};
             #untic {tk_walk};
             #undelay {wd_lian};
             #undelay {wd_lingwu};
             #undelay {wd_wakeup};
-            #undelay {dl_next_lianx};
-            #undelay {dl_next_lingw};
-            #class lianx_inner kill;
-            #class lingw_inner kill;
         };
         #case {""} {
             mod fullskill help;

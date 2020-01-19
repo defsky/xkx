@@ -7,7 +7,7 @@ try:
     _, mapfile = argv
 except ValueError:
     print('''
-    Usage : make_area_list.py <mapfile>
+    Usage : make_search <mapfile>
     ''')
     exit(0)
     
@@ -21,7 +21,7 @@ area_dict = {}
 bus_station_list = []
 
 while line:
-    matchobj = re.match(r'R {(.*)} {(.*)} {(.*)} {(.*马车\S+)} {(.*)} {(.*)} {(.*)} {(.*)} {(.*)} {(.*)} {(.*)}',line)
+    matchobj = re.match(r'R {(.*)} {(.*)} {(.*)} {(.*)} {(.*)} {(.*)} {} {(.*)} {(.*)} {(.*)} {(.*)}',line)
     
     if matchobj:
         room_count += 1;

@@ -28,6 +28,14 @@
 #list bag[sell_list] add {Heise pifeng;Changjian;Tie bishou;Chang bian;Gangzhang};
 #list bag[sell_list] add {Fish;Fei biao};
 
+#read data/equipid.tin;
+
+#var junkid {{石炭}{shi tan}{玄冰}{xuan bing}};
+
+#act {^你获得了%*份{石炭|玄冰}【{劣质|瑕疵|普通}】} {
+    drop $junkid[%2];
+};
+
 #alias {_count} {
     #regexp {%2} {^%S{两|文|粒|支|根|张|只|个|条|块|件|柄|把}%*} {
         #var bag[items][%1] @ctd{&1};

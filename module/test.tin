@@ -20,7 +20,6 @@
 #nop 武馆教头笑着说道：您见笑了，我这点雕虫小技怎够资格「指点」您什么？;
 #nop 武馆教头说道：您太客气了，这怎么敢当？;
 
-
 #alias {on_test_pass} {
     #alias cb_on_test_pass_true #cr;
     #alias cb_on_test_pass_false #cr;
@@ -85,6 +84,7 @@
         };
     };
 };
+#gag {^无 欢真希望看到你去死};
 
 #act {^这项任务必须在%*分%*秒内完成} {
     #var time[limit] @eval{@eval{@ctd{%1} * 60} + @ctd{%2}};
@@ -106,6 +106,556 @@
 #act {^你对%*的忠诚度提高了%*点} {
     #untic {tk_countdown};
     status.set_action 空闲;
+};
+
+#act {你需要先接受张三的挑战} {
+    log zhangsan_come;
+    accept zhang;
+};
+#act {^【江湖】张 三(Zhang san): 听说%*阁下武功不错，在下想与您较量一下。} {
+    log zhangsan 挑战 %1;
+};
+
+#alias {get_time} {
+    #act {现在现实中的时间是北京时间 %*} {
+        #unact {现在现实中的时间是北京时间 %*};
+        #var baowei[time] %%1;
+        #show $baowei[time];
+        
+        #unvar baowei;
+        #nop #system {echo -e "第$baowei[round]轮 $baowei[time]" >> data/baowei.log};
+    };
+    time;
+};
+#act {【江湖】听说侠客岛赏善使者莅临中原，邀请有缘人前往侠客岛一游！} {
+    
+};
+
+#act {^    %S丹(%w dan)} {
+    get all;
+};
+#act {^    {地|山|风|水|雷|火|泽|天}%*{木灵|精金|玄冰|炎晶|玉髓|日魂|月魄|玄武甲|凤凰羽|神龙骨|麒麟角}(%w %w)} {
+    get all;
+};
+#act {^你捡起一堆陨铁} {
+    drop yun tie;
+};
+#act {^你有很长一段时间没有备份档案了} {
+    backup;
+};
+
+#act {^也许是上天垂青于你的勤奋和努力吧，一个小时之内你不用担心被判为机器人} {
+    #var status[fm][remain] 60;
+    #tic {tk_fm_countdown} {
+        #if {$status[fm][remain] > 0} {
+            #math status[fm][remain] {$status[fm][remain] - 1};
+        };
+        #if {$status[fm][remain] <= 15} {
+            #show <139>fullme 有效时间还剩 $status[fm][remain] 分钟，请及时补充<079>;
+            log fullme 有效时间还剩 $status[fm][remain] 分钟;
+        };
+    }{60};
+};
+
+#act {^MISSION_COMPLETE} {
+    dztn;
+};
+
+#alias {gemon} {
+    #class list_gem_inner open;
+    #act {^┏所有宝石列表┓} {
+        #class list_gem_inner open;
+        
+        #act {^│%d%s│{地|山|风|水|雷|火|泽|天}%*(%w)%s│%S%s│%S%s│%S%s│} {
+            log 当铺 gem %%%3%%%4;
+            buy %%%1;
+        };
+        #act {^└─────┴───────────────┴────────────────────┘} {
+            #class list_gem_inner kill;
+            log 当铺扫描完成;
+        };
+        #class list_gem_inner close;
+        
+    };
+    #class list_gem_inner close;
+    
+    list gem;
+};
+
+#alias {ahmon.start} {
+    #tic {tk_ahmon} {
+        gemon;
+    }{11};
+};
+#alias {ahmon.stop} {
+    #untic {tk_ahmon};
+};
+
+#function {var}{
+    #var result $%1;
+};
+#alias {on_test} {
+    #show %1;
+    #show %2;
+    #show %3;
+    #alias cb_on_test #cr;
+    #alias cb_on_test %0;
+    
+    
+    #var tt {test alias};
+    cb_on_test;
+};
+
+#macro {\e[1;2A} {moven};
+#macro {\e[1;2B} {moves};
+#macro {\e[1;2C} {movee};
+#macro {\e[1;2D} {movew};
+
+#alias {xuexi.set} {
+    #var xuexi[room] %1;
+    #var xuexi[rest] %2;
+};
+#alias {xuexi} {
+    #if {&xuexi[count] == 0} {
+        #var xuexi[count] 5;
+    };
+    #if {"%2" != ""} {
+        #var xuexi[teacher] %1;
+        #var xuexi[skill] %2;
+        #var xuexi[count] %3;
+    };
+    
+    #class xuexi_inner open;
+    #act {^你和师父切磋%*，消耗了大量潜能} {
+        xuexi.stop;
+    };
+    #act {^也许是缺乏实战经验，你%*总是无法领会} {
+        xuexi.stop;
+    };
+    #act {^你的潜能已经发挥到极限了，没有办法再成长了} {
+        xuexi.stop;
+    };
+    #act {^你共请教了零次} {
+        yun regenerate;
+    };
+    #act {^你的内力不够} {
+        xuexi.stop;
+        #delay {2} {
+            #act {^你吃饱喝足，站了起来} {
+                gt 休息室;
+                #act {^你在三分钟内刚睡过} {
+                    #delay {10} {
+                        sleep;
+                    };
+                };
+                #act {^你一觉醒来} {
+                    goto $xuexi[room];
+                    on_there {
+                        xuexi;
+                    };
+                };
+                on_there {
+                    sleep;
+                };
+            };
+            gt 斋堂;
+            on_there {
+                zuo;
+            };
+        };
+    };
+    #tic {tk_xuexi} {
+        xue $xuexi[teacher] for $xuexi[skill] $xuexi[count];
+    }{1};
+    #class xuexi_inner close;
+};
+#alias {xuexi.stop} {
+    #unact {^你吃饱喝足，站了起来};
+    #unact {^你在三分钟内刚睡过};
+    #unact {^你一觉醒来};
+    #class xuexi_inner kill;
+};
+
+#alias {duoqi} {
+    #tic {tk_duoqi} {
+        duo;
+    }{0.5};
+};
+#alias {duoqi.stop} {
+    #untic {tk_duoqi};
+};
+
+#alias {get_hpbrief} {
+    #act {#%d,%d,%d,%d{,战斗中|}$}{
+        #line gag;
+        
+        #unact {#%d,%d,%d,%d{,战斗中|}$};
+        
+        #var hpbrief[zhenqi] %%1;
+        #var hpbrief[zhenyuan] %%2;
+        #var hpbrief[food] %%3;
+        #var hpbrief[water] %%4;
+        
+        #if {"%%5" != ""} {
+            #var hpbrief[fighting] 1;
+        } {
+            #var hpbrief[fighting] 0;
+        };
+        
+        #buffer get hpbrief[buffer][input] 1 2;
+        
+        #var hpbrief[buffer][line2] $hpbrief[buffer][input][1];
+        #var hpbrief[buffer][line1] $hpbrief[buffer][input][2];
+        
+        #regexp {$hpbrief[buffer][line1]}{^#%*,%d,%d,%d,%d,%d$} {
+            #var hpbrief[exp] &1;
+            #var hpbrief[pot] &2;
+            #var hpbrief[neili_max] &3;
+            #var hpbrief[neili] &4;
+            #var hpbrief[jingli_max] &5;
+            #var hpbrief[jingli] &6;
+        };
+        #regexp {$hpbrief[buffer][line2]}{^#%d,%d,%d,%d,%d,%d$} {
+            #var hpbrief[hp_max] &1;
+            #var hpbrief[hp_valid] &2;
+            #var hpbrief[hp] &3;
+            #var hpbrief[sp_max] &4;
+            #var hpbrief[sp_valid] &5;
+            #var hpbrief[sp] &6;
+        };
+        
+        #nop #unvar hpbrief[buffer];
+        #unact {^#};
+    };
+    #act {^#} {
+        #line gag;
+    }{6};
+    #send hpbrief;
+};
+
+#alias {duizhao1} {
+
+#show 你背着众人，悄悄地打开了旧纸;
+#show ;
+#show 殺1 2 3 4 5 6 7 8 9 1011;
+#show 1 岛少之州丐山岸府山督手;
+#show 2 州成江苗府泰灵麟日北真;
+#show 3 南龙湖州苏帮康眉北庄安;
+#show 4 路小宿村禁临州江东紫武;
+#show 5 州山府源山禁苏天教阜湖;
+#show 6 康大州府长洛轮武天临长;
+#show 7 疆天当信慕临州石凌古疆;
+#show 8 后天后河康天安嵋督明州;
+#show 9 原中西桃宫量州寺府山禁;
+#show 10神临江禁镇苏中州王教州;
+#show ;
+#show ;
+};
+
+#alias {dushu.start} {
+    #if {"%1" != ""} {
+        #var dushu[count] %1;
+    };
+    
+    #class dushu.start.inner open;
+    
+    #tic {dushu} {
+        #if {$status[sp] < @eval{$status[sp_max] * 0.2}} {
+            hpbrief1;
+            log 凝神;
+            eat liang;
+            he jiudai;
+            yun regenerate;
+        } {
+            read jing $dushu[count];
+        };
+    }{1};
+    
+    #act {^你的内力不够} {
+        log 内力不够，睡觉;
+        dushu.stop;
+        dushu.sleep;
+    };
+    
+    #class dushu.start.inner close;
+};
+#alias {dushu.stop} {
+    #class dushu.start.inner kill;
+};
+#alias {dushu.sleep} {
+    
+    #class dushu.sleep.inner open;
+    
+    #act {^你一觉醒来} {
+        #class dushu.sleep.inner kill;
+        dushu.start;
+    };
+    #act {^你三分钟内刚睡过} {
+        log 不能睡，5秒后开始;
+        #delay {5} {
+            #class dushu.sleep.inner kill;
+            dushu.start;
+        };
+    };
+    
+    #class dushu.sleep.inner close;
+    sleep;
+};
+
+#alias {tm.start} {
+    
+    #class tm.dazuo.inner kill;
+    
+    #if {"%1" != "" || &tm[target] != 0} {
+        #var tm[target] %1;
+        
+        log 开始通脉: $tm[target];
+        
+        #class tm.start.inner open;
+        
+        #act {^你的真气在%*上%*穴运行受阻，还是尽快想办法把受损的经脉恢复吧} {
+            log 经脉受损: %%1 %%2;
+            #var tm[fix][jing] {%%1};
+            #var tm[fix][xue] {%%2};
+            
+            tm.fix;
+        };
+        #act {^你已将内力纳入$tm[target]穴} {
+            #undelay {tm_checker};
+            vein through $tm[target];
+        };
+        #act {^你现在内力不足，强行通脉，有害无益} {
+            tm.stop;
+            eat liang;
+            he jiudai;
+            tm.dazuo;
+        };
+        #act {^你此处冲穴消耗了%*点内力} {
+            #delay {tm_checker} {
+                tm.start;
+            }{30};
+        };
+        #act {^现在你只能尝试往%*里灌注内力}{
+            log 贯通下个穴道：%%1;
+            #var tm[target] %%1;
+            tm.stop;
+            tm.start;
+        };
+        #act {^过多尝试通脉次数，有害无益。今天就到此为止吧} {
+            tm.stop;
+            log 当天通脉次数用尽;
+            #show MISSION_COMPLETE;
+        };
+        
+        #class tm.start.inner close;
+        
+        vein through $tm[target];
+    } {
+        #show <139>请提供穴道名<079>;
+    };
+};
+
+#alias {tm.fix} {
+    #class tm.fix.inner open;
+    
+    #act {^你成功地疏导了$tm[fix][jing]里乱窜的真气} {
+        log 经脉疏导成功;
+        #class tm.fix.inner kill;
+        #delay {10}{tm.start};
+    };
+    #act {^北丑在你周身大穴不断拍打} {
+        log 北丑为我疗伤中...;
+    };
+    #act {^北丑(bei chou)告诉你：这次疏导$tm[fix][jing]，将消耗%*点修行经验，%*点个人愿望，你愿意吗} {
+        log 疏导经脉将消耗: %%1 修行经验 %%2 愿望;
+        yes;
+    };
+    #act {^北丑(bei chou)告诉你：我帮你疏通经脉，毕竟有损身体，一次需要消耗%*点修行经验} {
+        log 修行经验不足，需要 %%1 点修行经验才能疏通;
+        tm.stop;
+        #class tm.fix.inner kill;
+    };
+    
+    #class tm.fix.inner close;
+    
+    ask bei chou about 经脉受损;
+};
+
+#alias {tm.stop} {
+    #class tm.start.inner kill;
+};
+
+#alias {tm.dazuo} {
+    log 开始打坐;
+    
+    #class tm.dazuo.inner open;
+    
+    #act {^你将内息走了个小周天，流回丹田，收功站了起来} {
+        dazuo max;
+    };
+    #act {^你现在内力接近圆满状态} {
+        tm.start;
+    };
+    
+    #class tm.dazuo.inner close;
+    dazuo max;
+};
+
+#act {^张金鳌说道：「你去到%*之后缓行(walk)%*步当可发现我留下的线索，一切自有分晓} {
+    log %1 %2;
+};
+#act {^你获得了一枚机关核心，可以回去交任务了} {
+    gt 大理寺;
+    on_there {
+        give core to zhang;
+    };
+};
+
+#alias {slw} {
+    #if {"%2" == ""} {
+        #show <139>slw <name> <step><079>;
+        #return;
+    };
+    
+    #var slw[target] %1;
+    #var slw[dist] %2;
+    #var slw[walked] 0;
+    
+    #act {^%* -  $} {
+        #math slw[walked] {$slw[walked] + 1};
+        #if {$slw[walked] >= $slw[dist]} {
+            #delay {1} {#show <139>walk step : $slw[walked]<079>;};
+            walk -p;
+            wtmsg;
+            #unact {^%* -  $};
+        } {
+            #delay {1} {#show <139>walk step : $slw[walked]<079>;};
+        };
+    };
+    walk $slw[target];
+};
+
+#alias {wtmsg} {
+    #act {^你揉揉眼睛仔细一看，这似乎就是张金鏊提到的线索} {
+        #unact {^你揉揉眼睛仔细一看，这似乎就是张金鏊提到的线索};
+        look xian suo;
+    };
+    #act {^这是一张纸，似乎是张金鏊提到的线索，木人似乎就在%*的%*附近，去拆了它吧} {
+        #unact {^这是一张纸，似乎是张金鏊提到的线索，木人似乎就在%*的%*附近，去拆了它吧};
+        #show <139>木人地点 : %%1 %%2<079>;
+        log 木人地点 : %%1 %%2;
+        #delay {2} {
+            on_map_pad {
+                gt %%2 %%1;
+            };
+            pad;
+        };
+    };
+};
+
+#act {在头顶运转如风接使出「罗汉献佛」} {
+    touxue qian;
+    #unact {在头顶运转如风接使出「罗汉献佛」};
+};
+#act {施展「罗刹索命」} {
+    touxue qian;
+    #unact {施展「罗刹索命」};
+};
+#act {左右挥舞，使出「罗刹开路」} {
+    touxue qian;
+    #unact {左右挥舞，使出「罗刹开路」};
+};
+#act {提杖一招「魔影重重」} {
+    touxue qian;
+    #unact {提杖一招「魔影重重」};
+};
+#act {一式「云龙听梵音」} {
+    touxue gongsun;
+    #unact {一式「云龙听梵音」};
+};
+#act {一式「万里一点红」} {
+    touxue gongsun;
+    #unact {一式「万里一点红」};
+};
+
+#var yanhui {
+    {醉仙楼}{
+        {area}{扬州}
+        {status}{0}}
+    {望星楼}{
+        {area}{洛阳}
+        {status}{0}}
+    {烟雨楼}{
+        {area}{嘉兴}
+        {status}{0}}
+    {place}{}
+    {on_the_way}{0}
+    {has_more}{0}
+};
+#act {^【江湖】请参与宴会的朋友抓紧时间到%*宴客厅门厅领奖}
+{
+    #var yanhui[place] %1;
+    #showme <139>$yanhui[place]的宾客领奖了...<099>;
+    
+    #if {$yanhui[$yanhui[place]][status] == 1} {
+        #if {$yanhui[on_the_way] == 1} {
+            #var yanhui[has_more] 1;
+        };
+        #else {
+            #showme <129>我也可以去$yanhui[place]领奖!!!我得赶快去，不然没了。。。<099>;
+            
+            yanhui_go_and_lingjiang;
+        };
+    };
+};
+#alias {yanhui_go_and_lingjiang} {
+    #var yanhui[on_the_way] 1;
+    #var yanhui[$yanhui[place]][status] 0;
+    
+    gt 宴客厅门厅 $yanhui[$yanhui[place]][area];
+    on_there {
+        lingjiang;
+        yanhui_has_more_check;
+    };
+};
+#alias {yanhui_has_more_check} {
+    #if {$yanhui[has_more] == 1} {
+        #showme <129>还可以去$yanhui[place]领奖!!!我得赶快去，不然没了。。。<099>;
+
+        #var yanhui[has_more] 0;
+        
+        yanhui_go_and_lingjiang;
+    } {
+        #var yanhui[on_the_way] 0;
+    };
+};
+
+#act {^%s「%1」: %2$} {
+    #var test[climate] {
+        {season}{%1}
+        {weather}{%2}
+    };
+};
+
+
+#alias {qhb} {
+    #if {"%1" == "on"} {
+        #class qhb open;
+        #nop #act {http://pkuxkx.{net|com}/antirobot/robot.php?filename=%*};
+        #act {【江湖】%*在线发出红包，请到http://pkuxkx.{net|com}/antirobot/robot.php?filename=%*查询口令}{
+            #showme <129>%%1发红包了！！<099>;
+
+            #var status[fm][captcha_id] %%3;
+            
+            fetch_captcha2 %%2;
+        };
+        #class qhb close;
+        #showme <129>抢红包触发已打开！<099>;
+    }{
+        #class qhb kill;
+        #showme <129>抢红包触发已关闭！<099>;
+    };
+    
 };
 
 #class $mod_name close;

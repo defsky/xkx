@@ -1,3 +1,3 @@
 #!/bin/bash
 
-tt++ pkuxkx.tin
+LANG="zh_CN.GBK" tt++ pkuxkx.tin

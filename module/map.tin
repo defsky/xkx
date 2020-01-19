@@ -32,6 +32,10 @@
 
 #nop ============ Module funtion start ========================================;
 
+#function {get_room} {
+    INVOKE map.search %1 %2;
+};
+
 #function {format_exits} {
     #var format_exits_inner[estr] %1;
     
@@ -66,7 +70,8 @@
 #nop ============ Module private function start ===============================;
 
 #alias {_hnd_roomdesc} {
-    #regexp {%1} {^%S%s-%s$} {
+    #nop #regexp {%1} {^%S%s-%s$};
+    #regexp {%1} {^%* -  $} {
         #nop #send {get all};
         #var hnd_addesc_inner[desc_start] 1;
         #var hnd_addesc_inner[desc] {};
@@ -139,18 +144,6 @@
 
 #nop ============ Module alias start ==========================================;
 
-#alias {on_exit_blocked} {
-    #alias cb_on_exit_blocked #cr;
-    #alias cb_on_exit_blocked %0;
-    
-    #act {你的动作还没有完成，不能移动} {
-        cb_on_exit_blocked;
-    };
-    #act {官兵们拦住了你的去路} {
-        cb_on_exit_blocked;
-    };
-};
-
 #alias {map} {
     #switch {"%1"} {
         #case {"load"} {
@@ -183,7 +176,8 @@
         };
         #case {"pad"} {
             #alias {mappad} {
-                #map goto {$map[room][name]}{}{$map[room][desc]}{$map[room][area]};
+                #nop #map goto {$map[room][name]}{}{%*$map[room][desc]%*}{$map[room][area]};
+                #map goto {$map[room][name]}{}{}{$map[room][area]};
                 show_room_data;
                 #unalias mappad;
                 dbg map padding complete;
@@ -356,6 +350,7 @@
     #alias cb_on_handle_roomdesc #cr;
     #alias cb_on_handle_roomdesc %0;
     
+    #act {^== 未完继续}{#cr};
     #act {_hnd_roomdesc : Get room desc complete} {
         cb_on_handle_roomdesc;
     };
@@ -382,7 +377,7 @@
     
     #alias {get_area_end} {
         #class get_area_inner1 kill;
-        #delay {dl_get_area} {
+        #delay {dl_get_area} {l
             get_area_map_end;
         } {2};    
     };
@@ -455,20 +450,6 @@
     #map exit to%1 COMMAND {qu %1};
 };
 
-#alias {pathwalk} {
-    #class pathwalk_inner open;
-    
-    #act {^%S%s-%s$} {
-        #if {"%%1" !== "马车"} {
-            #path walk;
-        };
-    };
-    
-    #class pathwalk_inner close;
-    
-    #path walk;
-};
-
 #nop 你一进戒律院，...只听几声大喝，如同炸雷般在大殿里回响  #map goto 1466;
 #nop 执法僧兵说道：「戒律院玄痛大师请你去陈述此次下山经过 ！」;
 #nop 你战战兢兢，晃晃悠悠地向对面走去......;
@@ -539,13 +520,121 @@
     #message  VARIABLES             %1;
 };
 
+#alias {find_path} {
+    
+    #if {"%1" != ""} {
+        #var map[gt][dest][name] {%1};
+        #var map[gt][dest][area] {%2};
+    };
+    
+    #class find_path_inner open;
+    
+    #alias {path_save} {
+        #path save forward map[gt][path];
+        #if {"$map[gt][path]" != ""} {
+            #var map[gt][path_found] 1;
+        };
+    };
+    
+    #class find_path_inner close;
+    
+    mess off;
+    
+    #var map[gt][path_found] 0;
+    #var map[gt][path] {};
+    
+    #map get roomname map[room][name];
+    #map get roomarea map[room][area];
+    #map get roomvnum map[room][vnum];
+    
+    #if {"$map[gt][dest][area]" == ""} {
+        #map get roomvnum map[room][vnum];
+        
+        #if {"$map[room][name]" == "$map[gt][dest][name]" ||
+            "$map[room][vnum]" == "$map[gt][dest][name]"} {
+            #showme <139> GPS : 目的地为当前房间。<079>;
+            
+            #class find_path_inner kill;
+            #var map[gt][path_found] 2;
+            #return;
+        };
+    } {
+        #if {"$map[room][name]" == "$map[gt][dest][name]" &&
+            "$map[room][area]" == "%*$map[gt][dest][area]%*"} {
+            
+            #showme <139> GPS : 目的地为当前房间。<079>;
+            
+            #class find_path_inner kill;
+            #var map[gt][path_found] 2;
+            #return;
+        };
+    };
+
+    #if {"$map[gt][dest][area]" == ""} {
+        #if {0 == $map[gt][path_found]} {
+            #map find {$map[gt][dest][name]};
+            path_save;
+        };
+        #if {0 == $map[gt][path_found]} {
+            #map find {%*$map[gt][dest][name]%*};
+            path_save;
+        };
+        #if {0 == $map[gt][path_found]} {
+            #map find {}{}{}{}{$map[gt][dest][name]};
+            path_save;
+        };
+        #if {0 == $map[gt][path_found]} {
+            #map find {}{}{}{}{%*$map[gt][dest][name]%*};
+            path_save;
+        };
+    } {
+        #if {0 == $map[gt][path_found]} {
+            #map find {$map[gt][dest][name]} {} {} {$map[gt][dest][area]};
+            path_save;
+        };
+        #if {0 == $map[gt][path_found]} {
+            #map find {%*$map[gt][dest][name]%*} {} {} {$map[gt][dest][area]};
+            path_save;
+        };
+        #if {0 == $map[gt][path_found]} {
+            #map find {%*$map[gt][dest][name]%*}{}{}{%*$map[gt][dest][area]%*};
+            path_save;
+        };
+        #if {0 == $map[gt][path_found]} {
+            #map find {} {} {} {$map[gt][dest][area]} {$map[gt][dest][name]};
+            path_save;
+        };
+        #if {0 == $map[gt][path_found]} {
+            #map find {} {} {} {$map[gt][dest][area]} {%*$map[gt][dest][name]%*};
+            path_save;
+        };
+        #if {0 == $map[gt][path_found]} {
+            #map find {} {} {} {%*$map[gt][dest][area]%*} {%*$map[gt][dest][name]%*};
+            path_save;
+        };
+    };
+
+    #class find_path_inner kill;
+    mess on;
+};
+#alias {hire_boat} {
+    ask shao gong about 过河;
+    ask shao gong about 过江;
+    enter;
+};
+#alias {gts} {
+    goto_stop;
+};
 #alias {goto_stop} {
     set brief 0;
-    gt_wrn 行走停止;
+    #show <139>GPS: 行走停止<079>;
     #class go_forward_inner kill;
     #class _path_run_inner kill;
     #class goto_inner kill;
     #var map[gt][status] 0;
+    #undelay {dl_wait_need};
+    #delay {dl_hubiao_walk};
+    #delay {dl_trvs_walk};
 };
 
 #alias {gt} {
@@ -566,8 +655,6 @@
         #var map[gt][status] 1;
     };
     
-    mess off;
-    
     #var map[gt][dest][name] {%1};
     #var map[gt][dest][area] {%2};
     
@@ -582,104 +669,63 @@
     #alias {gt_wrn} {
         #showme <139> GPS : %%0<079>;
     };
-    
-    #var path_has_find 0;
-    #alias {path_save} {
-        #path save forward map[gt][path];
-        #if {"$map[gt][path]" != ""} {
-            #var path_has_find 1;
-        };
-    };
-    
     #class goto_inner close;
-
-    #nop path finding;
     
-    #if {"%1" == "" && "%2" == ""} {
+    #if {"%1" == ""} {
         gt_msg goto <roomname> [roomarea];
         #var map[gt][status] 0;
     } {
-        #map get roomname map[room][name];
+        find_path;
         
-        #var map[gt][path] {};
-        
-        #if {"%2" == ""} {
-            #if {0 == $path_has_find} {
-                #map find {%*$map[gt][dest][name]%*};
-                path_save;
-            };
-            #if {0 == $path_has_find} {
-                #map find {}{}{}{}{$map[gt][dest][name]};
-                path_save;
-            };
-            #if {0 == $path_has_find} {
-                #map find {}{}{}{}{%*$map[gt][dest][name]%*};
-                path_save;
-            };
-        
+        #if {$map[gt][path_found] == 2} {
+            #var map[gt][status] 0;
         } {
-            #if {0 == $path_has_find} {
-                #map find {$map[gt][dest][name]} {} {} {$map[gt][dest][area]};
-                path_save;
-            };
-            #if {0 == $path_has_find} {
-                #map find {%*$map[gt][dest][name]%*} {} {} {$map[gt][dest][area]};
-                path_save;
-            };
-            #if {0 == $path_has_find} {
-                #map find {%*$map[gt][dest][name]%*}{}{}{%*$map[gt][dest][area]%*};
-                path_save;
-            };
-            #if {0 == $path_has_find} {
-                #map find {} {} {} {$map[gt][dest][area]} {$map[gt][dest][name]};
-                path_save;
-            };
-            #if {0 == $path_has_find} {
-                #map find {} {} {} {$map[gt][dest][area]} {%*$map[gt][dest][name]%*};
-                path_save;
-            };
-            #if {0 == $path_has_find} {
-                #map find {} {} {} {%*$map[gt][dest][area]%*} {%*$map[gt][dest][name]%*};
-                path_save;
-            };
-            #if {0 == $path_has_find} {
-                path_save;
-            };
-        
-        };
-    
-        mess on;
-
-        #if {0 == $path_has_find} {
-            gt_wrn 目标地点不可达;
-            #class goto_inner kill;
-            #var map[gt][status] 0;        
-        } {
-            gt_msg 找到路径 {$map[gt][path]};
-            
-            on_error {
-                #var map[gt][status] 0;
+            #if {0 == $map[gt][path_found]} {
+                gt_wrn 目标地点不可达;
+                
                 #class goto_inner kill;
+                #var map[gt][status] 0;        
+            } {
+                gt_msg 找到路径 {$map[gt][path]};
+                
+                on_error {
+                    #var map[gt][status] 0;
+                    #class goto_inner kill;
+                };
+                
+                _path_run;
             };
-            
-            _path_run;
         };
     };
-    
 };
 
 #alias {_path_run} {
     status.set_action 走路中;
     
+    #var map[gt][mode] {%1};
+    
     #class _path_run_inner open;
     
     #var path_run {};
-    #list path_run[list] add $map[gt][path];
+    
+    #if {"%1" == "trvs" }{
+        #var path_run[list] {$map[trvs][path]};
+    } {
+        #list path_run[list] add $map[gt][path];
+    };
+    
     #list path_run[list] size path_run[list_len];
     #var path_run[list_idx] 0;
     
     #alias {back_one_step} {
         #math path_run[list_idx] {$path_run[list_idx] - 1};
+    };
+    #alias {do_rewalk} {
+        #map undo;
+        back_one_step;
+        #delay {1} {
+            go_forward;
+        };
     };
     #alias {go_forward} {
         
@@ -694,6 +740,7 @@
             #class _path_run_inner kill;
             #class on_blocked_inner kill;
             #class on_rewalk_need_inner kill;
+            #class on_wait_need_inner kill;
             
             #var map[gt][status] 0;
             
@@ -708,6 +755,15 @@
         } {
             #class go_forward_inner open;
             
+            #act {^走到这里，你被壮阔的景色所吸引，向北眺望，正是长江最险峻湍急之处} {
+                on_walked {
+                    on_walked {
+                        #class go_forward_inner kill;
+                        go_forward;
+                    };
+                };
+                
+            };
             on_blocked {
                 #map undo;
                 
@@ -725,9 +781,17 @@
                 #nop #show 需要重走 $path_run[list][$path_run[list_idx]];
                 #map undo;
                 back_one_step;
-                #delay {1} {
+                #delay {2} {
                     go_forward;
                 };
+            };
+            on_wait_need {
+                log 需要等待60秒再继续走路;
+                #map undo;
+                back_one_step;
+                #delay {dl_wait_need} {
+                    go_forward;
+                }{60};
             };
             
             #class go_forward_inner close;
@@ -772,7 +836,15 @@
             };
             
             #nop #show $path_run[list][$path_run[list_idx]];
-            $path_run[list][$path_run[list_idx]];
+            
+            #if {"$map[gt][mode]" == "trvs"} {
+                #delay {dl_trvs_walk} {
+                    ${path_run[list][$path_run[list_idx]]};
+                }{1};
+            };
+            #else {
+                $path_run[list][$path_run[list_idx]];
+            };
         };
         
     };
@@ -780,10 +852,36 @@
         #alias cb_on_walked #cr;
         #alias cb_on_walked %%0;
         
-        #act {^%S%s-%s$} {
-            #unact {^%S%s-%s$};
+        #nop #act {^%S%s-%s$};
+        #nop #act {^%* - $};
+        #nop #act {^%* - [{城内|野外|门派}]} {
+        #nop    #unact {^%* - [{城内|野外|门派}]};
+        #nop     cb_on_walked;
+        #nop };
+        #act {^%* -  $} {
+            #unact {^%* -  $};
             cb_on_walked;
         };
+    };
+    #alias {on_wait_need} {
+        #alias cb_on_wait_need #cr;
+        #alias cb_on_wait_need %%0;
+        
+        #class on_wait_need_inner open;
+        
+        #list on_wait_need_trigger_list create {
+            ^你刚要前行，忽然发现江水决堤，不由暗自庆幸，还好没过去;
+            ^你正要前行，有人大喝：黄河决堤啦，快跑啊;
+        };
+        
+        #foreach {$on_wait_need_trigger_list[%*]} {regstring} {
+            #act {$regstring} {
+                #class on_wait_need_inner kill;
+                cb_on_wait_need;
+            };
+        };
+        
+        #class on_wait_need_inner close;
     };
     #alias {on_blocked} {
         #alias cb_on_blocked #cr;
@@ -794,8 +892,6 @@
         #list on_blocked_trigger_list create {
             ^这个方向没有出路;
             ^哎哟，你一头撞在墙上;
-            ^你刚要前行，忽然发现江水决堤，不由暗自庆幸，还好没过去;
-            ^你正要前行，有人大喝：黄河决堤啦，快跑啊;
             ^你从悬崖上摔了下来;
             ^那条路不知深浅，还是不要去了;
             ^你身上没有车资%*车夫拒绝开车;
@@ -821,6 +917,12 @@
             ^你觉得贸然进去有些不妥，还是先问问傻姑和程英再说吧;
             ^我劝你不要轻举妄动;
             ^门卫把手一拦：你这种正派人物，老子一看就恶心，快滚;
+            ^神龙教弟子大声喝道：本教重地，外人不得入内;
+            ^神龙教弟子大喝一声：里面是教主和夫人休息之低，外人不得入内;
+            ^桑结伸手拦住了你;
+            ^护法喇嘛拦住你道：那里是本寺女弟子休息的居所，你去不大方便吧;
+            ^杂役喇嘛拦住了你，小心翼翼地道：“施主留步，本寺方丈正在清修，不许打搅;
+            ^护法喇嘛拦住你道：“后山是本寺重地，你没有方丈的手谕，不能进去;
         };
         
         #foreach {$on_blocked_trigger_list[%*]} {regstring} {
@@ -852,7 +954,6 @@
             ^你还在山中跋涉，一时半会恐怕走不出这藏边群山;
             ^青海湖畔美不胜收，你不由停下脚步，欣赏起了风景;
             ^你不小心被什么东西绊了一下，差点摔个大跟头;
-            ^走到这里，你被壮阔的景色所吸引，向北眺望，正是长江最险峻湍急之处;
             ^荒路几乎没有路了，你走不了那么快;
         };
         
@@ -927,44 +1028,85 @@
     };
     #class _path_run_inner close;
     
-    set brief 1;
+    set brief 3;
     go_forward;
 };
 
-#list area_list create {建康府诸军都统制府;临安府西湖;临安提督府;少林寺寺内;北京城内城;长江北岸;长江南岸;建康府南;建康府北;黄河南岸;黄河北岸;丝绸之路;回族小镇;日月神教;康亲王府;平西王府;扬州城;镇江府;临安府;牙山湾;苏州城;峨嵋派;归云庄;大理城;桃源县;杀手帮;桃花岛;铁掌峰;岳王墓;洛阳城;长安城;大轮寺;凌霄城;侠客岛;冰火岛;华山村;洛阳东;麒麟村;晋阳城;兰州城;湟中城;星宿海;灵鹫宫;全真教;武当山;紫禁城;神龙岛;天龙寺;张家口;无量山;嘉兴;明州;江州;慕容;泉州;岳阳;梅庄;闽南;灵州;南昌;信阳;荆州;襄阳;华山;丐帮;中原;古墓;曲阜;泰山;天坛;回部;明教;白驼;成都;昆明;苗疆}
+#list area_list create {建康府诸军都统制府;西湖;杭州提督府;少林寺;北京;长江北岸;长江南岸;长江;建康府南城;建康府北城;黄河南岸;黄河北岸;丝绸之路;回族小镇;日月神教;康亲王府;平西王府;扬州;镇江;临安府;牙山;苏州;峨嵋;归云庄;大理城中;桃源;杀手帮;桃花岛;铁掌峰;岳王墓;洛阳;长安;大轮寺;凌霄城;侠客岛;冰火岛;小山村;洛阳;麒麟村;晋阳;兰州;湟中;星宿;灵鹫;全真;武当山;紫禁城;神龙岛;天龙寺;张家口;无量山;嘉兴;明州;江州;姑苏慕容;泉州;岳阳;梅庄;福州;灵州;南昌;信阳;荆州;襄阳;华山;丐帮;中原;古墓;曲阜;泰山;天坛;回部;明教;白驼山;成都;昆明;苗疆}
 
+#var map_area_table {{杭州提督府}{临安提督府}{建康府南城}{建康府南}{建康府北城}{建康府北}{长江}{长江南岸}{大理城中}{大理城}{姑苏慕容}{慕容}{小山村}{华山村}{白驼山}{白驼}{福州}{闽南}};
 
 #nop 西湖西湖岸边;
 
-#alias {gotowork} {
+#alias {parse_addr} {
+    #var work_place %1;
+    #var buffer %2;
+    
+    #foreach {$area_list[%*]} {areaname} {
+        #regexp {$work_place}{^$areaname%*} {
+            #var roomname {&1};
+            
+            #if {"$roomname" == "红娘%*"} {
+                #var areaname {noarea};
+                #var roomname {红娘庄};
+            };
+            #if {"$roomname" == "荆州" || "$roomname" == "荆门" || "$roomname" == "华容道"} {
+                #var areaname {荆州};
+            };
+            #if {"$work_place" == "襄阳官道"} {
+                #var areaname {荆州};
+                #var roomname {官道};
+            };
+            #if {"$work_place" == "泉州杂货铺"} {
+                #var areaname {泉州};
+                #var roomname {曾宅};
+            };
+            #if {"$work_place" == "中原客店二楼"} {
+                #var areaname {中原};
+                #var roomname {悦来客栈};
+            };
+            #if {&map_area_table[$areaname] == 0} {
+                #var $buffer {{area}{$areaname}{name}{$roomname}};
+            } {
+                #var $buffer {{area}{$map_area_table[$areaname]}{name}{$roomname}};
+            };
+            
+            #unvar areaname;
+            #unvar work_place;
+            #unvar roomname;
+            #break;
+        };
+    };
+};
+
+#function {parse_addr} {
     #var work_place %1;
     
-    #replace {work_place} {杭州提督府} {临安提督府};
-    #replace {work_place} {建康府南城} {建康府南};
-    #replace {work_place} {建康府北城} {建康府北};
-    #replace {work_place} {长江长江} {长江南岸长江};
-    #replace {work_place} {牙山牙山} {牙山湾牙山};
-    #replace {work_place} {大理城中} {大理城};
-    #replace {work_place} {姑苏慕容} {慕容};
-    #replace {work_place} {小山村} {华山村};
-    #replace {work_place} {少林寺} {少林寺寺内};
-    #replace {work_place} {白驼山} {白驼};
-    #replace {work_place} {福州} {闽南};
-    #replace {work_place} {扬州} {扬州城};
-    #replace {work_place} {镇江} {镇江府};
-    #replace {work_place} {西湖} {临安府西湖};
-    #replace {work_place} {苏州} {苏州城};
-    #replace {work_place} {峨嵋} {峨嵋派};
-    #replace {work_place} {桃源} {桃源县};
-    #replace {work_place} {洛阳} {洛阳城};
-    #replace {work_place} {长安} {长安城};
-    #replace {work_place} {晋阳} {晋阳城};
-    #replace {work_place} {北京} {北京城内城};
-    #replace {work_place} {兰州} {兰州城};
-    #replace {work_place} {湟中} {湟中城};
-    #replace {work_place} {星宿} {星宿海};
-    #replace {work_place} {灵鹫} {灵鹫宫};
-    #replace {work_place} {全真} {全真教};
+    #foreach {$area_list[%*]} {areaname} {
+        #regexp {$work_place}{^$areaname%*} {
+        
+            #if {"&1" == "红娘%*"} {
+                #var result {{area}{}{name}{&1}};
+            };
+            #if {"&1" == "荆门"} {
+                #var result {{area}{}{name}{&1}};
+            };
+            #else {
+                #if {&map_area_table[$areaname] == 0} {
+                    #var result {{area}{$areaname}{name}{&1}};
+                } {
+                    #var result {{area}{$map_area_table[$areaname]}{name}{&1}};
+                };
+            };
+            
+            #unvar areaname;#unvar work_place;
+            #break;
+        };
+    };
+};
+
+#alias {gotowork} {
+    #var work_place %1;
     
     #foreach {$area_list[%*]} {areaname} {
         #regexp {$work_place}{^$areaname%*} {
@@ -976,7 +1118,11 @@
                 goto &1;
             };
             #else {
-                goto &1 $areaname;
+                #if {&map_area_table[$areaname] == 0} {
+                    goto &1 $areaname;
+                } {
+                    goto &1 $map_area_table[$areaname];
+                };
             };
             
             log $areaname &1;
@@ -987,10 +1133,10 @@
     };
 };
 
-#nop 21 168 1008 2532;
-#list bus_station_list create {11;20;30;45;46;64;94;135;186;197;243;255;285;321;796;985;989;991;1010;1052;1075;1106;1108;1120;1181;1209;1532;1579;1580;1690;1740;2100;2200;2494}
+#nop 2923 明教 2245 白驼 1147 兰州 1009 大轮寺 65 苏州;
+#list bus_station_list create {63;65;93;95;170;187;198;242;244;284;286;322;337;797;988;990;992;1011;1053;1076;1107;1109;1139;1171;1182;1210;1347;1533;1582;1584;1677;1691;1741;2101;3288;3289;3290}
 
-#alias {mapcar} {
+#alias {map.car} {
     #map get roomvnum current_room_id;
     
     #if {"%1" == "on"} {
@@ -998,26 +1144,61 @@
             #map goto $room_id;
             #map roomflag avoid off;
         };
-        #showme <139>GPS : 开启马车行节点<079>;
+        #showme <139>GPS : 开启马车节点<079>;
     };
     #elseif {"%1" == "off"} {
         #foreach {$bus_station_list[%*]} {room_id} {
             #map goto $room_id;
             #map roomflag avoid on;
         };
-        #showme <139>GPS : 关闭马车行节点<079>;
+        #showme <139>GPS : 关闭马车节点<079>;
     };
     
     #map goto $current_room_id;
     #unvar current_room_id;
 };
+
+#nop 1111 树洞内部 1112 树洞下
+#list andao_list create {1112};
+
+#alias {map.andao} {
+    #map get roomvnum current_room_id;
+    
+    #if {"%1" == "on"} {
+        #foreach {$andao_list[%*]} {room_id} {
+            #map goto $room_id;
+            #map roomflag avoid off;
+        };
+        #showme <139>GPS : 开启暗道节点<079>;
+    };
+    #elseif {"%1" == "off"} {
+        #foreach {$andao_list[%*]} {room_id} {
+            #map goto $room_id;
+            #map roomflag avoid on;
+        };
+        #showme <139>GPS : 关闭暗道节点<079>;
+    };
+    
+    #map goto $current_room_id;
+    #unvar current_room_id;
+};
+
+#nop =========================== 遍历 =========================================;
+
 #alias {on_get_exits} {
     #alias cb_on_get_exits #cr;
     #alias cb_on_get_exits %0;
     
     #act {^%s这里%*{方向|出口}{是|有}%*} {
         #unact {^%s这里%*{方向|出口}{是|有}%*};
-        #var map[trvs][leaf] @format_exits{%%5};
+        #nop #var map[trvs][leaf] @format_exits{%%5};
+        #var trvs[exits] %%5;
+        #replace {trvs[exits]} {。} {};
+	    #replace {trvs[exits]} { } {};
+	    #replace {trvs[exits]} {和} { };
+	    #replace {trvs[exits]} {、} { };
+	    
+	    #list 
         cb_on_get_exits;
     };
     look;
@@ -1052,18 +1233,228 @@
     #class traverse_inner close;
 };
 
+#alias {bfs} {
+    #var map[trvs][path] {};
+    
+    #var bfs[target_level] 1;
+    #var bfs[target_level] %1;
+    #var bfs[level] -1;
+    
+    #var bfs[q1] {};
+    #var bfs[q2] {};
+        
+    #var bfs[nodes_v] {};
+    #var bfs[nodes_e] {};
+    
+    #var bfs[disabled_vnum] {{vnum}{name}};
+    
+    #map get roomvnum bfs[start_pos];
+    #map get roomarea bfs[area];
+    
+    #var bfs[q2][$bfs[start_pos]] {};
+    
+    #while {$bfs[level] < $bfs[target_level]} {
+    
+        #var bfs[q1] $bfs[q2];
+        #var bfs[q2] {};
+        
+        #foreach {$bfs[q1][]} {bfs[q1_k]} {
+            
+            #if {&bfs[disabled_vnum][$bfs[q1_k]] == 0} {
+                #map goto $bfs[q1_k];
+                
+                #map get roomarea bfs[next_node][area];
+                #map get roomname bfs[next_node][name];
+                
+                #if {"$bfs[next_node][name]" != "马车" &&
+                    "$bfs[next_node][name]" != "小船"} {
+                    
+                    #if {"$bfs[area]" == "" ||
+                         "$bfs[next_node][area]" == "" ||
+                         "$bfs[area]" == "$bfs[next_node][area]"} {
+                        
+                        #map get roomexits bfs[next_node][exits];
+                        
+                        #var bfs[nodes_v][$bfs[q1_k]] $bfs[next_node][name];
+                        #var bfs[nodes_e][$bfs[q1_k]] {$bfs[next_node][exits]};
+                        
+                        #foreach {$bfs[next_node][exits][%*]}{bfs[v]} {
+                            #var bfs[q2][$bfs[v]] {};
+                        };
+                    };
+                };
+            };
+        };
+        
+        #math bfs[level] {$bfs[level] + 1};
+    };
+    
+    #unvar bfs[q1];
+    #unvar bfs[q2];
+    #unvar bfs[next_node];
+    #unvar bfs[q1_k];
+    #unvar bfs[v];
+    
+    #map goto $bfs[start_pos];
+    
+    mst $bfs[start_pos] bfs[nodes_v] bfs[nodes_e];
+    #unvar bfs;
+};
+
+#alias {mst} {
+    #var mst[start] %1;
+    #var mst[v] ${%2};
+    #var mst[e] ${%3};
+    
+    #var mst[path] {};
+    #var mst[visited] {};
+    
+    #var mst[buffer] {};
+    
+    #var mst[buffer][vnum] $mst[start];
+    
+    #var mst[visited][$mst[buffer][vnum]] $mst[v][$mst[buffer][vnum]];
+    #unvar mst[v][$mst[buffer][vnum]];
+    
+    #var mst[buffer][last_vnum] 0;
+    #nop #list mst[buffer][stack] add $mst[buffer][vnum];
+    
+    #while {&mst[v][] != 0} {
+        #var mst[buffer][path] {};
+        #var mst[buffer][r_path] {};
+        #var mst[buffer][exits] $mst[e][$mst[buffer][vnum]];
+        
+        #foreach {$mst[buffer][exits][]} {mst[buffer][exit]} {
+        
+            #if {&mst[e][$mst[buffer][exits][$mst[buffer][exit]]] != 0} {
+            
+                #if {&mst[visited][$mst[buffer][exits][$mst[buffer][exit]]] == 0} {
+                    #var mst[buffer][path] $mst[buffer][exit];
+                    #break;
+                };
+            };
+        };
+        
+        #if {"$mst[buffer][path]" == ""} {
+            #if {$mst[buffer][vnum] != $mst[start]} {
+            
+                #var mst[buffer][last_vnum] $mst[buffer][stack][-1];
+                #list mst[buffer][stack] delete -1;
+                
+                #foreach {$mst[buffer][exits][]}{mst[buffer][exit]}{
+                    #if {$mst[buffer][exits][$mst[buffer][exit]] == $mst[buffer][last_vnum]} {
+                        #var mst[buffer][path] $mst[buffer][exit];
+                        #break;
+                    };
+                };
+                
+                #if {"$mst[buffer][path]" == ""} {
+                    #show 遍历完成,没有返回路径;
+                    #break;
+                };
+            } {
+                #show 遍历完成,回到起点;
+                #break;
+            };
+        } {
+            #nop #show delete $mst[v][$mst[buffer][exits][$mst[buffer][path]]] $mst[v][$mst[v][$mst[buffer][exits][$mst[buffer][path]]]];
+            
+            #list mst[buffer][stack] add $mst[buffer][vnum]; 
+            #unvar mst[v][$mst[buffer][exits][$mst[buffer][path]]];
+        };
+        
+        #list mst[path] add $mst[buffer][path];
+        
+        #var mst[buffer][vnum] $mst[buffer][exits][$mst[buffer][path]];
+        #var mst[visited][$mst[buffer][vnum]] $mst[v][$mst[buffer][vnum]];
+        
+    };
+    
+    #show 节点遍历完成;
+    
+    #var map[trvs][path] $mst[path];
+    
+    #show 遍历路径:$map[trvs][path];
+    
+    #unvar mst;
+    
+    #nop trvs.start;
+};
+
+#alias {trvs.reset} {
+    #var map[trvs][idx] 1;
+};
+#alias {trvs.start} {
+    #class trvs.inner open;
+    
+    #if {"%1" != ""} {
+        #var on_trvs_complete_handler %1;
+        $on_trvs_complete_handler {
+            trvs.stop;
+        };
+    };
+    
+    #act {^%s这里%*{方向|出口}{是|有}%*} {
+        #delay {dl_trvs_step} { trvs.step } {1};
+    };
+    
+    #class trvs.inner close;
+    
+    trvs.reset;
+    trvs.step;
+};
+#alias {trvs.step} {
+    
+    #if {"$map[trvs][path]" != ""} {
+        #if {&map[trvs][path][$map[trvs][idx]] != 0} {
+            #act {^你逃跑失败} {
+                #unact {^你逃跑失败};
+                #math map[trvs][idx] {$map[trvs][idx] - 1};
+            };
+            $map[trvs][path][$map[trvs][idx]];
+            #math map[trvs][idx] {$map[trvs][idx] + 1};
+        } {
+            trvs.stop;
+            #unact {^你逃跑失败};
+            #show <139>遍历路径行走完成<099>;
+        };
+    } {
+        trvs.stop;
+        #show 遍历路径为空;
+    };
+};
+#alias {trvs.stop} {
+    #undelay {dl_trvs_step};
+    #class trvs.inner kill;
+};
+
+#nop ================================== 常用行走别名 ===========================;
+
 #alias {rbz} {
     goto 荣宝斋;
 };
 #alias {dp} {
-    goto 当铺;
+    goto %*当铺;
 };
 #alias {qz} {
-    goto 钱庄;
+    goto %*钱庄;
 };
 #alias {wm} {
     goto 武庙;
 };
+#alias {bw} {
+    gt 帅府大厅;
+};
+#alias {pad} {
+    map pad;
+};
+#alias {gohome} {
+    goto %*盛昌%*;
+    on_there {
+        enter @lower{$status[id]};
+    };
+};
+
 #class $mod_name close;
 
 ${mod_name}_load;
