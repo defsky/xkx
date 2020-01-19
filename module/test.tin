@@ -637,6 +637,27 @@
     };
 };
 
+
+#alias {qhb} {
+    #if {"%1" == "on"} {
+        #class qhb open;
+        #nop #act {http://pkuxkx.{net|com}/antirobot/robot.php?filename=%*};
+        #act {【江湖】%*在线发出红包，请到http://pkuxkx.{net|com}/antirobot/robot.php?filename=%*查询口令}{
+            #showme <129>%%1发红包了！！<099>;
+
+            #var status[fm][captcha_id] %%3;
+            
+            fetch_captcha2 %%2;
+        };
+        #class qhb close;
+        #showme <129>抢红包触发已打开！<099>;
+    }{
+        #class qhb kill;
+        #showme <129>抢红包触发已关闭！<099>;
+    };
+    
+};
+
 #class $mod_name close;
 
 ${mod_name}_load;

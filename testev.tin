@@ -1,0 +1,17 @@
+#class test_event open
+
+#var IAC    \xFF
+#var DONT   \xFE
+#var DO     \xFD
+#var WONT   \xFC
+#var WILL   \xFB
+#var SB     \xFA
+#var GA     \xF9
+
+#var telcmd 0
+#var telval 0
+
+#event {IAC telcmd telval}{#showme tel neo}
+#event {VARIABLE UPDATE telcmd}{#showme %0 %1}
+
+#class test_event close
