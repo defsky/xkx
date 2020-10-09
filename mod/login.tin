@@ -1,9 +1,9 @@
 #class login open;
 
-#alias {login2.on} {
+#alias {login.on} {
     login.help;
 };
-#alias {login2.off} {
+#alias {login.off} {
     #class login kill;
 };
 #alias {login.help} {

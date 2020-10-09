@@ -63,6 +63,6 @@
 #echo {%cRM <mod name> : 重载模块} {light green};
 #echo {%a%a}{10}{13};
 
-EM login2;
+EM login;
 
 #buffer up;#buffer down;
