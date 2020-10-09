@@ -1,0 +1,701 @@
+#class xiaoyao-data open;
+
+#var xiaoyao-map {
+{bt}        {{long}{baituo}             {name}{白驼}        {room}{戈壁}           {links}{
+    {yz}{nw;s;ask zhang about 扬州;e;s}}}
+{bxs}       {{long}{baixiaosheng}       {name}{百晓生}      {room}{醉仙楼二楼}     {links}{
+    {yz}{d;w;s;s}}}
+{bj}        {{long}{beijing}            {name}{北京}        {room}{永安门}         {links}{
+    {shg}{e;e;e;e;e;n;n;n;n;n;n;n;n;n;n;n;w;w;n;n;n;ne;ne;ne;ne;nw}
+    {py}{s;sw;sw;s}
+    {zf}{e;e;e;e;e;n;n;n;n;n;n;n;e;ne;n;n}
+    {hyd}{s;sw;n}
+    {tgk}{s;se}
+    {zjk}{w;w;w;w;n;n;n;n;n;n;n;n;n;n;n;n;n;ne;nw;nw;nw;w;w;w;n;n}
+    {jy}{w;w;w;w;n;n;sw;sw;w;w;w;w;w;w;w;sw;w}
+    {ry}{w;w;w;w;n;n;sw;sw;nu;n;ne;nu;nu}
+    {zjc}{n;n;n;n;n;n;n;n}}}
+{cd}        {{long}{chengdu}            {name}{成都}        {room}{总督府门前}     {links}{
+    {yj}{enter}
+    {em}{s;s;s;s;su;su;su;w;nw;n;nu;unwield all;nu;wield all;n;e;eu;nu;nu}
+    {tls}{s;s;s;s;su;sw;sw;s;SlowWalk;sw;SlowWalk;sw;sw;wu}
+    {zp}{nw;nw;w;w;SlowWalk;wu;SlowWalk;wu;SlowWalk;wu;SlowWalk;nw;SlowWalk;nw;SlowWalk;w;n;n;n}
+    {sdn}{se;se;e;e}
+    {jmg}{n;n;n;n;nu}
+    {yy}{nw;nw;n;hire;qu yueyang;stop;xia;w;s;s}}}
+{cz}        {{long}{chongzi}            {name}{虫子}        {room}{丽春院密室}     {links}{
+    {yz}{u;w;n;n}}}
+{dl}        {{long}{dali}               {name}{大理}        {room}{十字路口}       {links}{
+    {tls}{n;n;n;n;n;n;n;ne;ne;ne;n;sw;wu}
+    {km}{s;s;s;e;se;e;se;e;e;n}}}
+{qbl}       {{long}{qianbuling}         {name}{大轮千步岭}  {room}{千步岭}         {links}{
+    {dls}{wu;wd;wu;nu;ne;se;eu;nw}
+    {zp}{se;e;sw;se;e;e;e}}}
+{dls}       {{long}{dalunsi}            {name}{大轮寺}      {room}{大轮寺山门}     {links}{
+    {qbl}{se;wd;nw;sw;sd;ed;eu;ed}
+    {xs}{se;ed;ne;enter dong;ne;nw;out;n;w;nu;nu;n;w;w}
+    {yz}{se;ed;ne;enter dong;ne;ne;ne;n;ne;e;u;out}
+    {xkt}{knock gate;SlowWalk;nu;nu;n;n;nd}}}
+{xkt}       {{long}{xieketing}          {name}{大轮谢客亭}  {room}{谢客亭}         {links}{
+    {lhs}{su}
+    {dls}{su;s;s;sd;pull gate;sd}
+    {bofu}{su;s;s;sd}}}
+{lhs}       {{long}{lianhuasheng}       {name}{莲花生大士}  {room}{珠都巴殿}       {links}{
+    {xkt}{nd}}}
+{ddj}       {{long}{dudajin}            {name}{都大锦}      {room}{龙门镖局}       {links}{
+    {ly}{out;s;e}}}
+{yj}        {{long}{yujie}              {name}{余玠}        {room}{四川总督府}     {links}{
+    {cd}{out}}}
+{em}        {{long}{emei}               {name}{峨嵋}        {room}{玉女池}         {links}{
+    {cd}{sd;sd;wd;w;s;sd;sd;s;se;e;nd;nd;nd;n;n;n;n}
+    {qfa}{eu;n;nu;nu;nu;wu;nu;n;n}}}
+{qfa}       {{long}{qianfuoan}          {name}{峨嵋千佛庵}  {room}{千佛庵大殿}     {links}{
+    {miej}{n;n;n;n;n;n;ne;ne;n}
+    {em}{s;s;sd;ed;sd;sd;sd;s;wd}}}
+{fds}       {{long}{fadaishi}           {name}{发呆室}      {room}{发呆室}         {links}{
+    {yz}{enter;u}}}
+{fz}        {{long}{fuzhou}             {name}{福州}        {room}{福威镖局}       {links}{
+    {qz}{s;w;w;w;w;sw;sw;s;s;sw;sw;sw}
+    {wys}{s;w;n;n;n;nu;nw;nw;s}}}
+{gb}        {{long}{gaibang}            {name}{丐帮}        {room}{土地庙}         {links}{
+    {yz}{s;s;w;w;w;w}}}
+{gm}        {{long}{gumu}               {name}{古墓}        {room}{断龙石}         {links}{
+    {qzh}{s;s;s;wu;eu;su;s;s;s;s;s;s;s;s;s;s;s}
+    {ca}{e;ne;ne;nd;nw;n;n;n;n;n;n;n}
+    {ha}{e;ne;ne;e;swim river;n;n;e;n;n;w;w;n;n}}}
+{ha}        {{long}{hean}               {name}{古墓河岸}    {room}{河岸}           {links}{
+    {gm}{s;s;s;s;out;w;sw;sw;w}
+    {ms}{e;n;w;ban stone;w;w}}}
+{ms}        {{long}{mishi}              {name}{古墓密室}    {room}{密室}           {links}{
+    {xt}{u;out;juan picture;s;s;e;n;n;n;n}}}
+{xt}        {{long}{xiaoting}           {name}{古墓小厅}    {room}{小厅}           {links}{
+    {gm}{s;s;s;s;s;ban stone;s}}}
+{gjc}       {{long}{guajianci}          {name}{挂剑祠}      {room}{挂剑祠}         {links}{
+    {jx}{nw;sd;sd;su;w}}}
+{gw}        {{long}{guanwai}            {name}{关外}        {room}{集市}           {links}{
+    {ych}{s;s;s;s;s;s;sw;s}}}
+{ych}       {{long}{ningyuan}           {name}{袁崇焕}      {room}{宁远}           {links}{
+    {gw}{n;ne;n;n;n;n;n;n}
+    {shg}{sw;sw;sw;sw;ask jiang about 入关}}}
+{yinz}      {{long}{yinzhe}             {name}{归云隐者}    {room}{隐者居}         {links}{
+    {taih}{n;n;n;n;n;n}}}
+{gy}        {{long}{guiyun}             {name}{归云庄}      {room}{归云亭}         {links}{
+    {taih}{sd;sd;out;w;w;w;w}
+    {lcf}{e;e}}}
+{hanz}      {{long}{hanzhong}           {name}{汉中}        {room}{汉中}           {links}{
+    {jmg}{su;SlowWalk;sw;SlowWalk;se;SlowWalk;su;SlowWalk}
+    {ca}{e;e;ne;ne;ne;ne;n;n;n;n;n;n;n}
+    {xz}{nw;nu;nd;ne;nu;ne;SlowWalk;nw;SlowWalk;nw;SlowWalk}}}
+{hz}        {{long}{hangzhou}           {name}{杭州}        {room}{大理寺}         {links}{
+    {tms}{se;s;s;s;w;sw;w;jump west}
+    {hzsj}{w;n}
+    {hzyp}{e;e;e;e;n;n;n;e}
+    {zym}{n;n;n;n;n;ne;n;n;n;nw;nw;n}
+    {xh}{w;w;w;s;sw;sw;sw}
+    {wys}{e;e;e;e;e;e;e;e;ne;e;ne;s}
+    {hhh}{se;w;s;w;sw;w;nw;n;e;enter boat;stop;w;w;w;w;w;w}
+    {tdf}{se;s;s;s;w;s;e;s;w}
+    {mz}{se;s;s;w;n;enter $user[id];xiaoyao.getSibao;stop;out;s;e;n;w;w;sw;w;nw;n;nw;n;e;s;se;sw;meizhuang_gate}
+    {hsz}{e;e;n;enter;n}
+    {hzbs}{se;s;s;w;n;enter $user[id]}
+    {jnqz}{e;e;s;enter;s}}}
+{hmy}       {{long}{heimuya}            {name}{黑木崖}      {room}{成德殿门}       {links}{
+    {ry}{s;out;s;enter lou;stop;s;s;s;s}}}
+{hhh}       {{long}{honghuahui}         {name}{红花会}      {room}{杭州分舵大门}   {links}{
+    {xh}{e;e;e;enter boat;stop;w;nw;n;e;s;se}
+    {hz}{e;e;e;enter boat;stop;w;s;se;e;ne;e;n;e;nw}}}
+{hyd}       {{long}{huyidao}            {name}{胡一刀}      {room}{高粱地}         {links}{
+    {py}{s;sw;s}
+    {bj}{s;ne;n}}}
+{bs}        {{long}{bieshu}             {name}{玩家储物柜}  {room}{盛昌总行}       {links}{
+    {yz}{out;e;n;n;n}}}
+{hs}        {{long}{huashan}            {name}{华山}        {trigger}{^%s这里是华山派掌门人「君子剑」岳不群的书房，平时岳先生在此会见熟人。房里只有几排书架。$}         {links}{
+    {cll}{e;e;n;n;n;nd;nu}}}
+{cll}       {{long}{canglongling}       {name}{华山苍龙岭}  {room}{苍龙岭}         {links}{
+    {xc}{nd;nd;wd;nd;wd;nd;nw;w;w;w;w;w}
+    {hs}{sd;su;s;s;s;w;w}
+    {ca}{n;nd;nd;nd;nd;n;w;w;w;w;w;w;n}
+    {ly}{n;nd;nd;nd;nd;n;n;se;e;e;e;e;e;ed;e;e;e}}}
+{xc}        {{long}{xiaocun}            {name}{华山村}      {room}{打谷场}         {links}{
+    {cll}{e;e;e;e;e;se;su;eu;su;eu;su;su}
+    {ny}{s;s;s;s;s;se}
+    {qzh}{nw;nw;w;nw;nw;n;nw;nu;nu;n;nu;n;n}}}
+{hb}        {{long}{huaibei}            {name}{淮北}        {room}{淮北}           {links}{
+    {qf}{ne;ne;ne;ne;ne;e;e;s;e}
+    {yz}{se;se;se;s;s;s;s}
+    {xch}{w;nw;w}}}
+{hb1}       {{long}{huanghedukoubei1}   {name}{黄河渡口北1} {trigger}{^%s这里是黄河北岸的渡口，往北通向濮阳。渡过河去就是山东地界了}    {links}{
+    {hb2}{w;nw;w;n}
+    {py}{w;ne;nw}
+    {hn1}{xiaoyao.GuoHe;stop}}}
+{hb2}       {{long}{huanghedukoubei2}   {name}{黄河渡口北2} {trigger}{^%s这里是黄河北岸的渡口，东北通向晋阳。渡过黄河就是洛阳了}        {links}{
+    {hb1}{s;e;se;e}
+    {hb3}{nw;nw;nw;n;n;ne;n;nw;w;sw;sw;sw}
+    {jy}{n;ne;ne;ne;e;n;n;w}
+    {hn2}{xiaoyao.GuoHe;stop}}}
+{hb3}       {{long}{huanghedukoubei3}   {name}{黄河渡口北3} {trigger}{^%s这里是黄河北岸的渡口，渡过河去通向灵州}                        {links}{
+    {hb2}{ne;ne;ne;e;se;s;sw;s;s;se;se;se}
+    {hb4}{sw;sw;sw}
+    {mj}{nw;w;w;w;n;n;w;w;w;n;n;w;w;nw;n;nw;nu}
+    {hn3}{guohe3n2s;stop}}}
+{hb4}       {{long}{huanghedukoubei4}   {name}{黄河渡口北4} {trigger}{^%s这里是黄河北岸的渡口，西北通向兰州}                            {links}{
+    {hb3}{ne;ne;ne}
+    {jyg}{sw;w;w;nw;w;nw}
+    {mgk}{sw;w;w;nw;climb mount;w;enter hole}
+    {lanz}{nw;nw;e;e;e;e}
+    {hn4}{xiaoyao.GuoHe;stop}}}
+{hn1}       {{long}{huanghedukounan1}   {name}{黄河渡口南1} {trigger}{^%s这里是黄河南岸的渡口，往南通向曲阜。渡过黄河向北就是濮阳}      {links}{
+    {hn2}{w;nw;w}
+    {qf}{se;se;se;s;s;s;s;w}
+    {dzf}{se;se;se;ne;e;ne;n;n}
+    {yz}{w;enter hole;s;sw;sw;s;s;u;out}
+    {hb1}{xiaoyao.GuoHe;stop}}}
+{hn2}       {{long}{huanghedukounan2}   {name}{黄河渡口南2} {trigger}{^%s这里是黄河南岸的渡口，南面通向洛阳。渡过河就进入晋阳了}        {links}{
+    {hn1}{e;se;e}
+    {hn3}{w;nw;nw;nw;n;n;ne;n;nw;w;sw;sw;sw}
+    {ly}{sd;s;s;su;sd;s;s;s}
+    {ca}{w;nw;sw;s;e;e;e;s;s;s;s;w;w;w;s;s;w;w;n}
+    {hb2}{xiaoyao.GuoHe;stop}}}
+{hn3}       {{long}{huanghedukounan3}   {name}{黄河渡口南3} {trigger}{^%s这里是黄河南岸的渡口，东南面通向灵州}                          {links}{
+    {hn2}{ne;ne;ne;e;se;s;sw;s;s;se;se;se;e}
+    {lz}{se;se;e;e;n;n}
+    {hn4}{sw;sw;sw}
+    {hb3}{guohe3s2n;stop}}}
+{hn4}       {{long}{huanghedukounan4}   {name}{黄河渡口南4} {trigger}{^%s这里是黄河南岸的渡口，往东南通向长安。渡过河去就是兰州了}      {links}{
+    {hn3}{ne;ne;ne}
+    {hb4}{xiaoyao.GuoHe;stop}}}
+{jx}        {{long}{jiaxing}            {name}{嘉兴}        {room}{嘉兴城}         {links}{
+    {zym}{w;nu;nw;nw;n;nw;w;nw;nw;n}
+    {sz}{n;n;n;n;n}
+    {ljz}{s;sw;sw;s}
+    {ys}{e;se;ne;e;ne;ne;e;e;e;e;e;e;e}
+    {th}{e;nd;e;e;e;e;n;taohuadao;stop}
+    {wys}{s;s;s}
+    {gjc}{e;nd;ask chou diao about 独孤求败;nu;se}}}
+{jyg}       {{long}{jiayuguan}          {name}{嘉峪关}      {room}{嘉峪关}         {links}{
+    {hb4}{se;e;se;e;e;ne}}}
+{jmg}       {{long}{jianmenguan}        {name}{剑门关}      {room}{剑门关}         {links}{
+    {hanz}{nd;SlowWalk;nw;SlowWalk;ne;SlowWalk;nd;SlowWalk}
+    {cd}{sd;s;s;s;s}}}
+{jz}        {{long}{jiangzhou}          {name}{江州}        {room}{韩家}           {links}{
+    {jn3}{w;w;n;ne;ne;ne;ne;n;nw;nw}
+    {yy}{w;w;n;sw;sw;sw;w;wu;nw;wu;w;w;w;s}
+    {nc}{w;w;s;s;s;s;su;se;s;s;s;e;n}
+    {pyh}{w;w;s;s;s;s;e}
+    {tf}{w;w;n;ne;s}}}
+{jy}        {{long}{jinyang}            {name}{晋阳}        {room}{萧府}           {links}{
+    {bj}{e;ne;e;e;e;e;e;e;e;ne;ne;s;s;e;e;e;e}
+    {zjk}{e;n;n;e;n;n;nu;nu;ne;n;ne;e;e;e;n;n}
+    {ry}{e;ne;e;e;e;e;e;e;e;nu;n;ne;nu;nu}
+    {hb2}{e;s;s;w;sw;sw;sw;s}}}
+{jzh}       {{long}{jingzhou}           {name}{荆州}        {room}{荆州}           {links}{
+    {xy}{n;n;n;n;n;n;n;n;n;n;n;w;w;n}
+    {jb4}{s;se;s;w}}}
+{km}        {{long}{kunming}            {name}{昆明}        {room}{神威镖局}       {links}{
+    {dl}{s;w;w;nw;w;nw;w;n;n;n}
+    {px}{s;e;n;n;n;n;n;n;n;ask tou about 自立为王}
+    {mlx}{s;e;e;e;e;ne;eu;eu}}}
+{fd}        {{long}{fudi}               {name}{琅缳福地}    {room}{琅缳福地}       {links}{
+    {wjg}{w;s;out;guo qiao;stop}}}
+{lld}       {{long}{laolindong}         {name}{老林东}      {room}{老林尽头}       {links}{
+    {tdf}{ed;nd;w}}}
+{llx}       {{long}{laolinxi}           {name}{老林西}      {room}{老林边缘}       {links}{
+    {nc}{wd;wd;w;w;n}}}
+{lj}        {{long}{lingjiu}            {name}{灵鹫}        {room}{百丈涧}         {links}{
+    {lz}{sd;sd;s;w;w;w;w;w;n;n}
+    {xz}{sd;sd;s;s;sd}
+    {dzt}{zou tiesuo;stop;nw;ne;nu;nu;n;n}}}
+{dzt}       {{long}{duzunting}          {name}{灵鹫独尊厅}  {room}{独尊厅大门}     {links}{
+    {lj}{s;s;sd;sd;sw;se;zou tiesuo;stop}}}
+{lz}        {{long}{lingzhou}           {name}{灵州}        {room}{皇宫大门}       {links}{
+    {lj}{s;s;e;e;e;e;e;n;nu;nu}
+    {xz}{s;s;e;e;e;e;e;s;sd}
+    {qhb}{s;s;s;s;s;s;s}
+    {hn3}{s;s;w;w;nw;nw}}}
+{lxc}       {{long}{lingxiaocheng}      {name}{凌霄城}      {room}{凌霄大厅}       {links}{
+    {xs}{s;sd;s;s;s;s;jiang bridge;s}}}
+{ljz}       {{long}{lujiazhuang}        {name}{陆家庄}      {room}{陆家庄}         {links}{
+    {jx}{n;ne;ne;n}}}
+{ly}        {{long}{luoyang}            {name}{洛阳}        {room}{洛阳中心广场}   {links}{
+    {ca}{w;w;w;wu;w;w;w;w;w;nw;s;w;w;w;w;w;w;n}
+    {qlc}{e;e;e;eu;ed;e;e;e;e;se;ne;n;w;s;w}
+    {cll}{w;w;w;wu;w;w;w;w;w;nw;s;s;su;su;su;su;s}
+    {rz}{e;e;e;eu;ed;e;e;e;e;se;sw;sw}
+    {hn2}{n;n;n;nu;nd;n;n;nu}
+    {xf}{n;w;u}
+    {wat}{s;s;s;w;w;w;nw;nw;nw;n;n;n;n;n;nd;nw;nw}
+    {tdh}{s;s;s;e;e;e;n;e;e;SlowWalk;tiandihui_andao}
+    {ddj}{w;n;enter}
+    {ny}{s;s;s;s;s;s;s}}}
+{ll}        {{long}{lvliu}              {name}{绿柳山庄}    {room}{绿柳山庄大门}   {links}{
+    {mj}{nw;e;ne;nw;n;nw;nu}}}
+{mt}        {{long}{mantuo}             {name}{曼陀山庄}    {room}{小桥}           {links}{
+    {qy}{e;e;e;s;n;w;n;n;e;s;e;enter boat;stop;w;w;w;s}}}
+{mz}        {{long}{meizhuang}          {name}{梅庄}        {room}{梅庄天井}       {links}{
+    {hz}{open gate;s;ne;ne;ne;ne;n;e;e;e;se;s;s;w;n;enter $user[id];store ouxue pu;store xishan tu;store shuaiyi tie;store guangling san;out;s;e;n;n;nw}}}
+{mlb}       {{long}{miaolingbei}        {name}{苗岭北}      {trigger}{^%s这里是苗岭的边缘，南面是连成片的森林，似乎有瘴气，没事不要轻易进入。$} {links}{
+    {nc}{ed;ed;ed;e;e;e;e;n}
+    {yy}{nd;nd;nd;n;n}}}
+{mlx}       {{long}{miaolingxi}         {name}{苗岭西}      {trigger}{^%s这里是苗岭的边缘，东面是连成片的森林，似乎有瘴气，没事不要轻易进入。$} {links}{
+    {km}{wd;wd;sw;w;w;w;w;n}}}
+{mj}        {{long}{mingjiao}           {name}{明教}        {room}{半山门}         {links}{
+    {ll}{sd;se;s;se;sw;w;se}
+    {hb3}{sd;se;s;se;e;e;e;e;s;s;s;e;e;e;e;se}
+    {htt}{nu;nu;nu}}}
+{mgk}       {{long}{mogaoku}            {name}{莫高窟}      {room}{莫高窟}         {links}{
+    {hb4}{n;e;ne;se;e;e;ne}}}
+{mr}        {{long}{murong}             {name}{慕容}        {trigger}{^%s你走到湖边，前面豁然一个大湖泊(hu)，水面光滑如镜，湖上停着艘小船(boat)，$}        {links}{
+    {sz}{n;e;e;e;e;e;se}
+    {taih}{n;w;nw;ne;se;n;w;n;e;e;e;e;e}
+    {qy}{ask girl about 拜庄;murongboat;stop;w;w;w;s}}}
+{mrf}       {{long}{murongfu}           {name}{慕容复}      {room}{茶馆}           {links}{
+    {sz}{sw;n}}}
+{nc}        {{long}{nanchang}           {name}{南昌}        {room}{白家}           {links}{
+    {jz}{s;w;n;n;n;nw;nd;n;n;n;n;e;e}
+    {mlb}{s;w;w;w;w;wu;wu;wu}
+    {wys}{s;w;s;s;s;s;se;s;se}
+    {llx}{s;e;e;eu;eu}
+    {zx}{s;w;w;w;w;wu;wu;nu;enter}
+    {fh}{s;w;n;e}}}
+{ny}        {{long}{nanyang}            {name}{南阳}        {room}{南阳城}         {links}{
+    {rz}{ne;ne;nw;nw}
+    {ly}{n;n;n;n;n;n;n}
+    {xch}{ne;ne}
+    {xc}{nw;n;n;n;n;n}
+    {xy}{sw;s;s;s;s;s;s;w;w;n}}}
+{px}        {{long}{pingxi}             {name}{平西王府}    {room}{平西王府大门}   {links}{
+    {km}{s;s;s;s;s;s;s;w;n}}}
+{pyh}       {{long}{poyanghu}           {name}{鄱阳湖}      {room}{鄱阳湖边}       {links}{
+    {jz}{w;n;n;n;n;e;e}}}
+{py}        {{long}{puyang}             {name}{濮阳}        {room}{濮阳}           {links}{
+    {hb1}{se;sw;e}
+    {hyd}{n;ne;n}
+    {bj}{n;ne;ne;n}}}
+{qlc}       {{long}{qilingcun}          {name}{麒麟村}      {room}{岳飞家}         {links}{
+    {ly}{e;n;e;s;sw;nw;w;w;w;w;wu;wd;w;w;w}
+    {rz}{e;n;e;s;sw;sw;sw}
+    {yz}{e;n;w;enter dong;se;s;se;se;se;s;s;u;out}}}
+{qy}        {{long}{qinyun}             {name}{琴韵小筑}    {room}{琴韵小居}       {links}{
+    {mr}{n;e;e;e;murongboat;stop}
+    {tx}{n;e;e;qytotx;stop;w;n;w;nw;n;n;w}
+    {yzw}{n;e;e;qytoyzw;stop;w;n;n;n;n}
+    {mt}{n;e;e;n;n;n;play qin;row mantuo;stop;w;n;w;s;s;e;e;w;w;w}}}
+{qhb}       {{long}{qinghaihubei}       {name}{青海湖北}    {room}{黄羊滩}         {links}{
+    {lz}{n;n;n;n;n;n;n}
+    {qhn}{sw;SlowWalk;s;SlowWalk;sw;SlowWalk;s;w;s}}}
+{qhn}       {{long}{qinghaihunan}       {name}{青海湖南}    {room}{藏民部落}       {links}{
+    {zp}{su;w;sw;s;s}
+    {qhb}{n;e;n;ne;SlowWalk;n;SlowWalk;ne;SlowWalk}}}
+{qf}        {{long}{qufu}               {name}{曲埠}        {room}{孔庙}           {links}{
+    {hb}{w;n;w;w;sw;sw;sw;sw;sw}
+    {yz}{e;s;s;s;s;s;s;s;s;s
+}
+    {dzf}{e;n;n;n;n;ne;e;ne;n;n}
+    {hn1}{e;n;n;n;n;nw;nw;nw}}}
+{qq}        {{long}{quqing}             {name}{曲清}        {room}{荣昌交易行}     {links}{
+    {yz}{s;s;w;w;w}}}
+{qzh}       {{long}{quanzhen}           {name}{全真教}      {room}{崇玄台}         {links}{
+    {gm}{n;n;n;n;n;n;n;n;n;n;n;nd;wd;ed;n;n;n}
+    {xc}{s;s;sd;s;sd;sd;se;s;se;se;e;se;se}}}
+{qz}        {{long}{quanzhou}           {name}{泉州}        {room}{泉州港}         {links}{
+    {fz}{ne;ne;ne;n;n;ne;ne;e;e;e;e;n}
+    {wys}{w;n;n}}}
+{ry}        {{long}{riyue}              {name}{日月神教}    {room}{小村庄}         {links}{
+    {bj}{sd;sd;sw;s;sd;ne;ne;s;s;e;e;e;e}
+    {jy}{sd;sd;sw;s;sd;w;w;w;w;w;w;w;sw;w}
+    {hmy}{n;n;n;n;enter lou;stop;n;enter;n}}}
+{dp}        {{long}{yangzhoudangpu}     {name}{扬州当铺}    {trigger}{^{摆着一个牌子(paizi)|}，柜台后坐着唐老板，一双精明的眼睛上上下下打量着你。$} {links}{
+    {yz}{w;n}
+    {rbz}{s}}}
+{sj}        {{long}{yangzhou市集}       {name}{扬州市集}    {trigger}{^%s这里是扬州城内一个繁忙的市集，里面人流熙熙攘攘，$} {links}{
+    {yz}{s;w;w;w}}}
+{rbz}       {{long}{rongbaozhai}        {name}{荣宝斋}      {room}{荣宝斋}         {links}{
+    {dp}{n}}}
+{rz}        {{long}{ruzhou}             {name}{汝州}        {room}{汝州城}         {links}{
+    {hm}{w;nu;nu;wu}
+    {ny}{se;se;sw;sw}
+    {yz}{w;w;nu;w;ne;enter dong;sw;sw;sw;u;out}
+    {ly}{ne;ne;nw;w;w;w;w;wu;wd;w;w;w}
+    {sl}{w;nu;nu;wu;nu;nu;nu;e}
+    {qlc}{ne;ne;ne;n;w;s;w}
+    {xch}{se;se}}}
+{ssb}       {{long}{shashoubang}        {name}{杀手帮}      {room}{万纶台}         {links}{
+    {yz}{s;s;s;ed;ed;nd;n;n;n;n}
+    {jb1}{s;s;s;ed;ed;se;su;e}}}
+{lvz}       {{long}{lvzhou}             {name}{沙漠绿洲}    {room}{沙漠绿洲}       {links}{
+    {xz}{ne;nw}}}
+{shg}       {{long}{shanhaiguan}        {name}{山海关}      {room}{山海关南门}     {links}{
+    {ych}{ask jiang about 出关;ne;ne;ne;ne}
+    {bj}{se;sw;sw;sw;sw;s;s;s;e;e;s;s;s;s;s;s;s;s;s;s;s;w;w;w;w;w}}}
+{fzl}       {{long}{fangzhanglou}       {name}{少林方丈楼}  {room}{方丈楼}         {links}{
+    {cza}{n;n;nu;n;ne;n;nw;w;nw;n;ne;e;nu;nw;wu;sw;wu;nw;nu;ne;u;ed;ne;nd;nw;nd;ne;ed;se;d;enter}
+    {dmy}{n;nu;u}
+    {sl}{s;s;sd;s;s;s;sd;s;open gate;s;s;sd;sd;sd;wd}}}
+{sl}        {{long}{shaolinsi}          {name}{少林寺}      {room}{少林寺}         {links}{
+    {hm}{w;sd;sd;sd}
+    {rz}{w;sd;sd;sd;ed;sd;sd;e}
+    {fzl}{unwield all;eu;wield all;nu;nu;nu;n;knock gate;n;n;nu;n;n;n;nu;n;n}}}
+{sld}       {{long}{shenlongdao}        {name}{神龙岛}      {trigger}{^%s长长的海滩望不到尽头，尽是雪白细沙。不远处有片树林，传来阵阵花香，让人觉得到了仙境。$}        {links}{
+    {tgk}{s;shenlongboat;stop}
+    {sy}{e;e;e;e;e;e;e;e;e;e;e;nu;nu;eu;n;se;n}}}
+{fengd}     {{long}{fengding}           {name}{神龙峰顶}    {room}{峰顶}           {links}{
+    {sy}{sd;ed;sd;sd;sd;s;wd;sd;s;s;sd;se;n}}}
+{sy}        {{long}{shanyao}            {name}{神龙山腰}    {room}{小回廊}         {links}{
+    {sld}{s;nw;s;wd;sd;sd;SlowWalk;w;w;w;w;w;w}
+    {fengd}{s;nw;SlowWalk;nu;n;n;nu;eu;n;nu;nu;nu;wu;nu}}}
+{skf}       {{long}{shikefa}            {name}{史可法}      {room}{城北军营}       {links}{
+    {yz}{w;s;s;s}}}
+{sdb}       {{long}{shudaobei}          {name}{蜀道北}      {trigger}{^东面就是岳阳城了。西南就是著名的蜀道了。$}   {links}{
+    {sdn}{sw;SlowWalk;se;SlowWalk;se;SlowWalk;sw;SlowWalk;sw;SlowWalk}
+    {yy}{ed;e;n;e;e;e;s}}}
+{sdn}       {{long}{shudaonan}          {name}{蜀道南}      {trigger}{^西面是成都城，往东北方向就是著名的蜀道了。$} {links}{
+    {sdb}{ne;SlowWalk;ne;SlowWalk;nw;SlowWalk;nw;SlowWalk;ne;SlowWalk}
+    {cd}{w;w;nw;nw}}}
+{sz}        {{long}{suzhou}             {name}{苏州}        {room}{宝带桥}         {links}{
+    {szdp}{ne;s}
+    {cym}{n;n;n;n;n;n;nw;n;nw;nw;nw;nw;wu;w}
+    {zuo}{ne;n;n}
+    {xyz}{n;n;sw}
+    {zj}{n;n;n;n;n;n;nw;n;ne;ne;n;nw;nw;w;w;w;n}
+    {mr}{nw;w;w;w;w;w;s}
+    {jx}{s;s;s;s;s}
+    {mrf}{s;ne}}}
+{szdp}      {{long}{suzhoudangpu}       {name}{苏州当铺}    {room}{宝和记}         {links}{
+    {sz}{n;sw}}}
+{taih}      {{long}{taihu}              {name}{太湖}        {room}{太湖边}         {links}{
+    {gy}{e;e;e;e;enter;nu;nu}
+    {mr}{w;w;w;w;w;s;e;s;nw;sw;se;e;s}
+    {yinz}{s;s;w;w;e;s}}}
+{tais}      {{long}{taishan}            {name}{泰山}        {room}{南天门}         {links}{
+    {dzf}{sd;sd;sd;sd;sd;sd;wd;sd;sd;sd}}}
+{dzf}       {{long}{daizongfang}        {name}{泰山岱宗坊}  {room}{岱宗坊}         {links}{
+    {tais}{nu;nu;nu;eu;nu;nu;nu;nu;nu;nu}
+    {qf}{s;s;sw;w;sw;s;s;s;s;w}
+    {hn1}{s;s;sw;w;sw;nw;nw;nw}}}
+{tgk}       {{long}{tanggukou}          {name}{塘沽口}      {room}{塘沽口}         {links}{
+    {bj}{nw;n}
+    {sld}{ask chuan fu about 出海;shenlongboat;stop;n}}}
+{th}        {{long}{taohua}             {name}{桃花岛}      {trigger}{^%s这是桃花岛的出海口}{links}{
+    {jx}{taohuadao;stop;s;w;w;w;w;su;w}}}
+{tyc}       {{long}{taoyuancun}         {name}{桃园村}      {room}{桃园小路}       {links}{
+    {wd}{w;w;wu;nu;wu;nu;wu;w;w;wu}}}
+{ty}        {{long}{taoyuan}            {name}{桃源}        {room}{桃源驿站}       {links}{
+    {yy}{ne;nd;n;e;e;e;s}
+    {tzfx}{sw;s;sw;w;nw}
+    {heiz}{e;sw;s}}}
+{heiz}      {{long}{heizhao}            {name}{黑沼}        {room}{黑沼}           {links}{
+    {yg}{e;n;w;s;s;w}}}
+{tdh}       {{long}{tiandihui}          {name}{天地会}      {room}{侧厅}           {links}{
+    {ly}{tiandihui_andaob;SlowWalk;w;w;s;w;w;w;n;n;n}}}
+{tls}       {{long}{tianlongsi}         {name}{天龙寺}      {room}{瑞鹤门}         {links}{
+    {cd}{ed;ne;ne;SlowWalk;ne;SlowWalk;n;SlowWalk;ne;ne;nd;n;n;n;n}
+    {dl}{ed;ne;s;sw;sw;sw;s;s;s;s;s;s;s}
+    {wl}{ed;nw;nu;nu;nu;climb cliff;stop}
+    {wjg}{ed;nw;n}}}
+{tzfx}        {{long}{tiezhangfeng}     {name}{铁掌峰下}    {room}{山脚下}         {links}{
+    {tz}{nu;nu;nu;nu}
+    {ty}{se;e;ne;n;ne}}}
+{tz}        {{long}{tiezhangfeng}       {name}{铁掌峰}      {room}{小亭}           {links}{
+    {tzfx}{sd;sd;sd;sd}}}
+{tx}        {{long}{tingxiang}          {name}{听香水榭}    {room}{听香水榭}       {links}{
+    {yzw}{e;s;s;se;e;s;e;gotoyanziwu;stop;w;n;n;n;n}
+    {qy}{e;s;s;se;e;s;e;gotoqinyun;stop;w;w;w;s}}}
+{wat}       {{long}{wananta}            {name}{万安塔}      {room}{万安塔}         {links}{
+    {ly}{se;se;su;s;s;s;s;s;se;se;se;e;e;e;n;n;n}}}
+{wjg}       {{long}{wanjiegu}           {name}{万劫谷}      {room}{万劫谷}         {links}{
+    {tls}{s;se;wu}}}
+{gd}        {{long}{gudi}               {name}{无量谷底}    {room}{谷底}           {links}{
+    {yb}{s;s;sw;sw;sw;s;e;n;w;n}
+    {fd}{s;s;s;push stone;s;e;ed;ed;push men;e;e}}}
+{wl}        {{long}{wuliang}            {name}{无量山}      {room}{崖间古松}       {links}{
+    {gd}{climb yafeng}}}
+{yb}        {{long}{yubi}               {name}{无量玉璧}    {room}{无量玉璧}       {links}{
+    {gd}{s;ne;ne;ne;n;n}}}
+{wd}        {{long}{wudang}             {name}{武当}        {room}{武当广场}       {links}{
+    {zxg}{n;ask song about 下山;s;sd}
+    {tyc}{ed;e;e;ed;sd;ed;sd;ed;e;e}
+    {ht}{n;n}}}
+{zxg}       {{long}{zixiaogong}         {name}{紫霄宫}      {room}{紫霄宫}         {links}{
+    {tzy}{eu;e;e;e;eu;eu;eu;e;e;e;eu}
+    {wdc}{sd;sd;wd;wd;sd;sd;e;sd;sd;sd;ed}}}
+{tzy}       {{long}{taiziyan}           {name}{太子岩}      {room}{太子岩}         {links}{
+    {lsd}{eu;eu;ne;nu;nw;nu;ne;eu;se;u;nu;eu;su;wu;u;eu}
+    {zxg}{wd;w;w;w;wd;wd;wd;w;w;w;wd}}}
+{lsd}       {{long}{leishendong}        {name}{雷神洞}      {room}{雷神洞}         {links}{
+    {nyf}{nu;eu;ne;nu;nw;nu;ne;eu;se;u;nu;eu;su;wu;u;nu;nu}
+    {tzy}{wd;d;ed;nd;wd;sd;d;nw;wd;sw;sd;se;sd;sw;wd;wd}}}
+{nyf}       {{long}{nanyanfeng}         {name}{南岩峰}      {room}{南岩峰}         {links}{
+    {psd}{wu;nu;nw;wu;sw;nu;eu;su;wu;u;nu;nw;wu;sw;nu;eu;su;wu;u;nu;nw;wu;sw;nu;eu;su;wu;u;wu}
+    {szy}{ed;sd;se;ed;ne;ed;sd;wd;nd;d;sd;se;ed;ne;sd;wd;nd;ed;d;sd;se;ed;ne;eu;su;wu;nu;u;eu;ne;nu;nw;nu;eu;su;wu;u;eu;su;wu;nu;u;u}
+    {lsd}{sd;sd;d;ed;nd;wd;sd;d;nw;wd;sw;sd;se;sd;sw;wd;sd}}}
+{psd}       {{long}{panshendong}        {name}{潘神洞}      {room}{潘神洞}         {links}{
+    {tzf}{sw;nu;nu;nu;nu;nu;nu;nu;nu}
+    {nyf}{ed;d;ed;nd;wd;sd;ne;ed;se;sd;d;ed;nd;wd;sd;ne;ed;se;sd;d;ed;nd;wd;sd;ne;ed;se;sd;ed}}}
+{tzf}       {{long}{yitianmen}          {name}{天柱峰下}    {room}{天柱峰下}       {links}{
+    {psd}{sd;sd;sd;sd;sd;sd;sd;sd;ne}}}
+{szy}       {{long}{shengzhenyan}       {name}{升真岩}      {room}{升真岩}         {links}{
+    {nyf}{d;d;sd;ed;nd;wd;d;ed;nd;wd;sd;se;sd;sw;wd;d;sd;ed;nd;wd;sw;wu;nw;nu;u;wu;su;eu;nu;sw;wu;nw;nu;u;su;eu;nu;wu;sw;wu;nw;nu;wu}}}
+{wdc}       {{long}{wudangcun}          {name}{武当村}      {room}{武当山门}       {links}{
+    {zz}{e;e;e;se;e;e;ne;n;e;e;n}
+    {wd}{wu;nu;nu;nu;w;nu;nu;eu;eu;nu;nu}}}
+{wm}        {{long}{wumiao}             {name}{武庙}        {room}{武庙}           {links}{
+    {yz}{e;s;s}}}
+{wys}       {{long}{wuyishan}           {name}{武夷山}      {room}{武夷山路}       {links}{
+    {fz}{n;se;se;sd;s;s;s;e;n}
+    {hz}{n;sw;w;sw;w;w;w;w;w;w;w;w}
+    {jx}{n;n;n}
+    {nc}{nw;n;nw;n;n;n;n;e;n}
+    {qz}{s;s;e}
+    {ywm}{n;e;n;e;ne;n}}}
+{xyz}       {{long}{xiyuanzi}           {name}{戏园子}      {room}{戏园子}         {links}{
+    {sz}{ne;s;s}}}
+{xy}        {{long}{xiangyang}          {name}{襄阳}        {room}{襄阳当铺}       {links}{
+    {gsz}{s;w;w;w;w;w;w;northwest;xiaoyao.jqg;stop;e;n;n;n;n;n}
+    {ny}{s;e;e;n;n;n;n;n;n;bo xiaolu;ne}
+    {zz}{s;w;w;w;w;w;w;w;w;w;n}
+    {xiny}{s;e;e;e;e;e;e;e;se;e;e;e;n}
+    {jzh}{s;e;e;s;s;s;s;s;s;s;s;s;s;s}}}
+{xf}        {{long}{xiaofeng}           {name}{萧峰}        {room}{望星楼二层}     {links}{
+    {ly}{d;e;s}}}
+{xz}        {{long}{xiaozhen}           {name}{小镇}        {room}{小镇}           {links}{
+    {lvz}{se;sw;nw;nw;sw;se;ne}
+    {ca}{se;se;sw;SlowWalk;sd;e;e;e;e;e;e;n}
+    {lj}{nu;n;n;nu;nu}
+    {lz}{nu;n;w;w;w;w;w;n;n}
+    {hanz}{se;se;sw;SlowWalk;sd;sw;su;sd;se}}}
+{xiny}      {{long}{xinyang}            {name}{信阳}        {room}{镇淮桥}         {links}{
+    {xy}{s;w;w;w;nw;w;w;w;w;w;w;w;n}
+    {yz}{s;e;e;e;e;e;se;e;e;e;e}
+    {jb3}{s;s;s;s;sd;se;s}
+    {xch}{n;n;n;n;n}}}
+{xx}        {{long}{xingxiu}            {name}{星宿}        {trigger}{^%s这里是星宿派的势力范围了}  {links}{
+    {huangz}{eu;eu;e;se;s;s}
+    {txg}{n;nd;n;n;juan zhulian;e;eu;ed;e;ne;e;s}}}
+{txg}       {{long}{tianxiugong}        {name}{星宿天秀宫}  {room}{天秀宫}         {links}{
+    {xx}{n;w;sw;w;wu;wd;w;s;s;s;su;s}}}
+{xch}       {{long}{xuchang}            {name}{许昌}        {room}{许昌城}         {links}{
+    {hb}{e;se;e}
+    {ny}{sw;sw}
+    {rz}{nw;nw}
+    {xiny}{s;s;s;s;s}}}
+{xs}        {{long}{xueshan}            {name}{雪山派}      {room}{桥头}           {links}{
+    {zp}{e;e;s;sd;sd;sw;sd;s;s;s}
+    {dls}{e;e;s;sd;sd;e;s;enter dong;se;sw;out;sw;wu;nw}
+    {yz}{e;e;s;sd;sd;e;s;enter dong;se;ne;ne;n;ne;e;u;out}
+    {lxc}{yell bridge;n;sheng bridge;stop;n;n;n;n;nu;n}}}
+{ys}        {{long}{yashan}             {name}{牙山}        {room}{牙山湾中心}     {links}{
+    {jx}{w;w;w;w;w;w;w;sw;sw;w;sw;nw;w}}}
+{yzw}       {{long}{yanziwu}            {name}{燕子坞}      {room}{燕子坞大门}     {links}{
+    {tx}{s;s;s;s;e;gototingxiang;stop;w;n;w;nw;n;n;w}
+    {qy}{s;s;s;s;e;gotoqinyun;stop;w;w;w;s}}}
+{yz}        {{long}{yangzhou}           {name}{扬州}        {trigger}{^%s大榕树(Rong shu)$} {links}{
+    {bt}{n;w;ask qian about 白驼山;baituofufei}
+    {hb}{n;n;n;n;nw;nw;nw}
+    {qf}{n;n;n;n;n;n;n;n;w;n}
+    {ssb}{s;s;s;s;su;wu;wu;n;n;n;ask liang about visit}
+    {xiny}{w;w;w;w;nw;w;w;w;w;w;n}
+    {jb1}{s;s;s;s;su;se;su;e}
+    {xc}{gb_andao 1;n;n;u}
+    {qlc}{gb_andao 1;n;nw;nw;nw;n;nw;u;e;s;w}
+    {gb}{gb_andao 2;ne;ne;u}
+    {rz}{gb_andao 3;ne;ne;u;sw;e;sd;e;e}
+    {xz}{gb_andao 4;w;w;w;nw}
+    {hn1}{gb_andao 7;n;ne;ne;n;out;e}
+    {xs}{gb_andao 9;sw;s;sw;sw;nw;out;n;w;nu;nu;n;w;w}
+    {dls}{gb_andao 9;sw;s;sw;sw;sw;out;sw;wu;nw}
+    {skf}{n;n;n;e}
+    {bxs}{n;n;e;u}
+    {cz}{s;s;e;d}
+    {sj}{e;e;e;n}
+    {dp}{s;e}
+    {bs}{s;s;s;w;enter $user[id]}
+    {fds}{d;out}
+    {wm}{n;n;w}
+    {qq}{e;e;e;n;n}
+    {yiz}{s;s;s;w;s}
+    {sd}{enter shudong;say 天堂有路你不走呀}
+    {kd}{n;e}}}
+{yiz}       {{long}{yizhan}             {name}{驿站}        {room}{驿站}           {links}{
+    {yz}{n;e;n;n;n}}}
+{yg}        {{long}{yinggu}             {name}{瑛姑}        {room}{黑沼小屋}       {links}{
+    {ty}{out;ne;w}}}
+{ywm}       {{long}{yuewangmu}          {name}{岳王墓}      {room}{墓前广场}       {links}{
+    {wys}{s;sw;w;s;w;s}}}
+{yy}        {{long}{yueyang}            {name}{岳阳}        {room}{南门内大街}     {links}{
+    {sdb}{n;w;w;w;s;w;wu}
+    {jz}{n;e;e;e;ed;se;ed;e;ne;ne;ne;s;e;e}
+    {mlb}{s;s;su;su;su}
+    {ty}{n;w;w;w;s;su;sw}
+    {jn4}{n;n;n;n;w;w}
+    {cd}{n;n;e;hire;qu chengdu;stop;xia;s;se;se}}}
+{zp}        {{long}{zanpu}              {name}{赞普}        {room}{赞普广场}       {links}{
+    {cd}{s;s;s;e;se;SlowWalk;se;SlowWalk;ed;SlowWalk;ed;SlowWalk;ed;SlowWalk;e;e;se;se}
+    {qbl}{w;w;w;nw;ne;w;nw}
+    {qhn}{n;n;ne;e;nd}
+    {xs}{n;n;n;nu;ne;nu;nu;n;w;w}}}
+{zjk}       {{long}{zhangjiakou}        {name}{张家口}      {room}{大境门}         {links}{
+    {bj}{s;s;e;e;e;se;se;se;sw;s;s;s;s;s;s;s;s;s;s;s;s;s;e;e;e;e}
+    {jy}{s;s;w;w;w;sw;s;sw;sd;sd;s;s;w;s;s;w}
+    {ct}{s;s;s;s;s;w;hire;qu beijing;stop;xia;s;e;e;e;e;n;n;n;n;n;n;n}
+    {kf}{s;s;s;s;s;w;hire;qu beijing;stop;xia;s;w;w;w;n;se;s}}}
+{zz}        {{long}{zhangzhi}           {name}{张志}        {room}{荆西镖局}       {links}{
+    {xy}{s;e;e;e;e;e;e;e;e;e;n}
+    {wdc}{s;w;w;s;sw;w;w;nw;w;w;w}}}
+{ca}        {{long}{changan}            {name}{长安}        {room}{朱雀门}         {links}{
+    {ly}{s;e;e;e;e;e;e;n;se;e;e;e;e;e;ed;e;e;e}
+    {cll}{s;e;e;e;e;e;e;s;su;su;su;su;s}
+    {gm}{s;s;s;s;s;s;s;se;su;sw;sw;w}
+    {xz}{s;w;w;w;w;w;w;nu;ne;nw;SlowWalk;nw;SlowWalk}
+    {hanz}{s;s;s;s;s;s;s;sw;sw;sw;sw;w;w}
+    {hn2}{s;e;e;n;n;e;e;e;n;n;n;n;w;w;w;n;ne;se;e}
+    {fm}{s;w;w;w;s}}}
+{jb1}       {{long}{changjiangdukoubei1}{name}{长江渡口北1} {trigger}{^%s这里是长江北岸的渡口，扼守扬州的门户}  {links}{
+    {jb2}{w;w;w;w;nw;w;w;w}
+    {yz}{w;nd;nw;nd;n;n;n;n}
+    {ssb}{w;nd;nw;wu;wu;n;n;n;ask liang about visit}
+    {jn1}{xiaoyao.GuoJiang;stop}
+    {qiu}{w;u}}}
+{jb2}       {{long}{changjiangdukoubei2}{name}{长江渡口北2} {trigger}{^%s这里是长江北岸的渡口，扼守建康府的门户}    {links}{
+    {jb1}{e;e;e;se;e;e;e;e}
+    {jb3}{w;sw;sw;sw;w;nw;nw}
+    {jn2}{xiaoyao.GuoJiang;stop}}}
+{jb3}       {{long}{changjiangdukoubei3}{name}{长江渡口北3} {trigger}{^%s这里是长江北岸的渡口。}    {links}{
+    {jb2}{se;se;e;ne;ne;ne;e}
+    {jb4}{nw;w;w;sw;sw;sw;sw;w;w}
+    {xiny}{n;nw;nu;n;n;n;n}
+    {jn3}{xiaoyao.GuoJiang;stop}}}
+{jb4}       {{long}{changjiangdukoubei4}{name}{长江渡口北4} {trigger}{^%s这里是长江北岸的渡口。东面不远就是华容道，关羽义释曹操的地方}  {links}{
+    {jb3}{e;e;ne;ne;ne;ne;e;e;se}
+    {jzh}{e;n;nw;n}
+    {jn4}{xiaoyao.GuoJiang;stop}}}
+{jn1}       {{long}{changjiangdukounan1}{name}{长江渡口南1} {trigger}{^%s这里是长江南岸的渡口，扼守镇江门户}    {links}{
+    {jn2}{w;w;w;w;nw;w;w;w}
+    {zj}{w;se;se;e;e;e;e;n;e}
+    {jb1}{xiaoyao.GuoJiang;stop}}}
+{jn2}       {{long}{changjiangdukounan2}{name}{长江渡口南2} {trigger}{^%s这里是长江南岸的渡口，南边就是重镇建康府了}    {links}{
+    {jn1}{e;e;e;se;e;e;e;e}
+    {jn3}{w;sw;sw;sw;w;nw;nw}
+    {jb2}{xiaoyao.GuoJiang;stop}}}
+{jn3}       {{long}{changjiangdukounan3}{name}{长江渡口南3} {trigger}{^%s这里是长江南岸的渡口。}    {links}{
+    {jn2}{se;se;e;ne;ne;ne;e}
+    {jn4}{nw;w;w;sw;sw;sw;sw;w;w}
+    {jz}{se;se;s;sw;sw;sw;sw;s;e;e}
+    {jb3}{xiaoyao.GuoJiang;stop}}}
+{jn4}       {{long}{changjiangdukounan4}{name}{长江渡口南4} {trigger}{^%s这里是长江南岸的渡口。南面就是江汉通黔贵的要冲——岳阳}  {links}{
+    {jn3}{e;e;ne;ne;ne;ne;e;e;se}
+    {yy}{e;e;s;s;s;s}
+    {jb4}{xiaoyao.GuoJiang;stop}}}
+{zj}        {{long}{zhenjiang}          {name}{镇江}        {room}{梦溪园}         {links}{
+    {sz}{s;e;e;e;se;se;s;sw;sw;s;se;s;s;s;s;s;s}
+    {jn1}{w;s;w;w;w;w;nw;nw;e}}}
+{zx}        {{long}{zhuxi}              {name}{朱熹}        {room}{岳麓书院}       {links}{
+    {nc}{out;sd;ed;ed;e;e;e;e;n}}}
+{zf}        {{long}{zhuangfu}           {name}{庄府}        {room}{庄府大门}       {links}{
+    {bj}{s;s;sw;w;s;s;s;s;s;s;s;w;w;w;w;w}}}
+{tdf}       {{long}{tidufu}             {name}{提督府}      {room}{提督府正门}     {links}{
+    {hz}{e;n;w;n;e;n;n;n;nw}
+    {lld}{e;su;wu}}}
+{xh}        {{long}{xihu}               {name}{西湖}        {room}{孤山}           {links}{
+    {hz}{ne;ne;ne;n;e;e;e}
+    {hhh}{nw;n;w;s;se;e;enter boat;stop;w;w;w;w;w;w}}}
+{hsz}       {{long}{hanshizhong}        {name}{韩世忠}      {trigger}{^%s这里是韩王府的大厅}{links}{
+    {hz}{s;out;s;w;w}}}
+{jnqz}      {{long}{jiangnanqianzhuang} {name}{江南钱庄}    {room}{江南钱庄}       {links}{
+    {hz}{n;out;n;w;w}}}
+{hzbs}      {{long}{hangzhoubieshu}     {name}{杭州别墅}    {room}{盛昌行临安府分店} {links}{
+    {hz}{out;s;e;n;n;n;nw}}}
+{zuo}       {{long}{changlong}          {name}{昌隆镖局}    {room}{昌隆镖局}       {links}{
+    {sz}{s;s;sw}}}
+{ct}        {{long}{chaoting}           {name}{朝廷}        {room}{厅堂}           {links}{
+    {zjk}{s;s;s;s;s;s;s;w;w;w;w;n;hire;qu zhangjiakou;stop;xia;e;n;n;n;n;n}}}
+{qiu}       {{long}{qiu}                {name}{裘千丈}      {room}{望江亭}         {links}{
+    {jb1}{d;e}}}
+{kf}        {{long}{kangqinwangfu}      {name}{康亲王府}    {room}{王府大门}       {links}{
+    {zjk}{n;nw;s;e;e;e;n;hire;qu zhangjiakou;stop;xia;e;n;n;n;n;n}
+    {tt}{n;nw;s;s;s;s;s;e;e;e;e;e;e;eu}
+    {zjc}{n;nw;s;e;e;e;e;n;n;n}}}
+{bofu}      {{long}{bofu}               {name}{钵夫}        {room}{殿前广场}       {links}{
+    {xkt}{nu;n;n;nd}}}
+{fm}        {{long}{feima}              {name}{飞马镖局}    {room}{飞马镖局}       {links}{
+    {ca}{n;e;e;e;n}}}
+{fh}        {{long}{feihu}              {name}{飞虎镖局}    {room}{飞虎镖局}       {links}{
+    {nc}{w;s;e;n}}}
+{ht}        {{long}{houtang}            {name}{后堂}        {room}{后堂}           {links}{
+    {wd}{s;s}}}
+{tf}        {{long}{tianfu}             {name}{天福镖局}    {room}{天福镖局}       {links}{
+    {jz}{n;sw;s;e;e}}}
+{tt}        {{long}{tiantan}            {name}{丹陛桥}      {room}{丹陛桥}         {links}{
+    {kf}{wd;w;w;w;w;w;w;n;n;n;n;n;se;s}}}
+{htt}       {{long}{hongshuitan}        {name}{厚土坛}      {trigger}{^%s这是明教总舵的第二道关卡，地势更为险要，三面环山，中间$}   {links}{
+    {hst}{n}
+    {lht}{e}
+    {jmt}{w}
+    {rjt}{s}
+    {mj}{sd;sd;sd}}}
+{hst}       {{long}{hongshuitan}        {name}{洪水坛}      {room}{洪水坛}         {links}{
+    {htt}{s}}}
+{lht}       {{long}{hongshuitan}        {name}{烈火坛}      {room}{烈火坛}         {links}{
+    {htt}{w}}}
+{jmt}       {{long}{hongshuitan}        {name}{巨木坛}      {room}{巨木坛}         {links}{
+    {htt}{e}}}
+{rjt}       {{long}{hongshuitan}        {name}{锐金坛}      {room}{锐金坛}         {links}{
+    {htt}{n}}}
+{cym}       {{long}{chaoyangmen}        {name}{朝阳门}      {room}{朝阳门}         {links}{
+    {sz}{e;ed;se;se;se;se;s;se;s;s;s;s;s;s}
+    {scm}{nw;nw;sw;w;w;w;n;n;n;nw;n}
+    {jk}{nw;nw;sw;sw;w;w}}}
+{scm}       {{long}{shencemen}          {name}{神策门}      {room}{神策门}         {links}{
+    {jk}{s;se;s;s;s;s;s}
+    {cym}{s;se;s;s;s;e;e;e;ne;se;se}}}
+{zjc}       {{long}{zijincheng}         {name}{端门}        {room}{端门}           {links}{
+    {kf}{s;s;s;w;w;w;w;n;se;s}
+    {bj}{s;s;s;s;s;s;s;s}}}
+{sd}        {{long}{andao}              {name}{树洞内部}    {room}{树洞内部}       {links}{
+    {yz}{out}}}
+{kd}        {{long}{kedian}             {name}{客店}        {room}{客店}           {links}{
+    {yz}{w;s}}}
+{jk}        {{long}{jiankangfu}         {name}{建康府}      {room}{中城}           {links}{
+    {jkyp}{s;s;s;w;w}
+    {cym}{e;e;ne;ne;se;se}
+    {scm}{n;n;n;n;n;nw;n}}}
+{lanz}      {{long}{lanzhou}            {name}{兰州}        {room}{府前广场}       {links}{
+    {hb4}{w;w;w;w;se;se}
+    {huangz}{w;w;w;w;nw;nw;w;w;w;s;s}}}
+{huangz}    {{long}{huangzhong}         {name}{湟中}        {room}{宫城}           {links}{
+    {lanz}{n;n;e;e;e;se;se;e;e;e;e}
+    {xx}{n;n;nw;w;wd;wd}}}
+{lcf}       {{long}{luchengfeng}        {name}{陆乘风}      {trigger}{^%s这里是归云庄的大厅}{links}{
+    {gy}{w;w}}}
+{gsz}       {{long}{gongsunzhi}         {name}{公孙止}      {trigger}{^%s这里是一处厅堂，一位中年人坐在堂中看着书。$} {links}{
+    {xy}{s;s;s;s;s;w;xiaoyao.jqg;stop;se;e;e;e;e;e;e;n}}}
+{zym}       {{long}{zhengyangmen}       {name}{正阳门}      {room}{正阳门}         {links}{
+    {hz}{s;se;se;s;s;s;sw;s;s;s;s;s}
+    {jx}{s;se;se;e;se;s;se;se;sd;e}}}
+{dmy}       {{long}{damoyuan}           {name}{达摩院}      {room}{达摩院二楼}     {links}{
+    {fzl}{d;sd;s}}}
+{cza}       {{long}{chuzuan}            {name}{初祖庵内}    {room}{初祖庵内}       {links}{
+    {wrf}{out;nu;nw;wu;sw;eu;ne;nu;nw}
+    {fzl}{out;u;nw;wu;sw;su;se;su;sw;wu;d;sw;sd;se;ed;ne;ed;se;sd;w;sw;s;se;e;se;s;sw;s;sd;s;s}}}
+{wrf}       {{long}{五乳峰}             {name}{五乳峰}      {room}{五乳峰}       {links}{
+    {slzl}{ne;e;se;s;e}
+    {cza}{se;sd;sw;wd;ne;ed;se;sd;enter}}}
+{slzl}      {{long}{少林竹林}           {name}{少林竹林}    {trigger}{^%s这是一片密密的竹林。这里人迹罕至，惟闻足底叩击路面，有僧$}       {links}{
+    {wrf}{w;n;nw;w;sw}}}
+{jkyp}      {{long}{jiankangyaopu}      {name}{建康药铺}    {trigger}{^%s这里是新近开的一家药铺，老板据说是相当有关系的一个人。$}   {links}{
+    {jk}{e;e;n;n;n}}}
+{hzyp}      {{long}{hangzhouyaopu}      {name}{临安药铺}    {trigger}{^%s这里是新近开的一家药铺，一进门左侧放了一座药王菩萨像(xiang)。$}   {links}{
+    {hz}{w;s;s;s;w;w;w;w}}}
+{hzsj}      {{long}{hangzhoushiji}      {name}{临安市集}    {trigger}{^%s这里是临安城内一个繁忙的市集，里面人流熙熙攘攘，$}    {links}{
+    {hz}{s;e}}}
+{tms}       {{long}{dongtianmushan}     {name}{东天目山}    {room}{大石}    {links}{
+    {hz}{jump east;e;ne;e;n;n;n;nw}}}
+{hm}        {{long}{huangmei}           {name}{黄眉僧}      {trigger}{^%s水声越来越大，山间充满了浓浓的水气。石阶上，断裂的山隙中，都流出一道道细细的泉水，汇成$} {links}{
+    {rz}{ed;sd;sd;e}
+    {sl}{nu;nu;nu;e}}}
+{miej}      {{long}{miejue}             {name}{灭绝师太}    {room}{静修庵}  {links}{
+    {qfa}{s;sw;sw;s;s;s;s;s;s}}}
+{wxd}       {{long}{wuxingdong}         {name}{五行洞}      {trigger}{^%s这是五行洞。进来顿觉一股热浪扑面而来，冲得你差点晕了$}    {links}{
+    {fzl}{n;w;n;e;s;u;out;e;n;n;nu;n;n}}}
+};
+
+#class xiaoyao-data close;

@@ -1,0 +1,68 @@
+#class mm open;
+
+#var ModulePath {mod};
+
+#alias {EM} {
+    #local modName {%1};
+    #if {"$modName" == ""} {
+        #echo {%c命令格式: EM <模块名字>}{light red};
+        #return;
+    };
+    
+    #echo {%c启用模块: $modName} {light green};
+    #local cmd {
+        #local modExists {};
+        #script {modExists}{if [ -e "$ModulePath/$modName.tin" ];then echo "1";else echo "0";fi};
+        #if {$modExists[1]} {
+            #read $ModulePath/$modName.tin;
+            $modName.on;
+        };
+        #else {
+            #echo {%c模块不存在: $modName}{light red};
+        };
+    };
+    $cmd;
+};
+#alias {DM} {
+    #local modName {%1};
+    #if {"$modName" == ""} {
+        #echo {%c命令格式: EM <模块名字>}{light red};
+        #return;
+    };
+    
+    #echo {%c禁用模块: %1} {light green};
+    %1.off;
+};
+#alias {RM} {
+    #local modName {%1};
+    #if {"$modName" == ""} {
+        #echo {%c命令格式: RM <模块名字>}{light red};
+        #return;
+    };
+    
+    #echo {%c重载模块: $modName} {light green};
+    $modName.off;
+    #local cmd {
+        #local modExists {};
+        #script {modExists}{if [ -e "$ModulePath/$modName.tin" ];then echo "1";else echo "0";fi};
+        #if {$modExists[1]} {
+            #read $ModulePath/$modName.tin;
+            $modName.on;
+        };
+        #else {
+            #echo {%c模块不存在: $modName}{light red};
+        };
+    };
+    $cmd;
+};
+#class mm close;
+
+#echo {%c模块搜索路径 : ./$ModulePath/} {light green};
+#echo {%cEM <mod name> : 启用模块} {light green};
+#echo {%cDM <mod name> : 禁用模块} {light green};
+#echo {%cRM <mod name> : 重载模块} {light green};
+#echo {%a%a}{10}{13};
+
+EM login2;
+
+#buffer up;#buffer down;

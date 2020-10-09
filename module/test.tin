@@ -658,6 +658,8 @@
     
 };
 
+#alias {rla}{drop jia sha;drop seng xie;drop cloth;reload;wear all;wield staff}
+
 #class $mod_name close;
 
 ${mod_name}_load;
