@@ -1,15 +1,5 @@
 #class login open;
 
-#alias {login.on} {
-    login.help;
-};
-#alias {login.off} {
-    #class login kill;
-};
-#alias {login.help} {
-    #echo {%c命令格式：login <your id>}{light green};
-};
-
 #var loginServerInfo {
     {host}{mud.pkuxkx.net}
     {port}{8080}
@@ -36,7 +26,9 @@
     
     #class login close;
     
-    #ses $id $loginServerInfo[host] $loginServerInfo[port];
+    #session $id $loginServerInfo[host] $loginServerInfo[port];
 };
 
 #class login close;
+
+mm.help login;

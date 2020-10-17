@@ -17,13 +17,6 @@
     #class beautify close;
 };
 
-#alias {beautify.on} {
-    beautify;
-};
-#alias {beautify.off} {
-    #class beautify kill;
-};
-
 #function {Beautify} {
     #local text {%1};
 
@@ -44,3 +37,5 @@
 };
 
 #class beautify close;
+
+beautify;

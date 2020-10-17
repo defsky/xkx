@@ -543,12 +543,10 @@
     xiaoyao.setupTrigger;
 };
 
-#alias {xiaoyao.on} {
-    xiaoyao.loadData;
-};
 #alias {xiaoyao.off} {
     #class xiaoyao kill;
     #class xiaoyao-data kill;
 };
 #class xiaoyao close;
 
+xiaoyao.loadData;
