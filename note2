@@ -1,0 +1,79 @@
+#nop #act {    静正坐在地下修炼内功。};
+#nop #act {    阿森纳正盘膝坐在地下修炼内力。};
+#nop #act {哎哟，你一头撞在墙上，才发现这个方向没有出路。};
+#nop #act {侍卫伸手拦住你朗声说道：里面没什么好看的，马上离开这里....！};
+
+#act {^{?:\s{8,}}%*}{
+    #if {$map_gps[status] != 1} {
+        #return;
+    };
+    #var map_gps[room][minimap] {$map_gps[room][minimap]%1};
+};
+
+#act {^    你可以看看(look):%*} {
+    #echo {<156>特殊对象<079>};
+    
+    #var map_gps[room][lookable] {%1};
+
+};
+#act {^    「%*」: %*。} {
+    #var map_gps[room][season] {%1};
+    #var map_gps[room][weather] {%2};
+    
+};
+#act {^    这里%*的{?:方向|出口}有 %*。} {
+    #local exits {%2};
+    
+    #replace {exits}{、}{;};
+    #replace {exits}{ 和 }{;};
+    
+    #var map_gps[room][exits]    {$exits};
+};
+
+#nop #act {^    {(([^ ]+)(?:\s|「(.+)」))*}%S({[A-Za-z ]+})%*};
+#nop #act {^    {(?:([^ ]+)(?:\s|「(.+)」))*}%S({[A-Za-z ]+})%*};
+#nop #echo {%ctitle:%-20s nick:%-20s name:%-10s id:%-10s}{light yellow}{%3}{%4}{%5}{%6};
+#nop #var map_gps[room][item][%7] {{title}{%3}{nick}{%5}{name}{%6}};
+#nop 『绝情谷』掌门大弟子「绝情谷招聘专员」晴天(Xixihaha);
+
+#nop #echo {%cID:%-18s name:%-20s nick:%-30s title:%-30s}{light yellow}{%4}{%3}{%2}{%1};
+
+#act {^    {(?:(?:\S+)?(?:\s|「(.+)」))*}{?:(\S+)[\x00-\xff]*?}({[A-Za-z ]+})%*}{
+    #nop #echo {(%1|%2|%3|%4|%5|%6|%7|%8|%9)};
+    
+    #local id {%4};
+    #local name {%3};
+    #local nick {%2};
+    #local title {%1};
+    #local extra {%5};
+    #local count {1};
+    
+    #replace {title}{%*「%*」}{&1};
+    #nop #replace {title}{^{?:\s*(\S+(?:\s\S+)*)\s*}$}{&1};
+    #local title {@trim{$title}};
+    #replace {title}{ }{;};
+    
+    #nop #replace {name}{%S{?:位|队|个|两|文|颗|粒|块}%S}{&2};
+    #regexp {%3}{%*{?:位|队|个|两|文|颗|粒|块}%*}{
+        #var count {@ctd{&1}};
+        #var name {&2};
+    };
+    
+    #echo {%c<156>房间物品<079> <169>%-18s<079> <159>%-15s<079> %-35s %-30s %d %-20s}{light yellow}{$id}{$name}{$nick}{$title}{$count}{$extra};
+    
+    #var map_gps[room][object][$id] {
+        {title}{$title}
+        {nick}{$nick}
+        {name}{$name}
+        {count}{$count}
+        {extra}{$extra}
+    };
+    #line gag;
+    #var map_gps[status] {5};
+};
+#act {^%S} {
+    #if {$map_gps[status]>=5} {
+        #var map_gps[status] {0};
+        #echo {<156>房间信息结束<079>};
+    };
+};

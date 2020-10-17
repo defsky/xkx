@@ -1,12 +1,12 @@
 #class map open;
 
-#var map_gps {{status}{0}}:
+#var map_gps {{status}{0}{detect}{0}}:
 
 #alias {meta}{
     #config {convert meta}{%1};
 };
 
-#alias {map.gps}{
+#alias {map.scan}{
     #class map-gps-scan-room open;
     
     #alias {map.scan.room.return} {
@@ -26,6 +26,8 @@
         #line gag;
         
         #var map_gps[room][name]        {%%1};
+        #var map_gps[room][nation]      {%%2};
+        #var map_gps[room][terrain]     {%%3};
         #var map_gps[room][storeable]   {$storeable};
         
         #var map_gps[room][minimap]     {};
@@ -36,26 +38,46 @@
         #var map_gps[room][lookable]    {};
         #var map_gps[room][exits]       {};
         #var map_gps[room][object]      {};
+        #var map_gps[room][guild]       {};
         
-    };
-    #act {^{?:[ ]{8,}}%*}{
-        #echo {<156>房间地图<179> %%0<079>};
-        #line gag;
-        
-        #var map_gps[room][minimap]     {%%0};
-        
-        map.scan.room.return {map.gps.minimap};
-    };
-    #act {^{?:\s{4}}%S}{
-        #echo {<156>房间描述<099> %%1<079>};
-        #line gag;
-        
-        #var map_gps[room][desc]        {%%1};
-        
-        map.scan.room.return {map.gps.desc};
+        #class map-gps-scan-room open;
+        #act {^{?:[ ]{8,}}%*}{
+            #echo {<156>实时地图<179> %%%0<079>};
+            #line gag;
+            
+            #var map_gps[room][minimap]     {%%%0};
+            
+            map.scan.room.return {map.gps.minimap};
+        };
+        #act {^{?:\s{4}}%S}{
+            #echo {<156>房间描述<099> %%%1<079>};
+            #line gag;
+            
+            #var map_gps[room][desc]        {%%%1};
+            
+            map.scan.room.return {map.gps.desc};
+        };
+        #class map-gps-scan-room close;
     };
     #class map-gps-scan-room close;
-    look %1;
+    
+    #switch {"%1"} {
+        #case {"on"} {
+            #echo {<139>开启房间信息探测模式<099>};
+            #var map_gps[detect] {1};
+        };
+        #case {"off"} {
+            #echo {<139>关闭房间信息探测模式<099>};
+            #var map_gps[detect] {0};
+            map.scan.room.return;
+        };
+        #case {""}{
+            look;
+        };
+        #default {
+            %1;
+        };
+    };
 };
 #alias {map.gps.minimap} {
     #class map-gps-scan-minimap open;
@@ -68,7 +90,7 @@
     };
     
     #act {^{?:[ ]{8,}}%*}{
-        #echo {<156>房间地图<179> %%0<079>};
+        #echo {<156>实时地图<179> %%0<079>};
         #line gag;
         
         #var map_gps[room][minimap]     {$map_gps[room][minimap]%%0};
@@ -84,6 +106,11 @@
     
     #class map-gps-scan-minimap close;
 };
+
+/*
+位置：室外  性质：关卡  防御值：100/100  地利减伤：10%  礌石:1  滚木:0
+*/
+
 #alias {map.gps.desc} {
     #class map-gps-scan-desc open;
     
@@ -109,6 +136,12 @@
         #var map_gps[room][lookable]    {$lookable};
         
         #nop map.gps.desc.return {map.gps.weather};
+    };
+    #act {^    这里正是%*的产业$}{
+        #echo {<156>帮派驻地<139> %%1<099>};
+        #line gag;
+        
+        #var map_gps[room][guild]     {%%1};
     };
     #act {^    「%*」: %*。}{
         #echo {<156>时令季节<129> %%1 <156>天气描述<149> %%2<079>};
@@ -144,13 +177,19 @@
         #class map-gps-scan-objects kill;
         
         $cmd;
+        
+        #if {$map_gps[detect] == 1}{
+            map.scan on;
+        };
     };
     #act {^>%*}{
+        #undelay {map-scan-watchdog};
         #echo {%c<156>房间信息结束<079>};
         map.gps.objects.return;
     };
     #act {^    {(?:(?:\S+)?(?:\s|「(.+)」))*}{?:(\S+)[\x00-\xff]*?}({[A-Za-z ]+})%*}{
         #nop #echo {(%1|%2|%3|%4|%5|%6|%7|%8|%9)};
+        #undelay {map-scan-watchdog};
         
         #local id {%%4};
         #local name {%%3};
@@ -165,13 +204,12 @@
         #local title {@trim{$title}};
         #replace {title}{ }{;};
         
-        #nop #replace {name}{%S{?:位|队|个|两|文|颗|粒|块}%S}{&&2};
-        #regexp {%%3}{%*{?:位|队|个|两|文|颗|粒|块}%*}{
+        #regexp {%%3}{{(?:一|二|三|四|五|六|七|八|九).*}{?:位|队|个|柄|件|具|文|两|颗|粒|块}%*}{
             #var count {@ctd{&1}};
             #var name {&2};
         };
         
-        #echo {%c<156>房间物品<079> <169>%-18s<079> <159>%-15s<079> %-35s %-30s %d %-20s}{light yellow}{$id}{$name}{$nick}{$title}{$count}{$extra};
+        #echo {%c<156>房间物品<079> <169>%-18s<079> <159>%-15s<099> %-35s <199>%-30s<099> %d %-20s}{light yellow}{$id}{$name}{$nick}{$title}{$count}{$extra};
         #line gag;
         
         #var map_gps[room][object][$id] {
@@ -181,8 +219,32 @@
             {count}{$count}
             {extra}{$extra}
         };
+        #delay {map-scan-watchdog}{#cr}{1};
+    };
+    #act {^    {?:([^ ]+)(正(?:盘膝)?坐在地下(?:修炼内(?:力|功)|吐纳炼精))}。} {
+        #nop #echo {%%1->%%2};
+        #echo {%c<156>房间物品<079> <169>%-18s<079> <159>%-15s<099> %-35s <199>%-30s<099> %d %-20s}{light yellow}{<未知>}{%%1}{<未知>}{<未知>}{1}{%%2};
+        #line gag;
     };
     #class map-gps-scan-objects close;
+};
+
+/*
+「北大侠客行」指定玩家
+————————————————————————————————————
+【 青  衣 】善人 桃花岛第三代弟子「大内密探」小白(Aoa)
+————————————————————————————————————
+共列出 1 位玩家。系统负担：609.83 cmds/s, 230.05 comp lines/s。
+*/
+
+#alias {map.gps.object.query}{
+    #local name {%1};
+    
+    #class map-scan-query-player open;
+    
+    #class map-scan-query-player open;
+    
+    who $name;
 };
 
 #class map close;
