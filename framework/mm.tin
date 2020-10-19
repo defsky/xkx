@@ -129,6 +129,9 @@
     
     $cmd;
     
+    #event {SESSION CREATED}{
+        #{%%0} {mm.load utils};
+    };
     #class login close;
     
     #session $id $loginServerInfo[host] $loginServerInfo[port];

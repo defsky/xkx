@@ -15,7 +15,7 @@
         
         $cmd;
     };
-    #act {^{?:(\S+)\s-\s}{?:\[(大.*国)\]\s*|}{?:\[(城内|门派|野外|.*势力范围)\][ ]*(|\[存盘点\])(|\[玩家储物柜\])|} } {
+    #act {^{?:(\S+(?:\s+\S+)*)\s-\s}{?:\[(大.*国)\]\s*|}{?:\s?\[(帮派|城内|门派|野外|.*势力范围)\][ ]*(|\[存盘点\])(|\[玩家储物柜\])|} } {
         #nop #echo {(%%1|%%2|%%3|%%4|%%5|%%6|%%7|%%8|%%9)};
         
         #local storeable {False};
@@ -41,7 +41,7 @@
         #var map_gps[room][guild]       {};
         
         #class map-gps-scan-room open;
-        #act {^{?:[ ]{8,}}%*}{
+        #act {^{?:[ ]{11,}}%*}{
             #echo {<156>实时地图<179> %%%0<079>};
             #line gag;
             
@@ -49,7 +49,7 @@
             
             map.scan.room.return {map.gps.minimap};
         };
-        #act {^{?:\s{4}}%S}{
+        #act {^{?:\s{4,10}}%S}{
             #echo {<156>房间描述<099> %%%1<079>};
             #line gag;
             
@@ -89,14 +89,14 @@
         $cmd;
     };
     
-    #act {^{?:[ ]{8,}}%*}{
+    #act {^{?:[ ]{11,}}%*}{
         #echo {<156>实时地图<179> %%0<079>};
         #line gag;
         
         #var map_gps[room][minimap]     {$map_gps[room][minimap]%%0};
     };
-    #act {^{?:[ ]{4}([^ ]+)}}{
-        #echo {<156>房间描述<099> %%1<079>};
+    #act {^{?:[ ]{4,10}([^ ]+)}}{
+        #echo {<154>房间描述<099> %%1<079>};
         #line gag;
         
         #var map_gps[room][desc]        {%%1};
@@ -120,8 +120,8 @@
         
         $cmd;
     };
-    #act {^{\S+}%*}{
-        #echo {<156>房间描述<099> %%0<079>};
+    #act {^{?:\S+|\s{5,}|[\t]+}%*}{
+        #echo {<154>房间描述<099> %%0<079>};
         #line gag;
         
         #var map_gps[room][desc]        {$map_gps[room][desc]%%0};
@@ -137,11 +137,14 @@
         
         #nop map.gps.desc.return {map.gps.weather};
     };
-    #act {^    这里正是%*的产业$}{
+    #act {^    这里正是{?:(?:[^ ]+的)?}%*的产业{?:(?:，你可以进店\(([A-Za-z]+)\)逛逛。)?}$}{
         #echo {<156>帮派驻地<139> %%1<099>};
         #line gag;
         
         #var map_gps[room][guild]     {%%1};
+        #if {"%%2" != ""} {
+            #var map_gps[room][exits]     {%%2};
+        };
     };
     #act {^    「%*」: %*。}{
         #echo {<156>时令季节<129> %%1 <156>天气描述<149> %%2<079>};
@@ -159,9 +162,13 @@
 
         #replace {exits}{、}{;};
         #replace {exits}{ 和 }{;};
-        #var map_gps[room][exits]    {$exits};
+
+        #if {"$map_gps[room][exits]" != ""} {
+            #var map_gps[room][exits]    {$map_gps[room][exits];};
+        };
+        #var map_gps[room][exits]    {$map_gps[room][exits]$exits};
         
-        #echo {<156>房间出口<139> $exits<079>};
+        #echo {<156>房间出口<139> $map_gps[room][exits]<079>};
         #line gag;
         
         map.gps.desc.return {map.gps.objects};
@@ -204,7 +211,7 @@
         #local title {@trim{$title}};
         #replace {title}{ }{;};
         
-        #regexp {%%3}{{(?:一|二|三|四|五|六|七|八|九).*}{?:位|队|个|柄|件|具|文|两|颗|粒|块}%*}{
+        #regexp {%%3}{{(?:一|二|三|四|五|六|七|八|九).*}{?:位|队|只|个|柄|件|具|文|两|颗|粒|块}%*}{
             #var count {@ctd{&1}};
             #var name {&2};
         };
@@ -246,5 +253,4 @@
     
     who $name;
 };
-
 #class map close;

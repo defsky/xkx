@@ -21,11 +21,14 @@ class Tintin:
     def __init__ (self):
         self._file_name = "tmp/pkuxkx_"+uuid.uuid4().hex
         self._tmpfile = open(self._file_name, "w")
-
+        #pass
+        
     def write (self, var, value):
         self._tmpfile.write("#var {} {}".format(var,value))
+        #print (value)
         
     def __del__ (self):
         self._tmpfile.close();
         print (self._file_name)
+        #pass
 

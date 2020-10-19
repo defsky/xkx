@@ -74,6 +74,7 @@
 	#echo {$color_str};
 };
 
+#nop INVOKE pinyin %0;
 #alias {INVOKE} {
     #local file_name {};
     #script {file_name} {python3 -m bin.%0 ${status[id]}};
@@ -83,9 +84,19 @@
         #system {rm $file_name};
     };
 };
-
+#function {python}{
+    #local ret {};
+    
+    #script {ret} {python3 -m bin.%0};
+    
+    #if {"$ret" != ""} {
+        #var ret $ret[1];
+    };
+    
+    #return $ret;
+};
 #function {py} {
-    INVOKE pinyin %0;
+    #return @python{pinyin %0};
 };
 
 #alias {test}{

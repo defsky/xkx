@@ -2,7 +2,7 @@
 
 import sqlite3
 import sys
-from .common import Tintin
+#from .common import Tintin
 
 def get_pinyin(conn, name):
     ret = ""
@@ -42,5 +42,6 @@ if __name__ == '__main__':
         surname_py = get_xing(conn, name[0:1])
         name_py = get_pinyin(conn, name[1:len(name)])
 
-    tt = Tintin()
-    tt.write("result",surname_py+" "+name_py)
+    print(surname_py+" "+name_py)
+    #tt = Tintin()
+    #tt.write("result",surname_py+" "+name_py)

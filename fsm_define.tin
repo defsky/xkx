@@ -1,12 +1,11 @@
-FSM {
+#class fsm open
+
+#alias {FSM}{
 
 }
 
-STATE {
+#function {fsm_call}{
 
 }
 
-COND {
-
-}
-
+#class fsm close
