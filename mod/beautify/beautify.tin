@@ -33,7 +33,8 @@
     #replace text {{┐|┓|┒|╮|╗|┘|┛|┚|╯|╝}}             {&1 };
     #replace text {{╲|╱|≤|≥|≮|≯|↙|↘|↗|↖|←|↑|→|↓|∨|∧}} {&1 };
 
-    #format result {%s} {$text};
+    #nop #format result {%s} {$text};
+    #return {$text};
 };
 
 #class beautify close;

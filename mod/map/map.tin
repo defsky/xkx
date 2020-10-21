@@ -6,7 +6,7 @@
     #config {convert meta}{%1};
 };
 
-#alias {map.scan}{
+#alias {map.locate}{
     #class map-gps-scan-room open;
     
     #alias {map.scan.room.return} {
@@ -17,6 +17,7 @@
     };
     #act {^{?:(\S+(?:\s+\S+)*)\s-\s}{?:\[(大.*国)\]\s*|}{?:\s?\[(帮派|城内|门派|野外|.*势力范围)\][ ]*(|\[存盘点\])(|\[玩家储物柜\])|} } {
         #nop #echo {(%%1|%%2|%%3|%%4|%%5|%%6|%%7|%%8|%%9)};
+        #nop #send {response map.room.look};
         
         #local storeable {False};
         #if {"%%4" != ""}{
@@ -182,21 +183,21 @@
     #alias {map.gps.objects.return} {
         #local cmd {%%1};
         #class map-gps-scan-objects kill;
-        
-        $cmd;
+        #if {"$cmd" != ""}{        
+            $cmd;
+        };
         
         #if {$map_gps[detect] == 1}{
-            map.scan on;
+            map.locate on;
         };
     };
+    #nop #act {^系统回馈：map.room.look = 0};
     #act {^>%*}{
-        #undelay {map-scan-watchdog};
-        #echo {%c<156>房间信息结束<079>};
+        #echo {%c<156>房间信息扫描完毕<079>};
         map.gps.objects.return;
     };
     #act {^    {(?:(?:\S+)?(?:\s|「(.+)」))*}{?:(\S+)[\x00-\xff]*?}({[A-Za-z ]+})%*}{
         #nop #echo {(%1|%2|%3|%4|%5|%6|%7|%8|%9)};
-        #undelay {map-scan-watchdog};
         
         #local id {%%4};
         #local name {%%3};
@@ -226,7 +227,6 @@
             {count}{$count}
             {extra}{$extra}
         };
-        #delay {map-scan-watchdog}{#cr}{1};
     };
     #act {^    {?:([^ ]+)(正(?:盘膝)?坐在地下(?:修炼内(?:力|功)|吐纳炼精))}。} {
         #nop #echo {%%1->%%2};

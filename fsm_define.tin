@@ -1,11 +1,25 @@
 #class fsm open
 
 #alias {FSM}{
+    #local input {%0};
+    #foreach {*input[]}{status}{
+        #local cmd {
+            #class $status-inner open;
+            $input[$status]
+            #class $status-inner open;
+        };
+        #local cmds {$input[$status]};
+        
+    };
 
 }
 
-#function {fsm_call}{
+#function {fsm_start}{
+    #local name     {%1};
+    #local timeout  {%2};
 
+    #replace {name}{.}{_};
+    #
 }
 
 #class fsm close
