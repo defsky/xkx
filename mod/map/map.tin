@@ -177,6 +177,7 @@
     
     #class map-gps-scan-desc close;
 };
+#nop #act {    渡天脸上红光隐现，气象庄严。};
 #alias {map.gps.objects} {
     #class map-gps-scan-objects open;
     

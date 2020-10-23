@@ -130,7 +130,7 @@
     $cmd;
     
     #event {SESSION CREATED}{
-        #{%%0} {mm.load utils};
+        #{%%0} {mm.load utils;mm.load beautify};
     };
     #class login close;
     
