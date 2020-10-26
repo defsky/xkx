@@ -13,8 +13,8 @@
     #if {"$cmd" != ""} {
         #var ga[output] {};
         #var ga[cmd]    {$cmd};
+        #list gXttPipeLine add {$cmd};
     };
-    #list gXttPipeLine add {$cmd};
 };
 
 #format GA  {%a} {249};
@@ -31,11 +31,12 @@
     #if { &gXttPipeLine[] > 0 } {
         #local cmd {$gXttPipeLine[1]};
         #list gXttPipeLine delete {1};
-    };
 
-    #echo {<160>以上内容是命令「<130>%p<160>」的输出。<070>} {$cmd};
+        #showme {<160>以上内容是命令「<130>@trim{$cmd}<160>」的输出。<070>};
+    };
     #showme {$line};
     #line gag;
+
 } {1.000};
 
 #action {~^%*$} {

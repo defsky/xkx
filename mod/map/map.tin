@@ -1,19 +1,21 @@
 #class map open;
 
-#var map_gps {{status}{0}{detect}{0}}:
+#var map_scanRoom {{status}{0}{detect}{0}{debug}{0}}:
 
 #alias {meta}{
     #config {convert meta}{%1};
 };
 
-#alias {map.locate}{
+#alias {map.scanRoom}{
     #class map-gps-scan-room open;
     
     #alias {map.scan.room.return} {
         #local cmd {%%1};
         #class map-gps-scan-room kill;
         
-        $cmd;
+        #if {"$cmd" != ""}{
+            $cmd;
+        };
     };
     #act {^{?:(\S+(?:\s+\S+)*)\s-\s}{?:\[(大.*国)\]\s*|}{?:\s?\[(帮派|城内|门派|野外|.*势力范围)\][ ]*(|\[存盘点\])(|\[玩家储物柜\])|} } {
         #nop #echo {(%%1|%%2|%%3|%%4|%%5|%%6|%%7|%%8|%%9)};
@@ -26,35 +28,39 @@
         #echo {<156>房间名字<139> %s <156>国家名称<119> %s <156>地形信息<149> %s <156>存盘点<129> %s<079>}{%%1}{%%2}{%%3}{$storeable};
         #line gag;
         
-        #var map_gps[room][name]        {%%1};
-        #var map_gps[room][nation]      {%%2};
-        #var map_gps[room][terrain]     {%%3};
-        #var map_gps[room][storeable]   {$storeable};
-        
-        #var map_gps[room][minimap]     {};
-        #var map_gps[room][desc]        {};
-        #var map_gps[room][season]      {};
-        #var map_gps[room][weather]     {};
-        #var map_gps[room][outdoor]     {0};
-        #var map_gps[room][lookable]    {};
-        #var map_gps[room][exits]       {};
-        #var map_gps[room][object]      {};
-        #var map_gps[room][guild]       {};
+        #var map_scanRoom[season]      {};
+        #var map_scanRoom[weather]     {};
+        #var map_scanRoom[objects]      {};
+
+        #var map_scanRoom[room][name]        {%%1};
+        #var map_scanRoom[room][nation]      {%%2};
+        #var map_scanRoom[room][terrain]     {%%3};
+        #var map_scanRoom[room][storeable]   {$storeable};
+        #var map_scanRoom[room][minimap]     {};
+        #var map_scanRoom[room][desc]        {};
+        #var map_scanRoom[room][outdoor]     {0};
+        #var map_scanRoom[room][lookable]    {};
+        #var map_scanRoom[room][exits]       {};
+        #var map_scanRoom[room][guild]       {};
         
         #class map-gps-scan-room open;
         #act {^{?:[ ]{11,}}%*}{
-            #echo {<156>实时地图<179> %%%0<079>};
-            #line gag;
+            #if {$map_scanRoom[debug] == 1}{
+                #echo {<156>实时地图<179> %%%0<079>};
+                #line gag;
+            };
             
-            #var map_gps[room][minimap]     {%%%0};
+            #var map_scanRoom[room][minimap]     {%%%0};
             
             map.scan.room.return {map.gps.minimap};
         };
         #act {^{?:\s{4,10}}%S}{
-            #echo {<156>房间描述<099> %%%1<079>};
-            #line gag;
+            #if {$map_scanRoom[debug] == 1}{
+                #echo {<156>房间描述<099> %%%1<079>};
+                #line gag;
+            };
             
-            #var map_gps[room][desc]        {%%%1};
+            #var map_scanRoom[room][desc]        {%%%1};
             
             map.scan.room.return {map.gps.desc};
         };
@@ -62,15 +68,32 @@
     };
     #class map-gps-scan-room close;
     
+    #if {$map_scanRoom[detect] == 0}{
+        #var map_scanRoom[room] {};
+    };
+
     #switch {"%1"} {
         #case {"on"} {
-            #echo {<139>开启房间信息探测模式<099>};
-            #var map_gps[detect] {1};
+            #if {$map_scanRoom[detect] == 0}{
+                #var map_scanRoom[detect] {1};
+                #echo {<139>开启房间信息探测模式<099>};
+            };
         };
-        #case {"off"} {
-            #echo {<139>关闭房间信息探测模式<099>};
-            #var map_gps[detect] {0};
-            map.scan.room.return;
+        #case {"off"}{
+            #if {$map_scanRoom[detect] == 1}{
+                #var map_scanRoom[detect] {0};
+                #echo {<139>关闭房间信息探测模式<099>};
+                map.scan.room.return;
+            };
+        };
+        #case {"debug"} {
+            #if {$map_scanRoom[debug] == 0}{
+                #var map_scanRoom[debug] {1};
+                #echo {<139>房间信息探测模式-开启调试<099>};
+            }{
+                #var map_scanRoom[debug] {0};
+                #echo {<139>房间信息探测模式-关闭调试<099>};
+            };
         };
         #case {""}{
             look;
@@ -91,16 +114,19 @@
     };
     
     #act {^{?:[ ]{11,}}%*}{
-        #echo {<156>实时地图<179> %%0<079>};
-        #line gag;
+        #if {$map_scanRoom[debug] == 1}{
+            #echo {<156>实时地图<179> %%0<079>};
+            #line gag;
+        };
         
-        #var map_gps[room][minimap]     {$map_gps[room][minimap]%%0};
+        #var map_scanRoom[room][minimap]     {$map_scanRoom[room][minimap]%%0};
     };
     #act {^{?:[ ]{4,10}([^ ]+)}}{
-        #echo {<154>房间描述<099> %%1<079>};
-        #line gag;
-        
-        #var map_gps[room][desc]        {%%1};
+        #if {$map_scanRoom[debug] == 1}{
+            #echo {<154>房间描述<099> %%1<079>};
+            #line gag;
+        };
+        #var map_scanRoom[room][desc]        {%%1};
         
         map.gps.minimap.return {map.gps.desc};
     };
@@ -122,38 +148,42 @@
         $cmd;
     };
     #act {^{?:\S+|\s{5,}|[\t]+}%*}{
-        #echo {<154>房间描述<099> %%0<079>};
-        #line gag;
-        
-        #var map_gps[room][desc]        {$map_gps[room][desc]%%0};
+        #if {$map_scanRoom[debug] == 1}{
+            #echo {<154>房间描述<099> %%0<079>};
+            #line gag;
+        };
+        #var map_scanRoom[room][desc]        {$map_scanRoom[room][desc]%%0};
     };
     #act {^    你可以看看(look):%*}{
         #local lookable {%%1};
         #replace {lookable}{,}{;};
         
-        #echo {<156>特殊物品<139> $lookable<079>};
-        #line gag;
-        
-        #var map_gps[room][lookable]    {$lookable};
+        #if {$map_scanRoom[debug] == 1}{
+            #echo {<156>特殊物品<139> $lookable<079>};
+            #line gag;
+        };
+        #var map_scanRoom[room][lookable]    {$lookable};
         
         #nop map.gps.desc.return {map.gps.weather};
     };
     #act {^    这里正是{?:(?:[^ ]+的)?}%*的产业{?:(?:，你可以进店\(([A-Za-z]+)\)逛逛。)?}$}{
-        #echo {<156>帮派驻地<139> %%1<099>};
-        #line gag;
-        
-        #var map_gps[room][guild]     {%%1};
+        #if {$map_scanRoom[debug] == 1}{
+            #echo {<156>帮派驻地<139> %%1<099>};
+            #line gag;
+        };
+        #var map_scanRoom[room][guild]     {%%1};
         #if {"%%2" != ""} {
-            #var map_gps[room][exits]     {%%2};
+            #var map_scanRoom[room][exits]     {%%2};
         };
     };
     #act {^    「%*」: %*。}{
-        #echo {<156>时令季节<129> %%1 <156>天气描述<149> %%2<079>};
-        #line gag;
-        
-        #var map_gps[room][season]     {%%1};
-        #var map_gps[room][weather]    {%%2};
-        #var map_gps[room][outdoor]    {1};
+        #if {$map_scanRoom[debug] == 1}{
+            #echo {<156>时令季节<129> %%1 <156>天气描述<149> %%2<079>};
+            #line gag;
+        };
+        #var map_scanRoom[season]     {%%1};
+        #var map_scanRoom[weather]    {%%2};
+        #var map_scanRoom[room][outdoor]    {1};
         
         #nop map.gps.desc.return {map.gps.exits};
     };
@@ -164,14 +194,20 @@
         #replace {exits}{、}{;};
         #replace {exits}{ 和 }{;};
 
-        #if {"$map_gps[room][exits]" != ""} {
-            #var map_gps[room][exits]    {$map_gps[room][exits];};
+        #if {"$map_scanRoom[room][exits]" != ""} {
+            #var map_scanRoom[room][exits]    {$map_scanRoom[room][exits];};
         };
-        #var map_gps[room][exits]    {$map_gps[room][exits]$exits};
+        #var map_scanRoom[room][exits]    {$map_scanRoom[room][exits]$exits};
+        #local exitList {$map_scanRoom[room][exits]};
+        #local e {};
+        #foreach {$exitList}{e}{
+            #var map_scanRoom[room][exits][$e] {};
+        };
         
-        #echo {<156>房间出口<139> $map_gps[room][exits]<079>};
-        #line gag;
-        
+        #if {$map_scanRoom[debug] == 1}{
+            #echo {<156>房间出口<139> $map_scanRoom[room][exits]<079>};
+            #line gag;
+        };
         map.gps.desc.return {map.gps.objects};
     };
     
@@ -188,13 +224,15 @@
             $cmd;
         };
         
-        #if {$map_gps[detect] == 1}{
-            map.locate on;
+        #if {$map_scanRoom[detect] == 1}{
+            map.scanRoom on;
         };
     };
     #nop #act {^系统回馈：map.room.look = 0};
     #act {^>%*}{
-        #echo {%c<156>房间信息扫描完毕<079>};
+        #if {$map_scanRoom[debug] == 1}{
+            #echo {%c<156>房间信息扫描完毕<079>};
+        };
         map.gps.objects.return;
     };
     #act {^    {(?:(?:\S+)?(?:\s|「(.+)」))*}{?:(\S+)[\x00-\xff]*?}({[A-Za-z ]+})%*}{
@@ -218,10 +256,11 @@
             #var name {&2};
         };
         
-        #echo {%c<156>房间物品<079> <169>%-18s<079> <159>%-15s<099> %-35s <199>%-30s<099> %d %-20s}{light yellow}{$id}{$name}{$nick}{$title}{$count}{$extra};
-        #line gag;
-        
-        #var map_gps[room][object][$id] {
+        #if {$map_scanRoom[debug] == 1}{
+            #echo {%c<156>房间物品<079> <169>%-18s<079> <159>%-15s<099> %-35s <199>%-30s<099> %d %-20s}{light yellow}{$id}{$name}{$nick}{$title}{$count}{$extra};
+            #line gag;
+        };
+        #var map_scanRoom[objects][$id] {
             {title}{$title}
             {nick}{$nick}
             {name}{$name}
@@ -231,8 +270,10 @@
     };
     #act {^    {?:([^ ]+)(正(?:盘膝)?坐在地下(?:修炼内(?:力|功)|吐纳炼精))}。} {
         #nop #echo {%%1->%%2};
-        #echo {%c<156>房间物品<079> <169>%-18s<079> <159>%-15s<099> %-35s <199>%-30s<099> %d %-20s}{light yellow}{<未知>}{%%1}{<未知>}{<未知>}{1}{%%2};
-        #line gag;
+        #if {$map_scanRoom[debug] == 1}{
+            #echo {%c<156>房间物品<079> <169>%-18s<079> <159>%-15s<099> %-35s <199>%-30s<099> %d %-20s}{light yellow}{<未知>}{%%1}{<未知>}{<未知>}{1}{%%2};
+            #line gag;
+        };
     };
     #class map-gps-scan-objects close;
 };
@@ -253,5 +294,170 @@
     #class map-scan-query-player open;
     
     who $name;
+};
+
+/*
+ * 探测地图
+ */
+#read data/roomData.tin;
+
+#function {map_getRoomHash}{
+    #local room {%0};
+    #return {$room[name]$room[nation]$room[terrain]$room[minimap]$room[desc]*room[exits][]$room[lookable]};
+};
+#function {map_locate}{
+    #if {&roomData[] == 0 || "%0" == ""}{
+        #return 0;
+    };
+    #local room {%0};
+    
+    #nop #local currentRoomHash {@map_getRoomHash{%0}};
+    #local idx {};
+    #foreach {*roomData[]}{idx}{
+        #if {"$room[name]" == "$roomData[$idx][name]" && "$room[nation]" == "$roomData[$idx][nation]" &&
+            "$room[terrain]" == "$roomData[$idx][terrain]" && "$room[minimap]" == "$roomData[$idx][minimap]" &&
+            "$room[desc]" == "$roomData[$idx][desc]" && "$room[lookable]" == "$roomData[$idx][lookable]"}{
+            #return {$idx};
+        };
+    };
+    #return 0;
+};
+#var map_explore {
+    {borderRoom}{}
+    {next}{look}
+    {lastid}{&roomData[]}
+    {currentRoom}{}
+    {from}{}
+    {to}{}
+    {needStop}{False}
+};
+#alias {map.explore} {
+    #if {"%1" == "stop"}{
+        #var map_explore[needStop] {True};
+        #return;
+    };
+    #var map_explore[borderRoom] {%1};
+    #var map_explore[next] {look};
+    #var map_explore[lastid] {&roomData[]};
+    #var map_explore[needStop] {False};
+
+    #class map_explore_inner open;
+    #alias {map.explore.return}{
+        #class map_explore_inner kill;
+        #local cmd {%%1};
+        #if {"$cmd" != ""}{
+            $cmd;
+        };
+    };
+    #act {^以上内容是命令「look」的输出。}{
+        #if {"$map_scanRoom[room]" == ""}{
+            #echo {<139>地图探索启动失败<099>};
+        }{
+            #local rid {@map_locate{$map_scanRoom[room]}};
+            #if {$rid}{
+                #var map_scanRoom[room][exits] {$roomData[$rid][exits]};
+                #echo {<129>定位成功，Id($rid) Name($roomData[$rid][name])<099>};
+            }{
+                #list roomData add {{$map_scanRoom[room]}};
+                #math map_explore[lastid] {$map_explore[lastid]+1};
+                #var rid {$map_explore[lastid]};
+
+                #echo {<129>记录新房间，Id($rid) Name($roomData[$rid][name])<099>};
+            };
+            #var map_explore[currentRoom] {$roomData[$rid]}; 
+            #var map_explore[currentRoom][id] {$rid}; 
+            #if {"@map_compute_next{}" != ""}{ 
+                map.explore.return {map.explore.next};
+            };
+        };
+    };
+    #class map_explore_inner close;
+
+    map.scanRoom;
+};
+#function {map_compute_next}{
+    #local r {};
+    #foreach {$map_explore[borderRoom]}{r}{
+        #if {"$r" == "$map_explore[currentRoom][name]"}{
+            #if {"$map_explore[next]" == "look"}{
+                #echo {<139>当前正在边界节点上，请在边界内部启动探索！<099>};
+                #return {};
+            }{
+                #echo {<139>发现边界节点，返回边界内部探索！<099>};
+                #return {@reverse{$map_explore[next]}};
+            };
+        };
+    };
+    #foreach {*map_explore[currentRoom][exits][]}{r}{
+        #if {"$map_explore[currentRoom][exits][$r]" == ""}{
+            #return {$r};
+        };
+    };
+    #foreach {*map_explore[currentRoom][exits][]}{r}{
+        #if {&map_explore[currentRoom][exits][] > 1}{
+            #if {"$map_explore[next]" != "@reverse{$r}"}{
+                #return {$r};
+            };
+        }{
+            #return {$r};   
+        };
+    };
+    #return {};
+};
+#alias {map.explore.next}{
+    #if {"$map_explore[needStop]" == "True"}{
+        #echo {<129>地图探索程式被手工停止！<099>};
+        #return;
+    };
+    #echo {<129>开始探索下个房间...<099>};
+    #var map_explore[from] {$map_explore[currentRoom][id]}; 
+    #local next {@map_compute_next{}};
+    #if {"$next" == ""}{
+        #echo {<119>找不到下个出口，停止探索。<099>};
+        #return;
+    };
+    #var map_explore[next] {$next};
+
+    #class map_explore_next_inner open;
+    #alias {map.explore.next.return}{
+        #class map_explore_next_inner kill;
+        #local cmd {%%1};
+        #if {"$cmd" != ""}{
+            #var cmd {#delay {1}{$cmd}};
+        };
+        $cmd;
+    };
+    #act {^以上内容是命令「$next」的输出。}{
+        #if {"$map_scanRoom[room]" == ""}{
+            #var exploreError[$map_explore[from]][$map_explore[next]] {$ga[output]};
+            #unvar map_explore[currentRoom][exits][$map_explore[next]];
+            map.explore.next.return {map.explore.next};
+        }{
+            #local rid {@map_locate{$map_scanRoom[room]}};
+            #local isKnownRoom {False};
+            #if {$rid}{
+                #echo {<119>已记录的房间：Id($rid) Name($map_scanRoom[room][name])<099>};
+                #var map_scanRoom[room][exits] {$roomData[$rid][exits]};
+                #var isKnownRoom {True};
+            }{
+                #list roomData add {{$map_scanRoom[room]}};
+                #math map_explore[lastid] {$map_explore[lastid]+1};
+                #var rid {$map_explore[lastid]};
+                #echo {<129>记录新房间，Id($rid) Name($roomData[$rid][name])<099>};
+            };
+            #var map_explore[currentRoom] {$roomData[$rid]};
+            #var map_explore[currentRoom][id] {$rid}; 
+
+            #if {"$isKnownRoom" == "True" && $rid == $roomData[$map_explore[from]][exits][$map_explore[next]]}{
+                map.explore.next.return {map.explore.next};
+            }{
+                #var roomData[$map_explore[from]][exits][$map_explore[next]] {$rid};           
+                map.explore.next.return {map.explore.next};
+            };
+            
+        };
+    };
+    #class map_explore_next_inner close;
+    map.scanRoom {$next};
 };
 #class map close;

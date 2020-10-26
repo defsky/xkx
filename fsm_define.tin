@@ -1,7 +1,8 @@
 #class fsm open
 
 #alias {FSM}{
-    #local input {%0};
+    #local name {%1};
+    #local input {%2};
     #foreach {*input[]}{status}{
         #local cmd {
             #class $status-inner open;

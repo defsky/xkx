@@ -1,1 +1,3 @@
-#class map kill;
+#class map-data write data/roomData.tin
+#class map-data kill
+#class map kill

@@ -4,3 +4,4 @@ __pycache__
 pwd_*
 *log
 tmp/*
+*.swp
