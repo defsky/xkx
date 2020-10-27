@@ -6,6 +6,14 @@
     #config {convert meta}{%1};
 };
 
+#read data/roomData.tin;
+
+#alias {map.save}{
+    #class map-data write data/roomData.tin;
+};
+/*
+ * 扫描房间信息
+ */
 #alias {map.scanRoom}{
     #class map-gps-scan-room open;
     
@@ -337,7 +345,6 @@
 /*
  * 探测地图
  */
-#read data/roomData.tin;
 
 #function {map_getRoomHash}{
     #local room {%0};
@@ -349,12 +356,10 @@
     };
     #local room {%0};
     
-    #nop #local currentRoomHash {@map_getRoomHash{%0}};
+    #local currentRoomHash {@map_getRoomHash{%0}};
     #local idx {};
     #foreach {*roomData[]}{idx}{
-        #if {"$room[name]" == "$roomData[$idx][name]" && "$room[nation]" == "$roomData[$idx][nation]" &&
-            "$room[terrain]" == "$roomData[$idx][terrain]" && "$room[minimap]" == "$roomData[$idx][minimap]" &&
-            "$room[desc]" == "$roomData[$idx][desc]" && "$room[lookable]" == "$roomData[$idx][lookable]"}{
+        #if {"$currentRoomHash" === "@map_getRoomHash{$roomData[$idx]}"}{
             #return {$idx};
         };
     };
@@ -389,18 +394,18 @@
     };
     #act {^以上内容是命令「look」的输出。}{
         #if {"$map_scanRoom[room]" == ""}{
-            #echo {<139>地图探索启动失败<099>};
+            #echo {<156>地图探索<099> <139>地图探索启动失败<099>};
         }{
             #local rid {@map_locate{$map_scanRoom[room]}};
             #if {$rid}{
                 #var map_scanRoom[room][exits] {$roomData[$rid][exits]};
-                #echo {<139>定位成功，Id($rid) Name($roomData[$rid][name])<099>};
+                #echo {<156>地图探索<099> <139>定位成功，Id($rid) Name($roomData[$rid][name])<099>};
             }{
                 #list roomData add {{$map_scanRoom[room]}};
                 #math map_explore[lastid] {$map_explore[lastid]+1};
                 #var rid {$map_explore[lastid]};
 
-                #echo {<129>记录新房间，Id($rid) Name($roomData[$rid][name])<099>};
+                #echo {<156>地图探索<099> <129>记录新房间，Id($rid) Name($roomData[$rid][name])<099>};
             };
             #var map_explore[currentRoom] {$roomData[$rid]}; 
             #var map_explore[currentRoom][id] {$rid}; 
@@ -419,10 +424,10 @@
     #foreach {$map_explore[borderRoom]}{r}{
         #if {"$r" == "$map_explore[currentRoom][name]"}{
             #if {"$map_explore[next]" == "look"}{
-                #echo {<139>当前正在边界节点上，请在边界内部启动探索！<099>};
+                #echo {<156>地图探索<099> <139>当前正在边界节点上，请在边界内部启动探索！<099>};
                 #return {};
             }{
-                #echo {<139>发现边界节点，返回边界内部探索！<099>};
+                #echo {<156>地图探索<099> <139>发现边界节点，返回边界内部探索！<099>};
                 #return {@reverse{$map_explore[next]}};
             };
         };
@@ -448,18 +453,18 @@
 };
 #alias {map.explore.next}{
     #if {"$map_explore[needStop]" == "True"}{
-        #echo {<129>地图探索程式被手工停止！<099>};
+        #echo {<156>地图探索<099> <129>地图探索程式被手工停止！<099>};
         mm.unload ga;
         #return;
     };
-    #echo {<129>开始探索下个房间...<099>};
     #var map_explore[from] {$map_explore[currentRoom][id]}; 
     #local next {@map_compute_next{}};
     #if {"$next" == ""}{
-        #echo {<119>找不到下个出口，停止探索。<099>};
+        #echo {<156>地图探索<099> <119>找不到下个出口，停止探索。<099>};
         mm.unload ga;
         #return;
     };
+    #echo {<156>地图探索<099> <129>开始探索下个房间「$next」...<099>};
     #var map_explore[next] {$next};
 
     #class map-explore-next-inner open;
@@ -482,14 +487,14 @@
             #local rid {@map_locate{$map_scanRoom[room]}};
             #local isKnownRoom {False};
             #if {$rid}{
-                #echo {<119>已记录的房间：Id($rid) Name($map_scanRoom[room][name])<099>};
+                #echo {<156>地图探索<099> <139>已记录的房间：Id($rid) Name($map_scanRoom[room][name])<099>};
                 #var map_scanRoom[room][exits] {$roomData[$rid][exits]};
                 #var isKnownRoom {True};
             }{
                 #list roomData add {{$map_scanRoom[room]}};
                 #math map_explore[lastid] {$map_explore[lastid]+1};
                 #var rid {$map_explore[lastid]};
-                #echo {<129>记录新房间，Id($rid) Name($roomData[$rid][name])<099>};
+                #echo {<156>地图探索<099> <129>记录新房间，Id($rid) Name($roomData[$rid][name])<099>};
             };
             #var map_explore[currentRoom] {$roomData[$rid]};
             #var map_explore[currentRoom][id] {$rid}; 
@@ -507,5 +512,11 @@
 
     #local cmd {#delay {0.5}{map.scanRoom {$next}}};
     $cmd;
+};
+/*
+ * 路线规划和走路
+ */
+#alias {gt} {
+
 };
 #class map close;
