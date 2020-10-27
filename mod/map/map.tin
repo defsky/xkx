@@ -9,7 +9,9 @@
 #read data/roomData.tin;
 
 #alias {map.save}{
-    #class map-data write data/roomData.tin;
+    #local mapfile {data/roomData.tin};
+    #class map-data write $mapfile;
+    #echo {<129>地图数据已经保存到文件：$mapfile<099>};
 };
 /*
  * 扫描房间信息
@@ -399,13 +401,13 @@
             #local rid {@map_locate{$map_scanRoom[room]}};
             #if {$rid}{
                 #var map_scanRoom[room][exits] {$roomData[$rid][exits]};
-                #echo {<156>地图探索<099> <139>定位成功，Id($rid) Name($roomData[$rid][name])<099>};
+                #echo {<156>地图探索<099> <139>定位成功，$rid/$roomData[$rid][name]/$roomData[$rid][nation]/$roomData[$rid][terrain]<099>};
             }{
                 #list roomData add {{$map_scanRoom[room]}};
                 #math map_explore[lastid] {$map_explore[lastid]+1};
                 #var rid {$map_explore[lastid]};
 
-                #echo {<156>地图探索<099> <129>记录新房间，Id($rid) Name($roomData[$rid][name])<099>};
+                #echo {<156>地图探索<099> <129>记录新房间，$rid/$roomData[$rid][name]/$roomData[$rid][nation]/$roomData[$rid][terrain]<099>};
             };
             #var map_explore[currentRoom] {$roomData[$rid]}; 
             #var map_explore[currentRoom][id] {$rid}; 
@@ -487,14 +489,14 @@
             #local rid {@map_locate{$map_scanRoom[room]}};
             #local isKnownRoom {False};
             #if {$rid}{
-                #echo {<156>地图探索<099> <139>已记录的房间：Id($rid) Name($map_scanRoom[room][name])<099>};
+                #echo {<156>地图探索<099> <139>已知房间：$rid/$roomData[$rid][name]/$roomData[$rid][nation]/$roomData[$rid][terrain]<099>};
                 #var map_scanRoom[room][exits] {$roomData[$rid][exits]};
                 #var isKnownRoom {True};
             }{
                 #list roomData add {{$map_scanRoom[room]}};
                 #math map_explore[lastid] {$map_explore[lastid]+1};
                 #var rid {$map_explore[lastid]};
-                #echo {<156>地图探索<099> <129>记录新房间，Id($rid) Name($roomData[$rid][name])<099>};
+                #echo {<156>地图探索<099> <129>新增房间，$rid/$roomData[$rid][name]/$roomData[$rid][nation]/$roomData[$rid][terrain]<099>};
             };
             #var map_explore[currentRoom] {$roomData[$rid]};
             #var map_explore[currentRoom][id] {$rid}; 
@@ -502,6 +504,7 @@
             #if {"$isKnownRoom" == "True" && $rid == $roomData[$map_explore[from]][exits][$map_explore[next]]}{
                 map.explore.next.return {map.explore.next};
             }{
+                #echo {<156>地图探索<099> <159>更新连接，$map_explore[from]/$roomData[$map_explore[from]][name]/$map_explore[next] -> $rid)<099>};
                 #var roomData[$map_explore[from]][exits][$map_explore[next]] {$rid};           
                 map.explore.next.return {map.explore.next};
             };

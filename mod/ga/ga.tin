@@ -41,6 +41,7 @@
 
 #action {~^%*$} {
     #local line {%0};
+    #local linetext {%1};
     #local cmd {};
 
     #if { &gXttPipeLine[] == 0 } {
@@ -52,7 +53,7 @@
         #echo {<160>%-10p<070>%s} {$cmd} {@Beautify{$line}};
         #line gag;
 
-        #var ga[output] {$ga[output]$line};
+        #var ga[output] {$ga[output]$linetext};
     };
 } {9.999};
 
