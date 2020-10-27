@@ -25,8 +25,10 @@
         #if {"%%4" != ""}{
             #var storeable {True};
         };
-        #echo {<156>房间名字<139> %s <156>国家名称<119> %s <156>地形信息<149> %s <156>存盘点<129> %s<079>}{%%1}{%%2}{%%3}{$storeable};
-        #line gag;
+        #if {$map_scanRoom[debug] == 1}{
+            #echo {<156>房间名字<139> %s <156>国家名称<119> %s <156>地形信息<149> %s <156>存盘点<129> %s<079>}{%%1}{%%2}{%%3}{$storeable};
+            #line gag;
+        };
         
         #var map_scanRoom[season]      {};
         #var map_scanRoom[weather]     {};
@@ -210,8 +212,44 @@
         };
         map.gps.desc.return {map.gps.objects};
     };
+    #act {^    这里%*的{?:方向|出口}有 %*} {
+        #var map_scanRoom[room][exits] {%%2};
+
+        map.gps.desc.return {map.gps.exits};
+    }{6};
     
     #class map-gps-scan-desc close;
+};
+#function {map_format_exits}{
+    #local exits {%1};
+    #replace {exits}{、}{;};
+    #replace {exits}{。}{};
+    #replace {exits}{ 和 }{;};
+
+    #local ret {};
+    #local e {};
+    #foreach {$exits}{e}{
+        #var ret[$e] {};
+    };
+    #return {$ret}
+};
+#alias {map.gps.exits}{
+    #class map-gps-scan-exits open;
+    #alias {map.gps.exits.return}{
+        #local cmd {%%1};
+        #class map-gps-scan-exits kill;
+        #if {"$cmd" != ""}{
+            $cmd;
+        };
+    };
+    #act {^%*$}{
+        #var map_scanRoom[room][exits] {$map_scanRoom[room][exits]%%1};
+        #if {"$map_scanRoom[room][exits]" == "%*。"}{
+            #var map_scanRoom[room][exits] {@map_format_exits{$map_scanRoom[room][exits]}};
+            map.gps.exits.return {map.gps.objects};
+        };
+    };
+    #class map-gps-scan-exits close;
 };
 #nop #act {    渡天脸上红光隐现，气象庄严。};
 #alias {map.gps.objects} {
@@ -356,7 +394,7 @@
             #local rid {@map_locate{$map_scanRoom[room]}};
             #if {$rid}{
                 #var map_scanRoom[room][exits] {$roomData[$rid][exits]};
-                #echo {<129>定位成功，Id($rid) Name($roomData[$rid][name])<099>};
+                #echo {<139>定位成功，Id($rid) Name($roomData[$rid][name])<099>};
             }{
                 #list roomData add {{$map_scanRoom[room]}};
                 #math map_explore[lastid] {$map_explore[lastid]+1};
@@ -372,7 +410,8 @@
         };
     };
     #class map_explore_inner close;
-
+    
+    mm.load ga;
     map.scanRoom;
 };
 #function {map_compute_next}{
@@ -396,7 +435,10 @@
     #foreach {*map_explore[currentRoom][exits][]}{r}{
         #if {&map_explore[currentRoom][exits][] > 1}{
             #if {"$map_explore[next]" != "@reverse{$r}"}{
-                #return {$r};
+                #local tmpList {};
+                #list tmpList create {*map_explore[currentRoom][exits][]};
+                #list tmpList shuffle;
+                #return {$tmpList[1]};
             };
         }{
             #return {$r};   
@@ -407,6 +449,7 @@
 #alias {map.explore.next}{
     #if {"$map_explore[needStop]" == "True"}{
         #echo {<129>地图探索程式被手工停止！<099>};
+        mm.unload ga;
         #return;
     };
     #echo {<129>开始探索下个房间...<099>};
@@ -414,23 +457,26 @@
     #local next {@map_compute_next{}};
     #if {"$next" == ""}{
         #echo {<119>找不到下个出口，停止探索。<099>};
+        mm.unload ga;
         #return;
     };
     #var map_explore[next] {$next};
 
-    #class map_explore_next_inner open;
+    #class map-explore-next-inner open;
     #alias {map.explore.next.return}{
-        #class map_explore_next_inner kill;
+        #class map-explore-next-inner kill;
         #local cmd {%%1};
         #if {"$cmd" != ""}{
             #var cmd {#delay {1}{$cmd}};
+            $cmd;
         };
-        $cmd;
     };
     #act {^以上内容是命令「$next」的输出。}{
         #if {"$map_scanRoom[room]" == ""}{
             #var exploreError[$map_explore[from]][$map_explore[next]] {$ga[output]};
-            #unvar map_explore[currentRoom][exits][$map_explore[next]];
+            #if {"$ga[output]" != "%*你逃跑失败%*"}{
+                #unvar map_explore[currentRoom][exits][$map_explore[next]];
+            };
             map.explore.next.return {map.explore.next};
         }{
             #local rid {@map_locate{$map_scanRoom[room]}};
@@ -457,7 +503,9 @@
             
         };
     };
-    #class map_explore_next_inner close;
-    map.scanRoom {$next};
+    #class map-explore-next-inner close;
+
+    #local cmd {#delay {0.5}{map.scanRoom {$next}}};
+    $cmd;
 };
 #class map close;
