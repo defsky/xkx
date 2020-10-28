@@ -6,10 +6,36 @@
     #config {convert meta}{%1};
 };
 
-#read data/roomData.tin;
+#read data/map/pkuxkx.map;
 
+#alias {map.list}{
+    #local fileList {};
+    #local name {};
+
+    #script {fileList}{ls data/map/};
+    #list fileList simplify;
+
+    #echo {<129>已有地图列表如下:<099>};
+    #foreach {$fileList}{name}{
+        #echo {\t<129>$name<099>};
+    };
+};
+#alias {map.load}{
+    #if {"%1" == ""}{
+        #echo {<139>请指定地图文件名<099>};
+        #return;
+    };
+    #local name {%1};
+    #echo {<139>加载地图数据: $name.map<099>};
+    #read data/map/$name.map;
+};
 #alias {map.save}{
-    #local mapfile {data/roomData.tin};
+    #if {"%1" == ""}{
+        #echo {<139>请指定地图文件名<099>};
+        #return;
+    };
+    #local name {%1};
+    #local mapfile {data/map/$name.map};
     #class map-data write $mapfile;
     #echo {<129>地图数据已经保存到文件：$mapfile<099>};
 };
