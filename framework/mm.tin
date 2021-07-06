@@ -44,6 +44,9 @@
     
     #return 0;
 };
+
+#read mod/event.tin;
+
 #alias {mm.help} {
     #local modName {%1};
     
@@ -130,7 +133,7 @@
     $cmd;
     
     #event {SESSION CREATED}{
-        #{%%0} {mm.load utils;mm.load beautify};
+        #{%%0} {mm.load utils;mm.load beautify;@__event_init__{};};
     };
     #class login close;
     

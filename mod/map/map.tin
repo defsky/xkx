@@ -6,7 +6,7 @@
     #config {convert meta}{%1};
 };
 
-#read data/map/pkuxkx.map;
+#read data/map/pkuxkx_v2.map;
 
 #alias {map.list}{
     #local fileList {};
@@ -53,7 +53,8 @@
             $cmd;
         };
     };
-    #act {^{?:(\S+(?:\s+\S+)*)\s-\s}{?:\[(大.*国)\]\s*|}{?:\s?\[(帮派|城内|门派|野外|.*势力范围)\][ ]*(|\[存盘点\])(|\[玩家储物柜\])|} } {
+    #nop #act {^{?:(\S+(?:\s+\S+)*)\s-\s}{?:\[(大.*国)\]\s*|}{?:\s?\[(帮派|城市|门派|野外|.*势力范围)\](|\s?\[存盘点\])(|\s?\[玩家储物柜\])|} };
+    #act {^{?:(\S+(?:\s+\S+)*)\s-\s(?:\[(大.*国)\])?(?:\s?\[(帮派|城市|门派|野外|.*势力范围)\])?(?:\s?\[(存盘点)\])?(?:\s?\[(玩家储物柜)\])?}}{
         #nop #echo {(%%1|%%2|%%3|%%4|%%5|%%6|%%7|%%8|%%9)};
         #nop #send {response map.room.look};
         
@@ -159,7 +160,7 @@
         
         #var map_scanRoom[room][minimap]     {$map_scanRoom[room][minimap]%%0};
     };
-    #act {^{?:[ ]{4,10}([^ ]+)}}{
+    #act {^{?:[ ]{4,10}([^ ]+.*)}}{
         #if {$map_scanRoom[debug] == 1}{
             #echo {<154>房间描述<099> %%1<079>};
             #line gag;
@@ -530,7 +531,7 @@
             #if {"$isKnownRoom" == "True" && $rid == $roomData[$map_explore[from]][exits][$map_explore[next]]}{
                 map.explore.next.return {map.explore.next};
             }{
-                #echo {<156>地图探索<099> <159>更新连接，$map_explore[from]/$roomData[$map_explore[from]][name]/$map_explore[next] -> $rid)<099>};
+                #echo {<156>地图探索<099> <159>更新连接，$map_explore[from]/$roomData[$map_explore[from]][name]/$map_explore[next] -> $rid<099>};
                 #var roomData[$map_explore[from]][exits][$map_explore[next]] {$rid};           
                 map.explore.next.return {map.explore.next};
             };
@@ -545,7 +546,42 @@
 /*
  * 路线规划和走路
  */
-#alias {gt} {
+#alias {gt.locate}{
+    #class gt_locate_inner open;
 
+    #act {^以上内容是命令「look」的输出。}{
+        mm.unload ga;
+        
+        #if {"$map_scanRoom[room]" == ""}{
+            #echo {<156>地图探索<099> <139>获取房间信息失败<099>};
+        }{
+            #local rid {@map_locate{$map_scanRoom[room]}};
+            #if {$rid}{
+                #var map_scanRoom[room][exits] {$roomData[$rid][exits]};
+                #echo {<156>地图探索<099> <139>定位成功，$rid/$roomData[$rid][name]/$roomData[$rid][nation]/$roomData[$rid][terrain]<099>};
+            }{
+                #echo {<156>地图探索<099> <129>未知房间，$map_scanRoom[room][name]/$map_scanRoom[room][nation]/$map_scanRoom[room][terrain]<099>};
+            };
+        };
+    };
+    #class gt_locate_inner close;
+    
+    mm.load ga;
+    map.scanRoom;
 };
+#alias {gt} {
+    #if {"%1" == "here"}{
+        gt.locate;
+    }
+};
+
+/*
+#act {^{?:(\S+(?:\s+\S+)*)\s-\s}{?:\[(大.*国)\]|}{?:\s?\[(帮派|城市|门派|野外|.*势力范围)\](?:|\s*\[(存盘点)\])(?:|\s*\[(玩家储物柜)\])|}} {
+     #echo {(%1|%2|%3|%4|%5|%6|%7|%8|%9)};
+};
+
+#act {^{?:(\S+(?:\s+\S+)*)\s-\s(?:\[(大.*国)\])?(?:\s?\[(帮派|城市|门派|野外|.*势力范围)\])?(?:\s?\[(存盘点)\])?(?:\s?\[(玩家储物柜)\])?}}{
+    #echo {(%1|%2|%3|%4|%5|%6|%7|%8|%9)};
+};
+*/
 #class map close;
