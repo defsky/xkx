@@ -76,6 +76,12 @@
 
     #echo {%c加载模块: $modName} {light green};
     #read ${ModulePath}/${modName}/${modName}.tin;
+    
+    #local initFunc {__${modName}_init__};
+    #local ok {@initFunc{}};
+    #if {"$ok" != "@@initFunc{}" && "$ok" != ""}{
+        #echo {<139>加载模块失败, $initFunc<099>};
+    };
 };
 #alias {mm.unload} {
     #local modName {%1};
@@ -93,7 +99,7 @@
 };
 #alias {mm.reload} {
     #local modName {%1};
-    #if {"$modName" == ""} {
+    #if {"$modName" == "1"} {
         #echo {%c命令格式: mm.reload <模块名字>}{light red};
         #return;
     };
@@ -103,9 +109,14 @@
     };
 
     #echo {%c重载模块: $modName} {light green};
-    #read ${ModulePath}/${modName}/unLoad.tin;
-    #read ${ModulePath}/${modName}/${modName}.tin;
+    #nop #read ${ModulePath}/${modName}/unLoad.tin;
     
+    #class $modName kill;
+    #read ${ModulePath}/${modName}/${modName}.tin;
+    #local reloadFunc {@__${modName}_reload__{}};
+    #if {"$reloadFunc" != "1"}{
+        #echo {<139>重载模块失败, $reloadFunc<099>};
+    };
 };
 
 #var loginServerInfo {

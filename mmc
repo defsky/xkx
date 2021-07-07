@@ -1,0 +1,46 @@
+#!/bin/bash
+
+exit_script()
+{
+    exit 1
+}
+print_help()
+{
+    echo -e "Optional Commands:";
+    echo -e "    new\t create a new mod";
+    echo -e "    del\t delete a existed mod\n";
+}
+
+if [ -z "$1" ];then
+    print_help;
+    exit 1;
+fi
+
+cmd="$1";
+
+case "$cmd" in
+    "new")
+        if [ -z "$2" ];then
+            echo -e "need mod name";
+            exit_script
+        fi
+        modname="$2";
+        mkdir -p mod/$modname;
+        touch mod/$modname/$modname.tin;
+        touch mod/$modname/unLoad.tin;
+        touch mod/$modname/help.tin;
+        ;;
+    "del")
+        if [ -z "$2" ];then
+            echo -e "need mod name";
+            exit_script
+        fi
+        modname="$2";
+        rm -rf mod/$modname;
+        ;;
+    *)
+        echo -e "unknown command: $cmd";
+        print_help
+        ;;
+esac
+

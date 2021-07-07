@@ -1,0 +1,40 @@
+#class afk open;
+
+#function {__afk_init__}{
+    #var afk_config {{status}{off}};
+};
+#function {__afk_reload__}{
+    #if {"$afk_config[status]" == "on"}{
+        _afk_enter_;
+    };
+};
+
+#alias {_afk_enter_}{
+    #class afk open;
+    #tic {afk_antiAFK}{_afk_do_action_}{141}; 
+    #class afk close;
+};
+#alias {_afk_exit_}{
+    #untic {afk_antiAFK};
+};
+#alias {_afk_do_action_}{
+    #send look;
+};
+
+#alias {afk}{
+    #if {"$afk_config[status]" == "off"} {
+        #var afk_config[status] {on};
+        
+        _afk_enter_;
+        
+        #echo {<129>进入暂离状态<099>};
+    }{
+        #var afk_config[status] {off};
+        
+        _afk_exit_;
+        
+        #echo {<129>退出暂离状态<099>};
+    };
+};
+
+#class afk close;
