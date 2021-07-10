@@ -11,6 +11,7 @@
 #function {screenh} 	{#local r {};#format {r} {%R};#return $r};
 #function {replace} 	{#local r {%1};#replace {r} {%2} {%3};#return $r};
 #function {ctd} 		{#local r {};#math {r} {@replace{@replace{{0+@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{@replace{%1;{零};{*0+}};{十};{*10+}};{百};{*100+}};{千};{*1000+}};{万};{*10000+}};{甲子};{*60+}};{六};{6}};{一};{1}};{二};{2}};{三};{3}};{四};{4}};{五};{5}};{七};{7}};{八};{8}};{九};{9}}+0};{++};{+}};{+*};{+}}};#return $r};
+#function {repeat}      {#local idx {0};#local ret {};#loop 1 %1 idx {#var ret {$ret%2};};#return $ret;};
 
 #var directions {
     {east}      {west}
@@ -29,6 +30,9 @@
 #function {reverse}  {
     #return $directions[%1];
 };
+
+#alias {errLog}{#showme <119>%0<099>\n};
+#alias {infoLog}{#showme <129>%0<099>\n};
 
 #alias {colorpad}
 {

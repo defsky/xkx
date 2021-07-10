@@ -25,9 +25,27 @@ case "$cmd" in
             exit_script
         fi
         modname="$2";
+        
         mkdir -p mod/$modname;
-        touch mod/$modname/$modname.tin;
+        
+cat >mod/$modname/$modname.tin <<EOF 
+#class $modname open;
+
+#function {__${modname}_init__}{
+    #var ${modname}_config {{status}{off}};
+};
+#function {__${modname}_reload__}{
+    
+};
+
+#class $modname close;
+EOF
+        
+        
         touch mod/$modname/unLoad.tin;
+        echo "#class $modname kill;">>mod/$modname/unLoad.tin;
+        echo "#unvar $modname_%*;">>mod/$modname/unLoad.tin;
+        
         touch mod/$modname/help.tin;
         ;;
     "del")

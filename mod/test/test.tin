@@ -1,0 +1,14 @@
+#class test open;
+
+#function {__test_init__}{
+    #var test_config {{status}{off}};
+};
+#function {__test_reload__}{
+    
+};
+
+#alias {test}{
+    #show %1 %2 %3 %4;
+};
+
+#class test close;

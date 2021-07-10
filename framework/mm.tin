@@ -77,10 +77,11 @@
     #echo {%c加载模块: $modName} {light green};
     #read ${ModulePath}/${modName}/${modName}.tin;
     
-    #local initFunc {__${modName}_init__};
-    #local ok {@initFunc{}};
-    #if {"$ok" != "@@initFunc{}" && "$ok" != ""}{
-        #echo {<139>加载模块失败, $initFunc<099>};
+    #local initFunc {@__${modName}_init__};
+    #local ok {$initFunc{}};
+    #if {"$ok" == "false"}{
+        #echo {<139>加载模块失败, $modName<099>};
+        mm.unload $modName;
     };
 };
 #alias {mm.unload} {
@@ -113,9 +114,12 @@
     
     #class $modName kill;
     #read ${ModulePath}/${modName}/${modName}.tin;
-    #local reloadFunc {@__${modName}_reload__{}};
-    #if {"$reloadFunc" != "1"}{
-        #echo {<139>重载模块失败, $reloadFunc<099>};
+    
+    #local reloadFunc {@__${modName}_reload__};
+    #local ok {$reloadFunc{}};
+    #if {"$ok" == "false"}{
+        #echo {<139>重载模块失败, $modName<099>};
+        mm.unload $modName;
     };
 };
 
