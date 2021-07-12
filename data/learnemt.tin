@@ -1,0 +1,5 @@
+#CLASS {learnemt_data} OPEN
+
+#VARIABLE         {learnemt_data}  {{bangchui}{mezha}{follx}{mezha}{happy1}{mezha}{interest}{mezha}{jealous}{mezha}{nosilver}{mezha}{nothank}{mezha}{whoru}{zarda}{yrose}{ssand}{zou}{mezha}}
+
+#CLASS {learnemt_data} CLOSE

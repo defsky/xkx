@@ -33,9 +33,14 @@ cat >mod/$modname/$modname.tin <<EOF
 
 #function {__${modname}_init__}{
     #var ${modname}_config {{status}{off}};
+    
+    #return true;
 };
 #function {__${modname}_reload__}{
-    
+    #return true;
+};
+#function {__${modname}_unload__}{
+    #return true;
 };
 
 #class $modname close;
@@ -44,7 +49,7 @@ EOF
         
         touch mod/$modname/unLoad.tin;
         echo "#class $modname kill;">>mod/$modname/unLoad.tin;
-        echo "#unvar $modname_%*;">>mod/$modname/unLoad.tin;
+        echo "#unvar ${modname}_%*;">>mod/$modname/unLoad.tin;
         
         touch mod/$modname/help.tin;
         ;;

@@ -96,6 +96,11 @@
     };
 
     #echo {%c卸载模块: $modName} {light green};
+    #local unloadFunc {@__${modName}_unload__};
+    #local ok {$unloadFunc{}};
+    #if {"$ok" == "false"}{
+        #echo {<139>卸载模块失败, $modName<099>};
+    };
     #read ${ModulePath}/${modName}/unLoad.tin;
 };
 #alias {mm.reload} {

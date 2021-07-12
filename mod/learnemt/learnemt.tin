@@ -1,0 +1,22 @@
+#class learnemt open;
+
+#function {__learnemt_init__}{
+    #var learnemt_config {{status}{off}};
+    #read data/learnemt.tin;
+
+    event.handle {OnHelpmeEmote}{recordEmote}{learnemt}{_do_record_emote_};
+};
+#function {__learnemt_reload__}{
+    
+};
+#function {__learnemt_unload__}{
+    event.unhandle {OnHelpmeEmote}{recordEmote};
+};
+
+
+#alias {_do_record_emote_}{
+    #var learnemt_data[%1] {%2}; 
+    #class learnemt_data write data/learnemt.tin;
+};
+
+#class learnemt close;
